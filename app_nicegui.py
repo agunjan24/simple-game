@@ -881,10 +881,16 @@ def main_page():
 
 
 if __name__ in {"__main__", "__mp_main__"}:
+    # Port/host configurable via environment (for Render deployment)
+    # Locally: defaults to localhost:8080
+    # Render: sets PORT env var, requires 0.0.0.0
+    host = os.environ.get("HOST", "127.0.0.1")
+    port = int(os.environ.get("PORT", 8080))
+
     ui.run(
         title="🎬 Bollywood Frames",
-        host="127.0.0.1",
-        port=8080,
+        host=host,
+        port=port,
         reload=False,
         favicon="🎬"
     )
