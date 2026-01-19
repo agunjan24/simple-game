@@ -244,6 +244,11 @@ STYLES = {
             box-shadow:
                 0 4px 15px rgba(0,0,0,0.3),
                 inset 0 1px 0 rgba(255,255,255,0.3);
+            /* iOS touch fixes */
+            touch-action: manipulation;
+            -webkit-tap-highlight-color: transparent;
+            -webkit-touch-callout: none;
+            user-select: none;
         }
 
         .bollywood-btn:hover {
@@ -255,6 +260,13 @@ STYLES = {
 
         .bollywood-btn:active {
             transform: translateY(0) scale(0.98);
+        }
+
+        /* iOS needs explicit active state trigger */
+        @media (pointer: coarse) {
+            .bollywood-btn:active {
+                transform: scale(0.95);
+            }
         }
 
         /* Button variants */
@@ -427,13 +439,18 @@ STYLES = {
                 font-size: 2rem;
             }
 
-            /* Compact buttons - thin and subtle */
+            /* Disable animation on mobile to fix iOS touch issues */
+            .game-card {
+                animation: none;
+            }
+
+            /* Compact buttons on mobile - icons + minimal text */
             .bollywood-btn {
-                padding: 6px 14px;
+                padding: 6px 10px;
                 font-size: 0.7rem;
-                letter-spacing: 0.5px;
                 border-radius: 20px;
                 border-width: 1px;
+                letter-spacing: 0;
             }
 
             /* Smaller timer */
@@ -475,6 +492,22 @@ STYLES = {
                 padding: 8px 12px;
                 border-radius: 8px;
             }
+        }
+
+        /* Mobile floating icon buttons */
+        .mobile-icon-btn {
+            box-shadow: 0 2px 8px rgba(0,0,0,0.3);
+            cursor: pointer;
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+        }
+
+        .mobile-icon-btn:hover {
+            transform: scale(1.1);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.4);
+        }
+
+        .mobile-icon-btn:active {
+            transform: scale(0.95);
         }
     </style>
 
@@ -753,16 +786,18 @@ def create_game_ui():
                             'font-family: "Rozha One", serif;'
                         )
 
-            # Update button
+            # Update next button
             remaining = game.remaining_count()
             if remaining > 0:
-                next_btn.set_text(f"➡️ {remaining}")
+                next_btn.set_text("▶ NEXT")
             else:
-                next_btn.set_text("🏆 END")
+                next_btn.set_text("🏆 FINISH")
 
     # ---------- GAME OVER SCREEN ----------
     def show_game_over():
         """Display the game over celebration screen."""
+        game.timer_active = False
+        countdown_overlay.style('display: none;')
         main_container.clear()
 
         with main_container:
@@ -773,7 +808,7 @@ def create_game_ui():
                 ui.label("🏆").classes('trophy-icon')
 
                 # Title
-                ui.label("PICTURE PERFECT!").classes('main-title').style('font-size: 2.5rem;')
+                ui.label("PICTURE PERFECT!").classes('main-title').style('font-size: clamp(1.5rem, 7vw, 2.5rem); white-space: nowrap;')
 
                 # Stats
                 ui.label(f"You've seen all {game.total_count()} movies!").style(
@@ -886,17 +921,14 @@ def create_game_ui():
 
                 # ---------- IMAGE AREA ----------
                 image_container = ui.element('div').classes(
-                    'w-full flex justify-center items-center py-2 md:py-6'
+                    'w-full flex justify-center items-center py-2 sm:py-6'
                 ).style('min-height: 200px;')
 
                 # ---------- CONTROL BUTTONS ----------
-                with ui.row().classes('w-full justify-center gap-2 md:gap-4 flex-wrap'):
+                with ui.row().classes('w-full justify-center gap-1 md:gap-4 flex-wrap'):
                     ui.button("💡 HINT", on_click=show_hint_click).classes('bollywood-btn btn-gold')
                     ui.button("🎬 REVEAL", on_click=reveal_answer_click).classes('bollywood-btn btn-magenta')
-                    next_btn = ui.button(
-                        f"➡️ {game.remaining_count()}",
-                        on_click=next_movie_click
-                    ).classes('bollywood-btn btn-turquoise')
+                    next_btn = ui.button("▶ NEXT", on_click=next_movie_click).classes('bollywood-btn btn-turquoise')
 
                 # ---------- HINT/ANSWER AREAS ----------
                 hint_container = ui.element('div').classes('w-full')
