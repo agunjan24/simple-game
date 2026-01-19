@@ -756,9 +756,9 @@ def create_game_ui():
             # Update button
             remaining = game.remaining_count()
             if remaining > 0:
-                next_btn.set_text(f"NEXT SCENE ({remaining} left)")
+                next_btn.set_text(f"➡️ {remaining}")
             else:
-                next_btn.set_text("FINISH 🏆")
+                next_btn.set_text("🏆 END")
 
     # ---------- GAME OVER SCREEN ----------
     def show_game_over():
@@ -894,7 +894,7 @@ def create_game_ui():
                     ui.button("💡 HINT", on_click=show_hint_click).classes('bollywood-btn btn-gold')
                     ui.button("🎬 REVEAL", on_click=reveal_answer_click).classes('bollywood-btn btn-magenta')
                     next_btn = ui.button(
-                        f"NEXT SCENE ({game.remaining_count()} left)",
+                        f"➡️ {game.remaining_count()}",
                         on_click=next_movie_click
                     ).classes('bollywood-btn btn-turquoise')
 
