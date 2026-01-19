@@ -427,21 +427,23 @@ STYLES = {
                 font-size: 2rem;
             }
 
-            /* Smaller buttons that stack better */
+            /* Compact buttons - thin and subtle */
             .bollywood-btn {
-                padding: 10px 20px;
-                font-size: 0.8rem;
-                letter-spacing: 1px;
+                padding: 6px 14px;
+                font-size: 0.7rem;
+                letter-spacing: 0.5px;
+                border-radius: 20px;
+                border-width: 1px;
             }
 
             /* Smaller timer */
             .timer-container {
-                width: 60px !important;
-                height: 60px !important;
+                width: 50px !important;
+                height: 50px !important;
             }
 
             .timer-text {
-                font-size: 1.1rem;
+                font-size: 0.95rem;
             }
 
             /* Smaller trophy on game over */
@@ -468,9 +470,10 @@ STYLES = {
                 height: 8px;
             }
 
-            /* Hint/Answer boxes tighter */
+            /* Hint/Answer boxes compact */
             .hint-box, .answer-box {
-                padding: 12px 16px;
+                padding: 8px 12px;
+                border-radius: 8px;
             }
         }
     </style>
@@ -736,17 +739,17 @@ def create_game_ui():
             if game.show_hint:
                 with hint_container:
                     with ui.element('div').classes('hint-box'):
-                        ui.label("💡 HINT").style('color: #B8860B; font-weight: 700; font-size: 0.85rem; letter-spacing: 2px;')
-                        ui.label(game.get_hint_text()).style('color: #1A0A14; font-size: 1.2rem; margin-top: 4px;')
+                        ui.label("💡 HINT").style('color: #B8860B; font-weight: 700; font-size: 0.7rem; letter-spacing: 1px;')
+                        ui.label(game.get_hint_text()).style('color: #1A0A14; font-size: clamp(0.85rem, 3vw, 1.2rem); margin-top: 2px;')
 
             # Update answer
             answer_container.clear()
             if game.show_answer:
                 with answer_container:
                     with ui.element('div').classes('answer-box'):
-                        ui.label("🎬 THE MOVIE IS").style('color: #00695C; font-weight: 700; font-size: 0.85rem; letter-spacing: 2px;')
-                        ui.label(game.current_movie['movie_name']).style(
-                            'color: #1A0A14; font-size: 1.8rem; font-weight: 700; margin-top: 4px; '
+                        ui.label("🎬 THE MOVIE IS").style('color: #00695C; font-weight: 700; font-size: 0.7rem; letter-spacing: 1px;')
+                        ui.label(game.current_movie['movie_name']).classes('movie-answer-text').style(
+                            'color: #1A0A14; font-size: clamp(1rem, 4vw, 1.8rem); font-weight: 700; margin-top: 2px; '
                             'font-family: "Rozha One", serif;'
                         )
 
