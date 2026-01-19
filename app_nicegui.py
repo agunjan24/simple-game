@@ -414,6 +414,65 @@ STYLES = {
             font-size: 6rem;
             animation: glowPulse 2s infinite;
         }
+
+        /* ===== MOBILE RESPONSIVE STYLES ===== */
+        @media (max-width: 640px) {
+            /* Smaller countdown overlay on mobile */
+            .countdown-overlay {
+                font-size: 5rem !important;
+            }
+
+            /* Smaller title */
+            .main-title {
+                font-size: 2rem;
+            }
+
+            /* Smaller buttons that stack better */
+            .bollywood-btn {
+                padding: 10px 20px;
+                font-size: 0.8rem;
+                letter-spacing: 1px;
+            }
+
+            /* Smaller timer */
+            .timer-container {
+                width: 60px !important;
+                height: 60px !important;
+            }
+
+            .timer-text {
+                font-size: 1.1rem;
+            }
+
+            /* Smaller trophy on game over */
+            .trophy-icon {
+                font-size: 4rem;
+            }
+
+            /* Reduce padding in game card */
+            .game-card {
+                border-radius: 16px;
+            }
+
+            /* Smaller image frame */
+            .movie-frame {
+                box-shadow:
+                    0 5px 20px rgba(0,0,0,0.4),
+                    0 0 0 2px #D4AF37,
+                    0 0 0 4px #1A0A14;
+            }
+
+            /* Progress dots smaller */
+            .progress-dot {
+                width: 8px;
+                height: 8px;
+            }
+
+            /* Hint/Answer boxes tighter */
+            .hint-box, .answer-box {
+                padding: 12px 16px;
+            }
+        }
     </style>
 
     <script>
@@ -670,7 +729,7 @@ def create_game_ui():
             with image_container:
                 # Simple image display - use string path
                 img_path = os.path.join(IMAGE_FOLDER, game.current_movie['filename'])
-                ui.image(img_path).classes('max-w-full rounded-lg').style('max-height: 400px;')
+                ui.image(img_path).classes('max-w-full rounded-lg').style('max-height: min(50vh, 400px); object-fit: contain;')
 
             # Update hint
             hint_container.clear()
@@ -805,30 +864,30 @@ def create_game_ui():
             # Film strip top border
             ui.element('div').classes('film-strip-border w-full')
 
-            with ui.column().classes('w-full p-6 gap-4'):
+            with ui.column().classes('w-full p-4 md:p-6 gap-3 md:gap-4'):
                 # ---------- HEADER ROW ----------
-                with ui.row().classes('w-full justify-between items-center'):
+                with ui.row().classes('w-full justify-between items-center flex-wrap gap-2'):
                     # Title
                     with ui.column().classes('gap-0'):
                         ui.label("🎬 GUESS THE MOVIE").style(
-                            'font-family: "Rozha One", serif; font-size: 1.8rem; color: #D4AF37; '
-                            'letter-spacing: 2px;'
+                            'font-family: "Rozha One", serif; font-size: clamp(1.2rem, 5vw, 1.8rem); color: #D4AF37; '
+                            'letter-spacing: 1px;'
                         )
                         # Progress indicator
-                        progress_container = ui.element('div').classes('mt-2')
+                        progress_container = ui.element('div').classes('mt-1 md:mt-2')
 
                     # Timer - Award trophy inspired circular design
-                    with ui.element('div').classes('timer-container').style('width: 80px; height: 80px;'):
+                    with ui.element('div').classes('timer-container').style('width: 60px; height: 60px;'):
                         with ui.element('div').classes('timer-inner').style('width: 100%; height: 100%;'):
                             timer_display = ui.label(f"{game.time_left // 60}:{game.time_left % 60:02d}").classes('timer-text')
 
                 # ---------- IMAGE AREA ----------
                 image_container = ui.element('div').classes(
-                    'w-full flex justify-center items-center py-6'
-                ).style('min-height: 300px;')
+                    'w-full flex justify-center items-center py-2 md:py-6'
+                ).style('min-height: 200px;')
 
                 # ---------- CONTROL BUTTONS ----------
-                with ui.row().classes('w-full justify-center gap-4 flex-wrap'):
+                with ui.row().classes('w-full justify-center gap-2 md:gap-4 flex-wrap'):
                     ui.button("💡 HINT", on_click=show_hint_click).classes('bollywood-btn btn-gold')
                     ui.button("🎬 REVEAL", on_click=reveal_answer_click).classes('bollywood-btn btn-magenta')
                     next_btn = ui.button(
