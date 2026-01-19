@@ -823,37 +823,37 @@ def create_game_ui():
         main_container.clear()
 
         with main_container:
-            with ui.column().classes('w-full items-center justify-center gap-4 py-6'):
+            with ui.column().classes('w-full items-center justify-center gap-2 md:gap-4 py-4 md:py-6'):
                 # Film reel decoration
-                ui.label("🎞️").style('font-size: 3rem; animation: reelSpin 4s linear infinite;')
+                ui.label("🎞️").style('font-size: clamp(2rem, 6vw, 3rem); animation: reelSpin 4s linear infinite;')
 
                 # Main title
-                ui.label("BOLLYWOOD").classes('main-title').style('font-size: 3rem; margin-bottom: -16px;')
-                ui.label("FRAMES").classes('main-title').style('font-size: 3rem;')
+                ui.label("BOLLYWOOD").classes('main-title').style('font-size: clamp(1.8rem, 8vw, 3rem); margin-bottom: -8px;')
+                ui.label("FRAMES").classes('main-title').style('font-size: clamp(1.8rem, 8vw, 3rem);')
 
                 # Subtitle - dark color for visibility on cream background
                 ui.label("THE ULTIMATE MOVIE GUESSING GAME").style(
-                    'color: #1A0A14; font-size: 0.95rem; letter-spacing: 3px; '
-                    'text-transform: uppercase; opacity: 0.7; margin-top: 8px;'
+                    'color: #1A0A14; font-size: clamp(0.6rem, 2.5vw, 0.95rem); letter-spacing: 2px; '
+                    'text-transform: uppercase; opacity: 0.7; margin-top: 4px;'
                 )
 
                 # Decorative elements
-                ui.label("✦ ✦ ✦").style('color: #D4AF37; font-size: 1.2rem; letter-spacing: 16px; margin: 12px 0;')
+                ui.label("✦ ✦ ✦").style('color: #D4AF37; font-size: 1rem; letter-spacing: 12px; margin: 8px 0;')
 
                 # Movie count info - dark color
                 movie_count = len(get_valid_game_data(load_data()))
                 ui.label(f"🎬 {movie_count} Movies to Guess").style(
-                    'color: #1A0A14; font-size: 1.1rem; font-weight: 600;'
+                    'color: #1A0A14; font-size: clamp(0.9rem, 3vw, 1.1rem); font-weight: 600;'
                 )
 
                 # Start button
                 ui.button("🎬 START THE SHOW", on_click=start_game_from_welcome).classes(
                     'bollywood-btn btn-magenta'
-                ).style('font-size: 1rem; padding: 16px 48px; margin-top: 16px;')
+                ).style('font-size: clamp(0.8rem, 2.5vw, 1rem); padding: 12px 32px; margin-top: 12px;')
 
                 # Timer info - dark color
                 ui.label(f"⏱️ {GAME_DURATION_SEC} seconds per round").style(
-                    'color: #880E4F; font-size: 0.9rem; margin-top: 12px;'
+                    'color: #880E4F; font-size: clamp(0.75rem, 2.5vw, 0.9rem); margin-top: 8px;'
                 )
 
     # ---------- GAME SCREEN ----------
