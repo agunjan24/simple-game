@@ -94,15 +94,33 @@ The NiceGUI app uses responsive CSS patterns:
 
 ### CSS Techniques Used
 - **`clamp(min, preferred, max)`** for fluid typography: `font-size: clamp(1rem, 4vw, 1.8rem)`
-- **Tailwind responsive prefixes:** `gap-2 md:gap-4`, `p-4 md:p-6`
+- **Tailwind responsive prefixes:** `gap-2 md:gap-4`, `p-4 md:p-6` (for layout only)
 - **Media queries** at `max-width: 640px` for mobile-specific overrides
 
+### Important: Tailwind Responsive Classes Limitation
+**Tailwind visibility classes like `hidden sm:flex` do NOT work reliably in NiceGUI.**
+Use CSS media queries instead for show/hide logic. Tailwind works for spacing/layout but not for conditional rendering.
+
 ### Key Mobile Adjustments (in `@media (max-width: 640px)`)
-- Buttons: `padding: 6px 14px`, `font-size: 0.7rem`
+- Buttons: `padding: 6px 10px`, `font-size: 0.7rem`, `border-radius: 20px`
 - Timer: 50px circle (vs 80px desktop)
 - Countdown overlay: 5rem (vs 12rem desktop)
 - Image max-height: `min(50vh, 400px)`
+- Game card animation disabled (fixes iOS touch issues)
+
+### iOS Safari/Chrome Compatibility
+iOS Chrome uses WebKit (Safari engine). Key fixes applied:
+```css
+.bollywood-btn {
+    touch-action: manipulation;        /* Prevents 300ms tap delay */
+    -webkit-tap-highlight-color: transparent;
+    -webkit-touch-callout: none;
+    user-select: none;
+}
+```
+Also: Disabled `spotlightPulse` animation on mobile as animated transforms on parent elements can block touch events on iOS.
 
 ### Testing Mobile Layouts
 1. **Browser DevTools:** F12 → Device toggle (Ctrl+Shift+M)
 2. **Real device:** Use `run_nicegui.bat --network`
+3. **Test on iOS:** iOS Chrome is actually Safari - test touch interactions specifically
