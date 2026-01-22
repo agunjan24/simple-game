@@ -229,20 +229,20 @@ STYLES = {
             border-radius: 12px 12px 0 0;
         }
 
-        /* Bollywood button base */
+        /* Bollywood button base - compact size */
         .bollywood-btn {
             font-family: 'Poppins', sans-serif;
-            font-weight: 700;
-            font-size: 0.95rem;
-            padding: 14px 32px;
-            border-radius: 50px;
-            border: 2px solid #D4AF37;
+            font-weight: 600;
+            font-size: 0.75rem;
+            padding: 8px 18px;
+            border-radius: 25px;
+            border: 1.5px solid #D4AF37;
             text-transform: uppercase;
-            letter-spacing: 1.5px;
+            letter-spacing: 1px;
             cursor: pointer;
             transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
             box-shadow:
-                0 4px 15px rgba(0,0,0,0.3),
+                0 2px 8px rgba(0,0,0,0.2),
                 inset 0 1px 0 rgba(255,255,255,0.3);
             /* iOS touch fixes */
             touch-action: manipulation;
@@ -340,23 +340,28 @@ STYLES = {
             animation: floatUp 0.5s ease-out;
         }
 
-        /* Countdown overlay */
+        /* Countdown overlay - positioned over image */
         .countdown-overlay {
-            position: fixed;
+            position: absolute;
             top: 50%;
             left: 50%;
             transform: translate(-50%, -50%);
             font-family: 'Rozha One', serif;
-            font-size: 12rem;
+            font-size: 8rem;
             font-weight: 400;
             color: #E91E63;
             text-shadow:
                 0 0 40px rgba(233,30,99,0.8),
                 0 0 80px rgba(233,30,99,0.4),
                 0 4px 0 #880E4F;
-            z-index: 1000;
+            z-index: 100;
             pointer-events: none;
             animation: countdownPulse 1s ease-in-out infinite;
+        }
+
+        /* Image area container for relative positioning */
+        .image-area-container {
+            position: relative;
         }
 
         /* Star decoration */
@@ -431,7 +436,7 @@ STYLES = {
         @media (max-width: 640px) {
             /* Smaller countdown overlay on mobile */
             .countdown-overlay {
-                font-size: 5rem !important;
+                font-size: 4rem !important;
             }
 
             /* Smaller title */
@@ -489,8 +494,13 @@ STYLES = {
 
             /* Hint/Answer boxes compact */
             .hint-box, .answer-box {
-                padding: 8px 12px;
-                border-radius: 8px;
+                padding: 4px 8px;
+                border-radius: 6px;
+            }
+
+            /* Constrain image height on mobile */
+            .game-image {
+                max-height: 35vh !important;
             }
         }
 
@@ -693,7 +703,7 @@ class GameState:
             self.hint_used = False
             self.awaiting_score = False
             self.game_over = False
-            self.timer_active = True
+            self.timer_active = False  # Don't start timer until image loads
             return True
         else:
             self.game_over = True
@@ -824,17 +834,24 @@ def create_game_ui():
         timer_display.set_text(f"{minutes}:{seconds:02d}")
 
         # Countdown overlay for last 10 seconds
+        if not countdown_overlay:
+            return
+
         if game.time_left <= 10 and game.time_left > 0:
             countdown_overlay.set_text(str(game.time_left))
             countdown_overlay.style('display: block;')
             ui.run_javascript(f'playTick({game.time_left})')
         elif game.time_left <= 0:
-            countdown_overlay.set_text("⏰")
-            countdown_overlay.style('display: block; font-size: 8rem;')
             game.timer_active = False
             # Auto-reveal answer when time's up
             game.show_answer = True
             refresh_game_content()
+            # Show timeout clock AFTER refresh (which recreates countdown_overlay)
+            if countdown_overlay:
+                countdown_overlay.set_text("⏰")
+                countdown_overlay.style('display: block; font-size: 4rem;')
+                # Hide the clock after a brief moment
+                ui.timer(2.0, lambda: countdown_overlay.style('display: none;') if countdown_overlay else None, once=True)
         else:
             countdown_overlay.style('display: none;')
 
@@ -859,29 +876,36 @@ def create_game_ui():
             return
 
         if game.current_movie:
-            # Update image
+            # Update image and countdown overlay
+            nonlocal countdown_overlay
             image_container.clear()
             with image_container:
-                # Simple image display - use string path
+                # Image with onload handler to start timer
                 img_path = os.path.join(IMAGE_FOLDER, game.current_movie['filename'])
-                ui.image(img_path).classes('max-w-full rounded-lg').style('max-height: min(50vh, 400px); object-fit: contain;')
+                img = ui.image(img_path).classes('max-w-full rounded-lg game-image').style(
+                    'max-height: min(45vh, 350px); object-fit: contain;'
+                )
+                # Start timer when image loads
+                img.on('load', lambda: start_timer_after_load())
+                # Re-create countdown overlay inside image container
+                countdown_overlay = ui.label("").classes('countdown-overlay').style('display: none;')
 
-            # Update hint
+            # Update hint - more compact
             hint_container.clear()
             if game.show_hint:
                 with hint_container:
-                    with ui.element('div').classes('hint-box'):
-                        ui.label("💡 HINT").style('color: #B8860B; font-weight: 700; font-size: 0.7rem; letter-spacing: 1px;')
-                        ui.label(game.get_hint_text()).style('color: #1A0A14; font-size: clamp(0.85rem, 3vw, 1.2rem); margin-top: 2px;')
+                    with ui.element('div').classes('hint-box').style('padding: 6px 12px; margin-top: 4px;'):
+                        ui.label(f"💡 {game.get_hint_text()}").style(
+                            'color: #1A0A14; font-size: clamp(0.8rem, 2.5vw, 1rem);'
+                        )
 
-            # Update answer
+            # Update answer - more compact
             answer_container.clear()
             if game.show_answer:
                 with answer_container:
-                    with ui.element('div').classes('answer-box'):
-                        ui.label("🎬 THE MOVIE IS").style('color: #00695C; font-weight: 700; font-size: 0.7rem; letter-spacing: 1px;')
-                        ui.label(game.current_movie['movie_name']).classes('movie-answer-text').style(
-                            'color: #1A0A14; font-size: clamp(1rem, 4vw, 1.8rem); font-weight: 700; margin-top: 2px; '
+                    with ui.element('div').classes('answer-box').style('padding: 6px 12px; margin-top: 4px;'):
+                        ui.label(f"🎬 {game.current_movie['movie_name']}").classes('movie-answer-text').style(
+                            'color: #1A0A14; font-size: clamp(0.9rem, 3.5vw, 1.5rem); font-weight: 700; '
                             'font-family: "Rozha One", serif;'
                         )
 
@@ -896,7 +920,8 @@ def create_game_ui():
     def show_game_over():
         """Display the game over celebration screen."""
         game.timer_active = False
-        countdown_overlay.style('display: none;')
+        if countdown_overlay:
+            countdown_overlay.style('display: none;')
         main_container.clear()
 
         with main_container:
@@ -984,6 +1009,12 @@ def create_game_ui():
                     'bollywood-btn btn-gold'
                 ).style('font-size: 1.1rem; padding: 18px 48px;')
 
+    # ---------- TIMER START (after image loads) ----------
+    def start_timer_after_load():
+        """Start the timer once the image has loaded."""
+        if not game.timer_active and not game.show_answer and not game.game_over:
+            game.timer_active = True
+
     # ---------- BUTTON HANDLERS ----------
     def show_hint_click():
         game.show_hint = True
@@ -999,12 +1030,17 @@ def create_game_ui():
             if scoring_buttons_container:
                 scoring_buttons_container.clear()
                 with scoring_buttons_container:
-                    ui.button("✓ Correct", on_click=lambda: score_answer(True)).classes(
-                        'bollywood-btn'
-                    ).style('background: #4CAF50; color: white; border-color: #388E3C;')
-                    ui.button("✗ Wrong", on_click=lambda: score_answer(False)).classes(
-                        'bollywood-btn'
-                    ).style('background: #F44336; color: white; border-color: #D32F2F;')
+                    # Simple icon buttons for scoring - colored icons on light backgrounds
+                    ui.button("✓", on_click=lambda: score_answer(True)).style(
+                        'background: white; color: #2E7D32; border: 3px solid #4CAF50; '
+                        'border-radius: 50%; width: 40px; height: 40px; min-width: 40px; '
+                        'font-size: 1.4rem; font-weight: 900; padding: 0; box-shadow: 0 2px 8px rgba(0,0,0,0.15);'
+                    ).tooltip('Correct - award points')
+                    ui.button("✗", on_click=lambda: score_answer(False)).style(
+                        'background: white; color: #C62828; border: 3px solid #F44336; '
+                        'border-radius: 50%; width: 40px; height: 40px; min-width: 40px; '
+                        'font-size: 1.4rem; font-weight: 900; padding: 0; box-shadow: 0 2px 8px rgba(0,0,0,0.15);'
+                    ).tooltip('Wrong - no points')
                 scoring_buttons_container.style('display: flex;')
         refresh_game_content()
 
@@ -1033,7 +1069,8 @@ def create_game_ui():
 
         if game.remaining_count() > 0:
             game.next_movie()
-            countdown_overlay.style('display: none;')
+            if countdown_overlay:
+                countdown_overlay.style('display: none;')
             build_game_screen()  # Rebuild to update turn indicator
         else:
             show_game_over()
@@ -1052,7 +1089,8 @@ def create_game_ui():
 
     def start_new_game():
         game.reset_game()
-        countdown_overlay.style('display: none;')
+        if countdown_overlay:
+            countdown_overlay.style('display: none;')
         build_game_screen()
 
     def start_game_from_welcome():
@@ -1074,7 +1112,7 @@ def create_game_ui():
             """Toggle between solo and team mode."""
             game.team_mode = e.value
             if team_options_container:
-                team_options_container.style(f"display: {'block' if e.value else 'none'};")
+                team_options_container.style(f"display: {'flex' if e.value else 'none'};")
             update_timer_label()
 
         def randomize_names():
@@ -1129,23 +1167,28 @@ def create_game_ui():
                     )
 
                 # ---------- TEAM OPTIONS (shown when team mode enabled) ----------
-                team_options_container = ui.column().classes('items-center gap-2 mt-2 w-full')
-                team_options_container.style(f"display: {'block' if game.team_mode else 'none'};")
+                team_options_container = ui.column().classes('items-center gap-3 mt-2 w-full')
+                team_options_container.style(f"display: {'flex' if game.team_mode else 'none'};")
 
                 with team_options_container:
-                    # Team names display
-                    team_names_label = ui.label(f"🔴 {game.team_names[0]}  vs  🔵 {game.team_names[1]}").style(
-                        'color: #1A0A14; font-size: clamp(1rem, 4vw, 1.3rem); font-weight: 700; '
-                        'background: rgba(212,175,55,0.2); padding: 8px 16px; border-radius: 8px;'
-                    )
-
-                    # Randomize button
-                    ui.button("🎲 Randomize Teams", on_click=randomize_names).classes(
-                        'bollywood-btn btn-gold'
-                    ).style('font-size: 0.75rem; padding: 6px 16px;')
+                    # Team names display - centered with dice on right
+                    with ui.element('div').style(
+                        'display: flex; justify-content: center; width: 100%; position: relative;'
+                    ):
+                        # Centered team names (no wrap)
+                        team_names_label = ui.label(f"🔴 {game.team_names[0]}  vs  🔵 {game.team_names[1]}").style(
+                            'color: #1A0A14; font-size: clamp(0.85rem, 3.5vw, 1.3rem); font-weight: 700; '
+                            'background: rgba(212,175,55,0.2); padding: 8px 16px; border-radius: 8px; '
+                            'text-align: center; white-space: nowrap;'
+                        )
+                        # Dice icon positioned to the right of the label
+                        ui.button("🎲", on_click=randomize_names).style(
+                            'background: transparent; border: none; font-size: 1.3rem; cursor: pointer; '
+                            'padding: 2px; min-width: auto; box-shadow: none; margin-left: 4px;'
+                        ).props('flat dense').tooltip('Randomize team names')
 
                     # Timer configuration
-                    with ui.row().classes('items-center gap-2'):
+                    with ui.row().classes('items-center justify-center gap-2'):
                         ui.label("⏱️ Timer:").style('color: #1A0A14; font-size: 0.9rem;')
                         ui.number(value=game.timer_duration, min=15, max=120, step=5,
                                   on_change=update_timer_duration).style(
@@ -1168,7 +1211,7 @@ def create_game_ui():
     def build_game_screen():
         """Build the main game screen."""
         nonlocal timer_display, image_container, hint_container, answer_container, progress_container, next_btn
-        nonlocal scoreboard_container, scoring_buttons_container
+        nonlocal scoreboard_container, scoring_buttons_container, countdown_overlay
 
         main_container.clear()
 
@@ -1176,47 +1219,50 @@ def create_game_ui():
             # Film strip top border
             ui.element('div').classes('film-strip-border w-full')
 
-            with ui.column().classes('w-full p-4 md:p-6 gap-3 md:gap-4'):
-                # ---------- TEAM TURN INDICATOR (Team mode only) ----------
-                if game.team_mode:
-                    team_color = "#E91E63" if game.current_team == 0 else "#2196F3"
-                    team_emoji = "🔴" if game.current_team == 0 else "🔵"
-                    ui.label(f"{team_emoji} {game.get_current_team_name()}'s Turn").style(
-                        f'color: {team_color}; font-size: clamp(1rem, 4vw, 1.4rem); font-weight: 700; '
-                        f'text-align: center; width: 100%; padding: 8px; '
-                        f'background: rgba(255,255,255,0.5); border-radius: 8px; margin-bottom: 4px;'
-                    )
-
+            with ui.column().classes('w-full p-2 md:p-4 gap-1 md:gap-2'):
                 # ---------- HEADER ROW ----------
-                with ui.row().classes('w-full justify-between items-center flex-wrap gap-2'):
-                    # Title
+                with ui.row().classes('w-full justify-between items-center gap-2').style('flex-wrap: nowrap;'):
+                    # Left side: Title and progress
                     with ui.column().classes('gap-0'):
-                        ui.label("🎬 GUESS THE MOVIE").style(
-                            'font-family: "Rozha One", serif; font-size: clamp(1.2rem, 5vw, 1.8rem); color: #D4AF37; '
-                            'letter-spacing: 1px;'
+                        ui.label("🎬 GUESS THE MOVIE").classes('main-title').style(
+                            'font-family: "Rozha One", serif; font-size: clamp(1rem, 4vw, 1.5rem); '
+                            'letter-spacing: 1px; filter: drop-shadow(0 1px 2px rgba(0,0,0,0.3));'
                         )
                         # Progress indicator
-                        progress_container = ui.element('div').classes('mt-1 md:mt-2')
+                        progress_container = ui.element('div').classes('mt-1')
 
-                    # Timer - Award trophy inspired circular design
-                    with ui.element('div').classes('timer-container').style('width: 60px; height: 60px;'):
+                    # Timer - compact circular design
+                    with ui.element('div').classes('timer-container').style('width: 50px; height: 50px;'):
                         with ui.element('div').classes('timer-inner').style('width: 100%; height: 100%;'):
-                            timer_display = ui.label(f"{game.time_left // 60}:{game.time_left % 60:02d}").classes('timer-text')
+                            timer_display = ui.label(f"{game.time_left // 60}:{game.time_left % 60:02d}").classes('timer-text').style('font-size: 1.1rem;')
 
-                # ---------- IMAGE AREA ----------
+                # ---------- TEAM TURN INDICATOR (Team mode only) - styled badge ----------
+                if game.team_mode:
+                    team_color = "#E91E63" if game.current_team == 0 else "#2196F3"
+                    team_gradient = "linear-gradient(135deg, #E91E63, #C2185B)" if game.current_team == 0 else "linear-gradient(135deg, #2196F3, #1565C0)"
+                    team_emoji = "🔴" if game.current_team == 0 else "🔵"
+                    with ui.row().classes('w-full justify-center'):
+                        ui.label(f"✨ {game.get_current_team_name()}'s Turn ✨").style(
+                            f'color: white; font-size: clamp(0.8rem, 3vw, 1rem); font-weight: 700; '
+                            f'padding: 6px 16px; background: {team_gradient}; border-radius: 25px; '
+                            f'box-shadow: 0 3px 10px rgba(0,0,0,0.3), inset 0 1px 0 rgba(255,255,255,0.2); '
+                            f'border: 1px solid rgba(255,255,255,0.3); text-shadow: 0 1px 2px rgba(0,0,0,0.3);'
+                        )
+
+                # ---------- IMAGE AREA (with relative positioning for countdown overlay) ----------
                 image_container = ui.element('div').classes(
-                    'w-full flex justify-center items-center py-2 sm:py-6'
-                ).style('min-height: 200px;')
+                    'w-full flex justify-center items-center py-1 sm:py-2 image-area-container'
+                ).style('min-height: 150px; position: relative;')
 
                 # ---------- CONTROL BUTTONS ----------
-                with ui.row().classes('w-full justify-center gap-1 md:gap-4 flex-wrap'):
+                with ui.row().classes('w-full justify-center gap-1 md:gap-3 flex-wrap'):
                     ui.button("💡 HINT", on_click=show_hint_click).classes('bollywood-btn btn-gold')
                     ui.button("🎬 REVEAL", on_click=reveal_answer_click).classes('bollywood-btn btn-magenta')
                     next_btn = ui.button("▶ NEXT", on_click=next_movie_click).classes('bollywood-btn btn-turquoise')
 
                 # ---------- SCORING BUTTONS (Team mode, shown after reveal) ----------
                 if game.team_mode:
-                    scoring_buttons_container = ui.row().classes('w-full justify-center gap-2 md:gap-4')
+                    scoring_buttons_container = ui.row().classes('w-full justify-center items-center gap-3')
                     scoring_buttons_container.style('display: none;')  # Hidden initially
 
                 # ---------- HINT/ANSWER AREAS ----------
@@ -1225,38 +1271,39 @@ def create_game_ui():
 
                 # ---------- TEAM SCOREBOARD (Team mode only) ----------
                 if game.team_mode:
-                    scoreboard_container = ui.element('div').classes('w-full mt-4')
+                    scoreboard_container = ui.element('div').classes('w-full mt-1')
                     with scoreboard_container:
-                        with ui.row().classes('w-full justify-center gap-4'):
-                            # Team A score
+                        # Compact single-line scoreboard
+                        with ui.row().classes('w-full justify-center items-center gap-2').style('flex-wrap: nowrap;'):
+                            # Team A score - compact inline
                             team_a_active = game.current_team == 0
-                            with ui.element('div').style(
+                            with ui.row().classes('items-center gap-1').style(
                                 f'background: {"rgba(233,30,99,0.2)" if team_a_active else "rgba(0,0,0,0.05)"}; '
-                                f'padding: 8px 16px; border-radius: 8px; text-align: center; '
+                                f'padding: 4px 8px; border-radius: 6px; '
                                 f'border: 2px solid {"#E91E63" if team_a_active else "transparent"};'
                             ):
                                 ui.label(f"🔴 {game.team_names[0]}").style(
-                                    'color: #E91E63; font-weight: 700; font-size: 0.9rem;'
+                                    'color: #E91E63; font-weight: 700; font-size: clamp(0.7rem, 2.5vw, 0.85rem); white-space: nowrap;'
                                 )
-                                ui.label(f"{game.team_scores[0]} pts").style(
-                                    'color: #1A0A14; font-size: 1.2rem; font-weight: 700;'
+                                ui.label(f"{game.team_scores[0]}").style(
+                                    'color: #1A0A14; font-size: clamp(0.9rem, 3vw, 1.1rem); font-weight: 700;'
                                 )
 
                             # VS divider
-                            ui.label("vs").style('color: #888; font-weight: 700; align-self: center;')
+                            ui.label("vs").style('color: #888; font-weight: 700; font-size: 0.8rem;')
 
-                            # Team B score
+                            # Team B score - compact inline
                             team_b_active = game.current_team == 1
-                            with ui.element('div').style(
+                            with ui.row().classes('items-center gap-1').style(
                                 f'background: {"rgba(33,150,243,0.2)" if team_b_active else "rgba(0,0,0,0.05)"}; '
-                                f'padding: 8px 16px; border-radius: 8px; text-align: center; '
+                                f'padding: 4px 8px; border-radius: 6px; '
                                 f'border: 2px solid {"#2196F3" if team_b_active else "transparent"};'
                             ):
                                 ui.label(f"🔵 {game.team_names[1]}").style(
-                                    'color: #2196F3; font-weight: 700; font-size: 0.9rem;'
+                                    'color: #2196F3; font-weight: 700; font-size: clamp(0.7rem, 2.5vw, 0.85rem); white-space: nowrap;'
                                 )
-                                ui.label(f"{game.team_scores[1]} pts").style(
-                                    'color: #1A0A14; font-size: 1.2rem; font-weight: 700;'
+                                ui.label(f"{game.team_scores[1]}").style(
+                                    'color: #1A0A14; font-size: clamp(0.9rem, 3vw, 1.1rem); font-weight: 700;'
                                 )
 
             # Film strip bottom border
@@ -1279,9 +1326,6 @@ def create_game_ui():
     with ui.column().classes('w-full max-w-4xl mx-auto p-4 md:p-8'):
         # Game card container
         main_container = ui.element('div').classes('game-card w-full')
-
-    # Countdown overlay (outside main container for proper positioning)
-    countdown_overlay = ui.label("").classes('countdown-overlay').style('display: none;')
 
     # Start with welcome screen
     build_welcome_screen()
