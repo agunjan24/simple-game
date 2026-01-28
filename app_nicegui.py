@@ -1,19 +1,19 @@
 """
-🎬 BOLLYWOOD FRAMES - Movie Guessing Game
-==========================================
-A Bollywood-themed game app with premium, cinematic UI design.
+🎬 BOLLYWOOD/HOLLYWOOD FRAMES - Movie Guessing Game
+====================================================
+A themed movie guessing game with premium, cinematic UI design.
+Supports both Bollywood and Hollywood themes with distinct color palettes.
 
 DESIGN PHILOSOPHY:
-- Inspired by Filmfare Awards, movie premieres, and Indian wedding aesthetics
-- Color palette: Gold, Magenta, Turquoise, Deep Maroon
+- Inspired by film awards, movie premieres, and cinematic aesthetics
+- Dynamic color palettes based on selected theme
 - Typography: Rozha One (dramatic headlines) + Poppins (modern body)
-- Elements: Film reels, spotlights, star motifs, gold accents
+- Elements: Film reels, spotlights, star motifs, metallic accents
 - Feel: Premium, celebratory, culturally authentic
 
-DESIGN REFERENCES:
-- Modern Bollywood posters (Gully Boy, Padmaavat, Rocky Aur Rani)
-- Zee Cine Awards / Filmfare Awards visual identity
-- Traditional Indian festival colors and patterns
+THEMES:
+- Bollywood: Gold, Magenta, Turquoise, Deep Maroon (Filmfare Awards inspired)
+- Hollywood: Silver, Red, Royal Blue, Deep Navy (Academy Awards inspired)
 """
 
 import os
@@ -27,10 +27,95 @@ from nicegui import ui, app
 # CONFIGURATION
 # =============================================================================
 SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
-IMAGE_FOLDER = os.path.join(SCRIPT_DIR, 'images')
-CSV_FILE = os.path.join(SCRIPT_DIR, 'data.csv')
-APP_TITLE = "Bollywood Frames"
 DEFAULT_DURATION_SEC = 60
+
+# =============================================================================
+# THEME CONFIGURATION - Bollywood & Hollywood
+# =============================================================================
+THEMES = {
+    'bollywood': {
+        'name': 'Bollywood Frames',
+        'title_text': 'BOLLYWOOD',
+        'colors': {
+            'primary': '#D4AF37',        # Gold
+            'primary_light': '#F4D03F',
+            'primary_dark': '#B8860B',
+            'accent': '#E91E63',          # Magenta
+            'accent_dark': '#880E4F',
+            'secondary': '#00BFA5',       # Turquoise
+            'bg_dark': '#0D0208',
+            'bg_mid': '#1A0A14',          # Maroon
+            'bg_light': '#150520',
+            'text_light': '#FFF8E7',      # Cream
+            'text_dark': '#1A0A14',
+        },
+        'csv_file': 'data.csv',
+        'image_folder': 'images',
+        'team_names': [
+            ("Shahenshah", "Mogambo"),
+            ("Dilwale", "Dulhania"),
+            ("Munna", "Circuit"),
+            ("Jai", "Veeru"),
+            ("Rahul", "Anjali"),
+            ("Chulbul", "Pandey"),
+            ("Gabbar", "Thakur"),
+            ("Don", "Jaani"),
+        ],
+        'winner_phrases': [
+            "Picture abhi baaki hai mere dost... oh wait, you won!",
+            "Rishte mein toh hum tumhare baap lagte hain... CHAMPIONS!",
+            "Vijay Dinanath Chauhan... WINNER!",
+        ],
+        'loser_phrases': [
+            "Mogambo khush nahi hua!",
+            "Kabhi kabhi jeetne ke liye kuch haarna padta hai",
+            "Haar kar jeetne wale ko baazigar kehte hain... but not today!",
+        ],
+    },
+    'hollywood': {
+        'name': 'Hollywood Frames',
+        'title_text': 'HOLLYWOOD',
+        'colors': {
+            'primary': '#C0C0C0',        # Silver/Platinum
+            'primary_light': '#E8E8E8',
+            'primary_dark': '#A0A0A0',
+            'accent': '#FF4444',          # Red carpet red
+            'accent_dark': '#CC0000',
+            'secondary': '#4169E1',       # Royal blue
+            'bg_dark': '#0A0A0A',
+            'bg_mid': '#1A1A2E',          # Deep navy
+            'bg_light': '#16213E',
+            'text_light': '#FFFFFF',      # White
+            'text_dark': '#1A1A2E',
+        },
+        'csv_file': 'data_hollywood.csv',
+        'image_folder': 'images_hollywood',
+        'team_names': [
+            ("Avengers", "Justice League"),
+            ("Marvel", "DC"),
+            ("Jedi", "Sith"),
+            ("Bond", "Bourne"),
+            ("Hogwarts", "Mordor"),
+            ("Gotham", "Metropolis"),
+            ("Rebels", "Empire"),
+            ("Autobots", "Decepticons"),
+        ],
+        'winner_phrases': [
+            "I'll be back... as champion!",
+            "You had me at hello... WINNER!",
+            "May the Force be with you, champion!",
+            "Here's looking at you, WINNER!",
+            "To infinity and beyond... CHAMPIONS!",
+        ],
+        'loser_phrases': [
+            "Hasta la vista, baby!",
+            "You can't handle the truth!",
+            "Here's looking at you, kid... better luck next time!",
+            "I am inevitable... your loss!",
+            "Frankly, my dear, I don't give a damn about your score!",
+        ],
+    }
+}
 
 def get_timer_duration():
     if len(sys.argv) > 1:
@@ -44,199 +129,150 @@ def get_timer_duration():
 
 GAME_DURATION_SEC = get_timer_duration()
 
-# =============================================================================
-# DESIGN SYSTEM - Bollywood-Inspired Theme
-# =============================================================================
-"""
-COLOR PALETTE:
-- Inspired by Filmfare Awards, Bollywood posters, and Indian festivals
-- Gold represents awards, luxury, and Bollywood glamour
-- Magenta/Pink is the quintessential Bollywood celebration color
-- Deep maroon creates a cinematic, theater-like atmosphere
-- Turquoise adds a modern Indian design touch (peacock inspired)
-"""
-
-COLORS = {
-    # Primary colors
-    'gold': '#D4AF37',           # Bollywood gold - awards, luxury
-    'gold_light': '#F4D03F',     # Lighter gold for highlights
-    'gold_dark': '#B8860B',      # Darker gold for depth
-
-    # Secondary colors
-    'magenta': '#E91E63',        # Rani pink - celebration, drama
-    'magenta_dark': '#880E4F',   # Deep magenta for gradients
-    'turquoise': '#00BFA5',      # Peacock blue - modern Indian
-
-    # Background colors (Cinema hall inspired)
-    'bg_dark': '#0D0208',        # Near black - cinema darkness
-    'bg_maroon': '#1A0A14',      # Deep maroon - velvet curtains
-    'bg_purple': '#150520',      # Deep purple - luxury
-
-    # Accent colors
-    'red': '#C41E3A',            # Sindoor red - traditional
-    'orange': '#FF6B35',         # Festival orange
-    'cream': '#FFF8E7',          # Ivory - elegant text
-
-    # UI colors
-    'card_bg': 'rgba(255, 248, 231, 0.95)',  # Cream with transparency
-    'text_dark': '#1A0A14',
-    'text_light': '#FFF8E7',
-}
+# Default theme for initial load
+DEFAULT_THEME = 'bollywood'
 
 # =============================================================================
-# STYLES - Reusable CSS Components
+# STYLES - Dynamic Theme-Aware CSS Generation
 # =============================================================================
-"""
-COMPONENT LIBRARY:
-- Buttons with Bollywood gradients and gold borders
-- Cards with spotlight effects
-- Typography with cinematic flair
-- Animations for dramatic reveals and celebrations
-"""
 
-STYLES = {
-    # Global animations and fonts
-    'head_html': '''
+def generate_theme_css(theme_colors):
+    """Generate CSS with theme-specific colors."""
+    c = theme_colors
+    return f'''
     <!-- Google Fonts: Rozha One for dramatic headlines, Poppins for modern body -->
     <link href="https://fonts.googleapis.com/css2?family=Rozha+One&family=Poppins:wght@400;600;700;800&display=swap" rel="stylesheet">
 
     <style>
         /* ===== BASE STYLES ===== */
-        * {
+        * {{
             font-family: 'Poppins', sans-serif;
-        }
+        }}
 
-        /* ===== BOLLYWOOD HEADLINE FONT ===== */
-        /* Rozha One has a dramatic, cinematic quality perfect for Bollywood */
-        .bollywood-title {
+        /* ===== HEADLINE FONT ===== */
+        .bollywood-title {{
             font-family: 'Rozha One', serif !important;
             letter-spacing: 2px;
-        }
+        }}
 
         /* ===== ANIMATIONS ===== */
 
-        /* Gold shimmer effect - like stage lights catching gold jewelry */
-        @keyframes goldShimmer {
-            0% { background-position: -200% center; }
-            100% { background-position: 200% center; }
-        }
+        /* Primary shimmer effect */
+        @keyframes primaryShimmer {{
+            0% {{ background-position: -200% center; }}
+            100% {{ background-position: 200% center; }}
+        }}
 
-        /* Spotlight pulse - simulates theater spotlight */
-        @keyframes spotlightPulse {
-            0%, 100% { opacity: 0.8; transform: scale(1); }
-            50% { opacity: 1; transform: scale(1.02); }
-        }
+        /* Spotlight pulse */
+        @keyframes spotlightPulse {{
+            0%, 100% {{ opacity: 0.8; transform: scale(1); }}
+            50% {{ opacity: 1; transform: scale(1.02); }}
+        }}
 
-        /* Star twinkle - for celebration moments */
-        @keyframes twinkle {
-            0%, 100% { opacity: 1; transform: scale(1); }
-            50% { opacity: 0.5; transform: scale(0.8); }
-        }
+        /* Star twinkle */
+        @keyframes twinkle {{
+            0%, 100% {{ opacity: 1; transform: scale(1); }}
+            50% {{ opacity: 0.5; transform: scale(0.8); }}
+        }}
 
-        /* Curtain reveal - dramatic entrance */
-        @keyframes curtainReveal {
-            0% { transform: scaleY(0); opacity: 0; }
-            100% { transform: scaleY(1); opacity: 1; }
-        }
+        /* Float up */
+        @keyframes floatUp {{
+            0% {{ transform: translateY(100px); opacity: 0; }}
+            100% {{ transform: translateY(0); opacity: 1; }}
+        }}
 
-        /* Float up - for celebration elements */
-        @keyframes floatUp {
-            0% { transform: translateY(100px); opacity: 0; }
-            100% { transform: translateY(0); opacity: 1; }
-        }
-
-        /* Glow pulse - for important elements */
-        @keyframes glowPulse {
-            0%, 100% { box-shadow: 0 0 20px rgba(212, 175, 55, 0.5); }
-            50% { box-shadow: 0 0 40px rgba(212, 175, 55, 0.8), 0 0 60px rgba(233, 30, 99, 0.4); }
-        }
+        /* Glow pulse */
+        @keyframes glowPulse {{
+            0%, 100% {{ box-shadow: 0 0 20px {c['primary']}80; }}
+            50% {{ box-shadow: 0 0 40px {c['primary']}cc, 0 0 60px {c['accent']}66; }}
+        }}
 
         /* Film reel rotation */
-        @keyframes reelSpin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
-        }
+        @keyframes reelSpin {{
+            0% {{ transform: rotate(0deg); }}
+            100% {{ transform: rotate(360deg); }}
+        }}
 
-        /* Countdown pulse - urgent */
-        @keyframes countdownPulse {
-            0%, 100% { transform: translate(-50%, -50%) scale(1); }
-            50% { transform: translate(-50%, -50%) scale(1.1); }
-        }
+        /* Countdown pulse */
+        @keyframes countdownPulse {{
+            0%, 100% {{ transform: translate(-50%, -50%) scale(1); }}
+            50% {{ transform: translate(-50%, -50%) scale(1.1); }}
+        }}
 
         /* Confetti fall */
-        @keyframes confettiFall {
-            0% { transform: translateY(-100vh) rotate(0deg); opacity: 1; }
-            100% { transform: translateY(100vh) rotate(720deg); opacity: 0; }
-        }
+        @keyframes confettiFall {{
+            0% {{ transform: translateY(-100vh) rotate(0deg); opacity: 1; }}
+            100% {{ transform: translateY(100vh) rotate(720deg); opacity: 0; }}
+        }}
 
         /* ===== COMPONENT STYLES ===== */
 
-        /* Main title with gold gradient */
-        .main-title {
+        /* Main title with primary gradient */
+        .main-title {{
             font-family: 'Rozha One', serif !important;
             font-size: 3.5rem;
             background: linear-gradient(
                 90deg,
-                #D4AF37 0%,
-                #F4D03F 25%,
-                #D4AF37 50%,
-                #F4D03F 75%,
-                #D4AF37 100%
+                {c['primary']} 0%,
+                {c['primary_light']} 25%,
+                {c['primary']} 50%,
+                {c['primary_light']} 75%,
+                {c['primary']} 100%
             );
             background-size: 200% auto;
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
             background-clip: text;
-            animation: goldShimmer 3s linear infinite;
+            animation: primaryShimmer 3s linear infinite;
             text-shadow: none;
             filter: drop-shadow(0 2px 4px rgba(0,0,0,0.3));
-        }
+        }}
 
         /* Subtitle styling */
-        .subtitle {
+        .subtitle {{
             font-family: 'Poppins', sans-serif;
-            color: #FFF8E7;
+            color: {c['text_light']};
             font-size: 1.1rem;
             letter-spacing: 4px;
             text-transform: uppercase;
             opacity: 0.9;
-        }
+        }}
 
         /* Game card with spotlight effect */
-        .game-card {
+        .game-card {{
             background: linear-gradient(145deg, rgba(255,248,231,0.98), rgba(255,248,231,0.92));
             border-radius: 24px;
             box-shadow:
                 0 25px 50px rgba(0,0,0,0.4),
-                0 0 100px rgba(212,175,55,0.2),
+                0 0 100px {c['primary']}33,
                 inset 0 1px 0 rgba(255,255,255,0.8);
             animation: spotlightPulse 4s ease-in-out infinite;
-            border: 2px solid rgba(212,175,55,0.3);
-        }
+            border: 2px solid {c['primary']}4d;
+        }}
 
-        /* Film strip decoration - top border */
-        .film-strip-border {
+        /* Film strip decoration */
+        .film-strip-border {{
             background: repeating-linear-gradient(
                 90deg,
-                #1A0A14 0px,
-                #1A0A14 10px,
-                #D4AF37 10px,
-                #D4AF37 12px,
-                #1A0A14 12px,
-                #1A0A14 22px
+                {c['bg_mid']} 0px,
+                {c['bg_mid']} 10px,
+                {c['primary']} 10px,
+                {c['primary']} 12px,
+                {c['bg_mid']} 12px,
+                {c['bg_mid']} 22px
             );
             height: 12px;
             border-radius: 12px 12px 0 0;
-        }
+        }}
 
-        /* Bollywood button base - compact size */
-        .bollywood-btn {
+        /* Theme button base */
+        .bollywood-btn {{
             font-family: 'Poppins', sans-serif;
             font-weight: 600;
             font-size: 0.75rem;
             padding: 8px 18px;
             border-radius: 25px;
-            border: 1.5px solid #D4AF37;
+            border: 1.5px solid {c['primary']};
             text-transform: uppercase;
             letter-spacing: 1px;
             cursor: pointer;
@@ -244,104 +280,102 @@ STYLES = {
             box-shadow:
                 0 2px 8px rgba(0,0,0,0.2),
                 inset 0 1px 0 rgba(255,255,255,0.3);
-            /* iOS touch fixes */
             touch-action: manipulation;
             -webkit-tap-highlight-color: transparent;
             -webkit-touch-callout: none;
             user-select: none;
-        }
+        }}
 
-        .bollywood-btn:hover {
+        .bollywood-btn:hover {{
             transform: translateY(-2px) scale(1.02);
             box-shadow:
                 0 8px 25px rgba(0,0,0,0.4),
-                0 0 20px rgba(212,175,55,0.4);
-        }
+                0 0 20px {c['primary']}66;
+        }}
 
-        .bollywood-btn:active {
+        .bollywood-btn:active {{
             transform: translateY(0) scale(0.98);
-        }
+        }}
 
-        /* iOS needs explicit active state trigger */
-        @media (pointer: coarse) {
-            .bollywood-btn:active {
+        @media (pointer: coarse) {{
+            .bollywood-btn:active {{
                 transform: scale(0.95);
-            }
-        }
+            }}
+        }}
 
         /* Button variants */
-        .btn-gold {
-            background: linear-gradient(145deg, #F4D03F, #D4AF37, #B8860B);
-            color: #1A0A14;
-        }
+        .btn-gold {{
+            background: linear-gradient(145deg, {c['primary_light']}, {c['primary']}, {c['primary_dark']});
+            color: {c['text_dark']};
+        }}
 
-        .btn-magenta {
-            background: linear-gradient(145deg, #E91E63, #C2185B, #880E4F);
+        .btn-magenta {{
+            background: linear-gradient(145deg, {c['accent']}, {c['accent']}dd, {c['accent_dark']});
             color: white;
-        }
+        }}
 
-        .btn-turquoise {
-            background: linear-gradient(145deg, #00BFA5, #00897B, #00695C);
+        .btn-turquoise {{
+            background: linear-gradient(145deg, {c['secondary']}, {c['secondary']}dd, {c['secondary']}aa);
             color: white;
-        }
+        }}
 
-        /* Image frame - like a movie poster */
-        .movie-frame {
+        /* Movie frame */
+        .movie-frame {{
             position: relative;
             border-radius: 16px;
             overflow: hidden;
             box-shadow:
                 0 10px 40px rgba(0,0,0,0.4),
-                0 0 0 4px #D4AF37,
-                0 0 0 8px #1A0A14,
-                0 0 60px rgba(212,175,55,0.2);
-        }
+                0 0 0 4px {c['primary']},
+                0 0 0 8px {c['bg_mid']},
+                0 0 60px {c['primary']}33;
+        }}
 
-        /* Timer styling - Filmfare award trophy inspired */
-        .timer-container {
-            background: linear-gradient(145deg, #D4AF37, #B8860B);
+        /* Timer styling */
+        .timer-container {{
+            background: linear-gradient(145deg, {c['primary']}, {c['primary_dark']});
             border-radius: 50%;
             padding: 4px;
             box-shadow:
-                0 4px 20px rgba(212,175,55,0.5),
+                0 4px 20px {c['primary']}80,
                 inset 0 2px 4px rgba(255,255,255,0.3);
-        }
+        }}
 
-        .timer-inner {
-            background: linear-gradient(145deg, #1A0A14, #2D1B28);
+        .timer-inner {{
+            background: linear-gradient(145deg, {c['bg_mid']}, {c['bg_light']});
             border-radius: 50%;
             display: flex;
             align-items: center;
             justify-content: center;
-        }
+        }}
 
-        .timer-text {
+        .timer-text {{
             font-family: 'Poppins', sans-serif;
             font-weight: 800;
-            color: #D4AF37;
+            color: {c['primary']};
             font-size: 1.5rem;
-        }
+        }}
 
         /* Hint box */
-        .hint-box {
-            background: linear-gradient(145deg, #FFF8E7, #F4D03F20);
-            border: 2px solid #D4AF37;
+        .hint-box {{
+            background: linear-gradient(145deg, {c['text_light']}, {c['primary_light']}20);
+            border: 2px solid {c['primary']};
             border-radius: 12px;
             padding: 16px 24px;
             animation: floatUp 0.5s ease-out;
-        }
+        }}
 
         /* Answer reveal */
-        .answer-box {
-            background: linear-gradient(145deg, #00BFA520, #00695C20);
-            border: 2px solid #00BFA5;
+        .answer-box {{
+            background: linear-gradient(145deg, {c['secondary']}20, {c['secondary']}10);
+            border: 2px solid {c['secondary']};
             border-radius: 12px;
             padding: 16px 24px;
             animation: floatUp 0.5s ease-out;
-        }
+        }}
 
-        /* Countdown overlay - positioned over image */
-        .countdown-overlay {
+        /* Countdown overlay */
+        .countdown-overlay {{
             position: absolute;
             top: 50%;
             left: 50%;
@@ -349,195 +383,195 @@ STYLES = {
             font-family: 'Rozha One', serif;
             font-size: 8rem;
             font-weight: 400;
-            color: #E91E63;
+            color: {c['accent']};
             text-shadow:
-                0 0 40px rgba(233,30,99,0.8),
-                0 0 80px rgba(233,30,99,0.4),
-                0 4px 0 #880E4F;
+                0 0 40px {c['accent']}cc,
+                0 0 80px {c['accent']}66,
+                0 4px 0 {c['accent_dark']};
             z-index: 100;
             pointer-events: none;
             animation: countdownPulse 1s ease-in-out infinite;
-        }
+        }}
 
-        /* Image area container for relative positioning */
-        .image-area-container {
+        .image-area-container {{
             position: relative;
-        }
+        }}
 
-        /* Star decoration */
-        .star {
-            color: #D4AF37;
+        .star {{
+            color: {c['primary']};
             animation: twinkle 1.5s ease-in-out infinite;
-        }
-
-        /* Welcome screen curtain */
-        .curtain-left, .curtain-right {
-            position: fixed;
-            top: 0;
-            width: 50%;
-            height: 100%;
-            background: linear-gradient(180deg, #8B0000, #4A0000);
-            z-index: 2000;
-            transition: transform 1.5s cubic-bezier(0.4, 0, 0.2, 1);
-        }
-
-        .curtain-left { left: 0; transform-origin: left; }
-        .curtain-right { right: 0; transform-origin: right; }
-
-        .curtains-open .curtain-left { transform: translateX(-100%); }
-        .curtains-open .curtain-right { transform: translateX(100%); }
+        }}
 
         /* Progress indicator */
-        .progress-dots {
+        .progress-dots {{
             display: flex;
             gap: 8px;
             justify-content: center;
-        }
+        }}
 
-        .progress-dot {
+        .progress-dot {{
             width: 12px;
             height: 12px;
             border-radius: 50%;
-            background: rgba(212,175,55,0.3);
+            background: {c['primary']}4d;
             transition: all 0.3s ease;
-        }
+        }}
 
-        .progress-dot.completed {
-            background: #D4AF37;
-            box-shadow: 0 0 10px rgba(212,175,55,0.5);
-        }
+        .progress-dot.completed {{
+            background: {c['primary']};
+            box-shadow: 0 0 10px {c['primary']}80;
+        }}
 
-        .progress-dot.current {
-            background: #E91E63;
-            box-shadow: 0 0 15px rgba(233,30,99,0.6);
+        .progress-dot.current {{
+            background: {c['accent']};
+            box-shadow: 0 0 15px {c['accent']}99;
             animation: glowPulse 2s infinite;
-        }
+        }}
 
-        /* Celebration confetti */
-        .confetti {
+        /* Confetti */
+        .confetti {{
             position: fixed;
             width: 10px;
             height: 10px;
             z-index: 1001;
             animation: confettiFall 3s linear forwards;
-        }
+        }}
 
         /* Game over celebration */
-        .celebration-container {
+        .celebration-container {{
             animation: floatUp 0.8s ease-out;
-        }
+        }}
 
-        .trophy-icon {
+        .trophy-icon {{
             font-size: 6rem;
             animation: glowPulse 2s infinite;
-        }
+        }}
+
+        /* Theme toggle buttons */
+        .theme-toggle-btn {{
+            font-family: 'Poppins', sans-serif;
+            font-weight: 600;
+            font-size: 0.85rem;
+            padding: 8px 16px;
+            border-radius: 20px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            touch-action: manipulation;
+        }}
+
+        .theme-toggle-btn.inactive {{
+            background: transparent;
+            border: 2px solid {c['primary']}66;
+            color: {c['text_dark']};
+            opacity: 0.7;
+        }}
+
+        .theme-toggle-btn.active {{
+            background: linear-gradient(145deg, {c['primary_light']}, {c['primary']});
+            border: 2px solid {c['primary']};
+            color: {c['text_dark']};
+            box-shadow: 0 2px 10px {c['primary']}66;
+        }}
+
+        .theme-toggle-btn:hover {{
+            transform: scale(1.05);
+        }}
 
         /* ===== MOBILE RESPONSIVE STYLES ===== */
-        @media (max-width: 640px) {
-            /* Smaller countdown overlay on mobile */
-            .countdown-overlay {
+        @media (max-width: 640px) {{
+            .countdown-overlay {{
                 font-size: 4rem !important;
-            }
+            }}
 
-            /* Smaller title */
-            .main-title {
+            .main-title {{
                 font-size: 2rem;
-            }
+            }}
 
-            /* Disable animation on mobile to fix iOS touch issues */
-            .game-card {
+            .game-card {{
                 animation: none;
-            }
+            }}
 
-            /* Compact buttons on mobile - icons + minimal text */
-            .bollywood-btn {
+            .bollywood-btn {{
                 padding: 6px 10px;
                 font-size: 0.7rem;
                 border-radius: 20px;
                 border-width: 1px;
                 letter-spacing: 0;
-            }
+            }}
 
-            /* Smaller timer */
-            .timer-container {
+            .timer-container {{
                 width: 50px !important;
                 height: 50px !important;
-            }
+            }}
 
-            .timer-text {
+            .timer-text {{
                 font-size: 0.95rem;
-            }
+            }}
 
-            /* Smaller trophy on game over */
-            .trophy-icon {
+            .trophy-icon {{
                 font-size: 4rem;
-            }
+            }}
 
-            /* Reduce padding in game card */
-            .game-card {
+            .game-card {{
                 border-radius: 16px;
-            }
+            }}
 
-            /* Smaller image frame */
-            .movie-frame {
+            .movie-frame {{
                 box-shadow:
                     0 5px 20px rgba(0,0,0,0.4),
-                    0 0 0 2px #D4AF37,
-                    0 0 0 4px #1A0A14;
-            }
+                    0 0 0 2px {c['primary']},
+                    0 0 0 4px {c['bg_mid']};
+            }}
 
-            /* Progress dots smaller */
-            .progress-dot {
+            .progress-dot {{
                 width: 8px;
                 height: 8px;
-            }
+            }}
 
-            /* Hint/Answer boxes compact */
-            .hint-box, .answer-box {
+            .hint-box, .answer-box {{
                 padding: 4px 8px;
                 border-radius: 6px;
-            }
+            }}
 
-            /* Constrain image height on mobile */
-            .game-image {
+            .game-image {{
                 max-height: 35vh !important;
-            }
-        }
+            }}
 
-        /* Mobile floating icon buttons */
-        .mobile-icon-btn {
+            .theme-toggle-btn {{
+                font-size: 0.75rem;
+                padding: 6px 12px;
+            }}
+        }}
+
+        .mobile-icon-btn {{
             box-shadow: 0 2px 8px rgba(0,0,0,0.3);
             cursor: pointer;
             transition: transform 0.2s ease, box-shadow 0.2s ease;
-        }
+        }}
 
-        .mobile-icon-btn:hover {
+        .mobile-icon-btn:hover {{
             transform: scale(1.1);
             box-shadow: 0 4px 12px rgba(0,0,0,0.4);
-        }
+        }}
 
-        .mobile-icon-btn:active {
+        .mobile-icon-btn:active {{
             transform: scale(0.95);
-        }
+        }}
     </style>
 
     <script>
-        // Audio context for sound effects
         let audioCtx = null;
 
-        // Countdown beep - gets more urgent as time runs out
-        function playTick(timeLeft) {
+        function playTick(timeLeft) {{
             if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
 
             const osc = audioCtx.createOscillator();
             const gain = audioCtx.createGain();
 
-            // Higher pitch as time runs out (880Hz at 10s -> 1320Hz at 1s)
             const freq = 880 + (10 - timeLeft) * 44;
             osc.type = 'sine';
             osc.frequency.value = freq;
 
-            // Shorter duration as time runs out
             const duration = 0.08 + (timeLeft / 10) * 0.12;
 
             gain.gain.setValueAtTime(0, audioCtx.currentTime);
@@ -550,16 +584,15 @@ STYLES = {
 
             osc.start();
             osc.stop(audioCtx.currentTime + duration);
-        }
+        }}
 
-        // Victory fanfare
-        function playVictory() {
+        function playVictory() {{
             if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
 
-            const notes = [523, 659, 784, 1047]; // C5, E5, G5, C6 - triumphant chord
+            const notes = [523, 659, 784, 1047];
             const now = audioCtx.currentTime;
 
-            notes.forEach((freq, i) => {
+            notes.forEach((freq, i) => {{
                 const osc = audioCtx.createOscillator();
                 const gain = audioCtx.createGain();
 
@@ -577,14 +610,13 @@ STYLES = {
 
                 osc.start(startTime);
                 osc.stop(startTime + 0.7);
-            });
-        }
+            }});
+        }}
 
-        // Create confetti burst
-        function createConfetti() {
-            const colors = ['#D4AF37', '#E91E63', '#00BFA5', '#F4D03F', '#FF6B35'];
+        function createConfetti(themeColors) {{
+            const colors = themeColors || ['{c['primary']}', '{c['accent']}', '{c['secondary']}', '{c['primary_light']}'];
 
-            for (let i = 0; i < 50; i++) {
+            for (let i = 0; i < 50; i++) {{
                 const confetti = document.createElement('div');
                 confetti.className = 'confetti';
                 confetti.style.left = Math.random() * 100 + 'vw';
@@ -594,71 +626,49 @@ STYLES = {
                 document.body.appendChild(confetti);
 
                 setTimeout(() => confetti.remove(), 5000);
-            }
-        }
+            }}
+        }}
     </script>
-    ''',
+    '''
 
-    # Background gradient - cinema hall inspired
-    'body_bg': '''
+
+def generate_body_bg(theme_colors):
+    """Generate body background CSS for theme."""
+    c = theme_colors
+    return f'''
         background:
-            radial-gradient(ellipse at top, rgba(212,175,55,0.1) 0%, transparent 50%),
-            radial-gradient(ellipse at bottom, rgba(233,30,99,0.1) 0%, transparent 50%),
-            linear-gradient(180deg, #0D0208 0%, #1A0A14 50%, #150520 100%);
+            radial-gradient(ellipse at top, {c['primary']}1a 0%, transparent 50%),
+            radial-gradient(ellipse at bottom, {c['accent']}1a 0%, transparent 50%),
+            linear-gradient(180deg, {c['bg_dark']} 0%, {c['bg_mid']} 50%, {c['bg_light']} 100%);
         min-height: 100vh;
-    ''',
-}
+    '''
 
 # =============================================================================
 # DATA LOADING
 # =============================================================================
-def load_data():
+def load_data(csv_file=None):
     """Loads the CSV and ensures we only use rows where images exist."""
-    if not os.path.exists(CSV_FILE):
+    if csv_file is None:
+        csv_file = os.path.join(SCRIPT_DIR, THEMES[DEFAULT_THEME]['csv_file'])
+    if not os.path.exists(csv_file):
         return pd.DataFrame()
-    df = pd.read_csv(CSV_FILE)
+    df = pd.read_csv(csv_file)
     df.columns = [c.strip().lower() for c in df.columns]
     return df
 
 
-def get_valid_game_data(df):
+def get_valid_game_data(df, image_folder=None):
     """Filters the dataframe to include only images that actually exist."""
+    if image_folder is None:
+        image_folder = os.path.join(SCRIPT_DIR, THEMES[DEFAULT_THEME]['image_folder'])
     if df.empty:
         return []
     valid_rounds = []
     for _, row in df.iterrows():
-        image_path = os.path.join(IMAGE_FOLDER, row['filename'])
+        image_path = os.path.join(image_folder, row['filename'])
         if os.path.exists(image_path):
             valid_rounds.append(row.to_dict())
     return valid_rounds
-
-
-# =============================================================================
-# TEAM NAME PAIRS (Bollywood themed)
-# =============================================================================
-TEAM_NAME_PAIRS = [
-    ("Shahenshah", "Mogambo"),
-    ("Dilwale", "Dulhania"),
-    ("Munna", "Circuit"),
-    ("Jai", "Veeru"),
-    ("Rahul", "Anjali"),
-    ("Chulbul", "Pandey"),
-    ("Gabbar", "Thakur"),
-    ("Don", "Jaani"),
-]
-
-# Winning/losing phrases for teams
-WINNER_PHRASES = [
-    "Picture abhi baaki hai mere dost... oh wait, you won!",
-    "Rishte mein toh hum tumhare baap lagte hain... CHAMPIONS!",
-    "Vijay Dinanath Chauhan... WINNER!",
-]
-
-LOSER_PHRASES = [
-    "Mogambo khush nahi hua!",
-    "Kabhi kabhi jeetne ke liye kuch haarna padta hai",
-    "Haar kar jeetne wale ko baazigar kehte hain... but not today!",
-]
 
 
 # =============================================================================
@@ -668,8 +678,10 @@ class GameState:
     """Manages the game logic and state."""
 
     def __init__(self):
-        self.df = load_data()
-        self.valid_movies = get_valid_game_data(self.df)
+        # Theme support
+        self.theme = DEFAULT_THEME
+        self._load_theme_data()
+
         self.shown_movies = []
         self.current_movie = None
         self.time_left = GAME_DURATION_SEC
@@ -683,7 +695,7 @@ class GameState:
         # Team mode properties
         self.team_mode = False
         self.timer_duration = 45  # Default 45s for team mode
-        self.team_names = list(random.choice(TEAM_NAME_PAIRS))  # ["Team A", "Team B"]
+        self.team_names = list(random.choice(self.get_theme_config()['team_names']))
         self.team_scores = [0, 0]  # [Team A score, Team B score]
         self.current_team = 0  # 0 = Team A, 1 = Team B
         self.hint_used = False  # Track if hint was used this round
@@ -691,6 +703,35 @@ class GameState:
 
         # Progressive reveal setting
         self.progressive_reveal = True  # Image starts blurred and clears over time
+
+    def _load_theme_data(self):
+        """Load data for current theme."""
+        config = self.get_theme_config()
+        csv_path = os.path.join(SCRIPT_DIR, config['csv_file'])
+        image_folder = os.path.join(SCRIPT_DIR, config['image_folder'])
+        self.df = load_data(csv_path)
+        self.valid_movies = get_valid_game_data(self.df, image_folder)
+
+    def get_theme_config(self):
+        """Get configuration for current theme."""
+        return THEMES[self.theme]
+
+    def get_theme_colors(self):
+        """Get color palette for current theme."""
+        return self.get_theme_config()['colors']
+
+    def set_theme(self, theme_name):
+        """Switch to a different theme."""
+        if theme_name in THEMES:
+            self.theme = theme_name
+            self._load_theme_data()
+            self.randomize_team_names()
+            # Reset shown movies when switching themes
+            self.shown_movies = []
+
+    def get_image_folder(self):
+        """Get the image folder path for current theme."""
+        return os.path.join(SCRIPT_DIR, self.get_theme_config()['image_folder'])
 
     def next_movie(self):
         """Pick a random movie that hasn't been shown yet."""
@@ -728,8 +769,8 @@ class GameState:
         self.next_movie()
 
     def randomize_team_names(self):
-        """Pick a new random pair of team names."""
-        self.team_names = list(random.choice(TEAM_NAME_PAIRS))
+        """Pick a new random pair of team names from current theme."""
+        self.team_names = list(random.choice(self.get_theme_config()['team_names']))
 
     def switch_team(self):
         """Switch to the other team."""
@@ -915,7 +956,7 @@ def create_game_ui():
             image_container.clear()
             with image_container:
                 # Image with onload handler to start timer
-                img_path = os.path.join(IMAGE_FOLDER, game.current_movie['filename'])
+                img_path = os.path.join(game.get_image_folder(), game.current_movie['filename'])
                 # Calculate blur: 0 if answer revealed, otherwise based on time remaining
                 blur = 0 if game.show_answer else game.calculate_blur()
                 image_element = ui.image(img_path).classes('max-w-full rounded-lg game-image').style(
@@ -989,15 +1030,15 @@ def create_game_ui():
                             f'font-size: clamp(1.3rem, 6vw, 2.2rem); white-space: nowrap; color: {winner_color};'
                         )
 
-                        # Bollywood phrase
-                        phrase = random.choice(WINNER_PHRASES)
+                        # Theme-appropriate winner phrase
+                        phrase = random.choice(game.get_theme_config()['winner_phrases'])
                         ui.label(f'"{phrase}"').style(
                             'color: #1A0A14; font-size: clamp(0.8rem, 3vw, 1rem); font-style: italic; '
                             'opacity: 0.8; text-align: center; max-width: 300px;'
                         )
 
                     # Final scores
-                    ui.label("✦ ✦ ✦").style('color: #D4AF37; font-size: 1rem; letter-spacing: 12px; margin: 8px 0;')
+                    ui.label("✦ ✦ ✦").style(f'color: {game.get_theme_colors()["primary"]}; font-size: 1rem; letter-spacing: 12px; margin: 8px 0;')
 
                     with ui.row().classes('gap-8'):
                         # Team A final score
@@ -1024,7 +1065,7 @@ def create_game_ui():
 
                     # Loser phrase (if not tie)
                     if not is_tie:
-                        loser_phrase = random.choice(LOSER_PHRASES)
+                        loser_phrase = random.choice(game.get_theme_config()['loser_phrases'])
                         loser_emoji = "🔵" if winner_idx == 0 else "🔴"
                         ui.label(f'{loser_emoji} {loser_phrase}').style(
                             'color: #666; font-size: 0.85rem; font-style: italic; margin-top: 8px;'
@@ -1143,13 +1184,25 @@ def create_game_ui():
 
     # ---------- WELCOME SCREEN ----------
     def build_welcome_screen():
-        """Build the dramatic welcome/splash screen."""
+        """Build the dramatic welcome/splash screen with theme toggle."""
         main_container.clear()
 
-        # Container for team options (to show/hide)
+        # Container references for dynamic updates
         team_options_container = None
         team_names_label = None
         timer_label = None
+        title_label = None
+        movie_count_label = None
+        bollywood_btn = None
+        hollywood_btn = None
+
+        def select_theme(theme_name):
+            """Switch to selected theme and refresh welcome screen."""
+            game.set_theme(theme_name)
+            # Refresh styles for new theme
+            ui.query('body').style(generate_body_bg(game.get_theme_colors()))
+            # Rebuild welcome screen with new theme
+            build_welcome_screen()
 
         def toggle_team_mode(e):
             """Toggle between solo and team mode."""
@@ -1178,45 +1231,60 @@ def create_game_ui():
                 duration = game.timer_duration if game.team_mode else GAME_DURATION_SEC
                 timer_label.set_text(f"⏱️ {duration} seconds per round")
 
+        # Get current theme config
+        theme_config = game.get_theme_config()
+        colors = game.get_theme_colors()
+
         with main_container:
             with ui.column().classes('w-full items-center justify-center gap-2 md:gap-4 py-4 md:py-6'):
                 # Film reel decoration
                 ui.label("🎞️").style('font-size: clamp(2rem, 6vw, 3rem); animation: reelSpin 4s linear infinite;')
 
-                # Main title
-                ui.label("BOLLYWOOD").classes('main-title').style('font-size: clamp(1.8rem, 8vw, 3rem); margin-bottom: -8px;')
+                # Main title - dynamic based on theme
+                title_label = ui.label(theme_config['title_text']).classes('main-title').style(
+                    'font-size: clamp(1.8rem, 8vw, 3rem); margin-bottom: -8px;'
+                )
                 ui.label("FRAMES").classes('main-title').style('font-size: clamp(1.8rem, 8vw, 3rem);')
 
-                # Subtitle - dark color for visibility on cream background
+                # Subtitle
                 ui.label("THE ULTIMATE MOVIE GUESSING GAME").style(
-                    'color: #1A0A14; font-size: clamp(0.6rem, 2.5vw, 0.95rem); letter-spacing: 2px; '
+                    f'color: {colors["text_dark"]}; font-size: clamp(0.6rem, 2.5vw, 0.95rem); letter-spacing: 2px; '
                     'text-transform: uppercase; opacity: 0.7; margin-top: 4px;'
                 )
 
                 # Decorative elements
-                ui.label("✦ ✦ ✦").style('color: #D4AF37; font-size: 1rem; letter-spacing: 12px; margin: 8px 0;')
+                ui.label("✦ ✦ ✦").style(f'color: {colors["primary"]}; font-size: 1rem; letter-spacing: 12px; margin: 8px 0;')
 
-                # Movie count info - dark color
-                movie_count = len(get_valid_game_data(load_data()))
-                ui.label(f"🎬 {movie_count} Movies to Guess").style(
-                    'color: #1A0A14; font-size: clamp(0.9rem, 3vw, 1.1rem); font-weight: 600;'
+                # ---------- THEME TOGGLE ----------
+                with ui.row().classes('items-center gap-2 mt-2'):
+                    bollywood_btn = ui.button("🎬 Bollywood", on_click=lambda: select_theme('bollywood')).classes(
+                        f'theme-toggle-btn {"active" if game.theme == "bollywood" else "inactive"}'
+                    )
+                    hollywood_btn = ui.button("🎥 Hollywood", on_click=lambda: select_theme('hollywood')).classes(
+                        f'theme-toggle-btn {"active" if game.theme == "hollywood" else "inactive"}'
+                    )
+
+                # Movie count info - uses current theme's data
+                movie_count = len(game.valid_movies)
+                movie_count_label = ui.label(f"🎬 {movie_count} Movies to Guess").style(
+                    f'color: {colors["text_dark"]}; font-size: clamp(0.9rem, 3vw, 1.1rem); font-weight: 600; margin-top: 8px;'
                 )
 
                 # ---------- GAME OPTIONS ----------
                 with ui.column().classes('items-center gap-2 mt-4'):
                     # Team mode toggle
                     with ui.row().classes('items-center gap-4'):
-                        ui.label("Game Mode:").style('color: #1A0A14; font-weight: 600;')
+                        ui.label("Game Mode:").style(f'color: {colors["text_dark"]}; font-weight: 600;')
                         ui.switch("Team Battle", value=game.team_mode, on_change=toggle_team_mode).style(
-                            'color: #880E4F;'
+                            f'color: {colors["accent_dark"]};'
                         )
 
                     # Progressive reveal toggle
                     with ui.row().classes('items-center gap-4'):
-                        ui.label("Progressive Reveal:").style('color: #1A0A14; font-weight: 600;')
+                        ui.label("Progressive Reveal:").style(f'color: {colors["text_dark"]}; font-weight: 600;')
                         ui.switch("", value=game.progressive_reveal,
                                   on_change=lambda e: setattr(game, 'progressive_reveal', e.value)).style(
-                            'color: #00BFA5;'
+                            f'color: {colors["secondary"]};'
                         ).tooltip('Image starts blurred and clears over time')
 
                 # ---------- TEAM OPTIONS (shown when team mode enabled) ----------
@@ -1230,8 +1298,8 @@ def create_game_ui():
                     ):
                         # Centered team names (no wrap)
                         team_names_label = ui.label(f"🔴 {game.team_names[0]}  vs  🔵 {game.team_names[1]}").style(
-                            'color: #1A0A14; font-size: clamp(0.85rem, 3.5vw, 1.3rem); font-weight: 700; '
-                            'background: rgba(212,175,55,0.2); padding: 8px 16px; border-radius: 8px; '
+                            f'color: {colors["text_dark"]}; font-size: clamp(0.85rem, 3.5vw, 1.3rem); font-weight: 700; '
+                            f'background: {colors["primary"]}33; padding: 8px 16px; border-radius: 8px; '
                             'text-align: center; white-space: nowrap;'
                         )
                         # Dice icon positioned to the right of the label
@@ -1242,22 +1310,22 @@ def create_game_ui():
 
                     # Timer configuration
                     with ui.row().classes('items-center justify-center gap-2'):
-                        ui.label("⏱️ Timer:").style('color: #1A0A14; font-size: 0.9rem;')
+                        ui.label("⏱️ Timer:").style(f'color: {colors["text_dark"]}; font-size: 0.9rem;')
                         ui.number(value=game.timer_duration, min=15, max=120, step=5,
                                   on_change=update_timer_duration).style(
                             'width: 70px;'
                         ).props('dense outlined')
-                        ui.label("seconds").style('color: #1A0A14; font-size: 0.9rem;')
+                        ui.label("seconds").style(f'color: {colors["text_dark"]}; font-size: 0.9rem;')
 
                 # Start button
                 ui.button("🎬 START THE SHOW", on_click=start_game_from_welcome).classes(
                     'bollywood-btn btn-magenta'
                 ).style('font-size: clamp(0.8rem, 2.5vw, 1rem); padding: 12px 32px; margin-top: 12px;')
 
-                # Timer info - dark color
+                # Timer info
                 duration = game.timer_duration if game.team_mode else GAME_DURATION_SEC
                 timer_label = ui.label(f"⏱️ {duration} seconds per round").style(
-                    'color: #880E4F; font-size: clamp(0.75rem, 2.5vw, 0.9rem); margin-top: 8px;'
+                    f'color: {colors["accent_dark"]}; font-size: clamp(0.75rem, 2.5vw, 0.9rem); margin-top: 8px;'
                 )
 
     # ---------- GAME SCREEN ----------
@@ -1369,11 +1437,11 @@ def create_game_ui():
     # BUILD THE PAGE
     # ==========================================================================
 
-    # Add head HTML (styles, fonts, scripts)
-    ui.add_head_html(STYLES['head_html'])
+    # Add head HTML (styles, fonts, scripts) with theme colors
+    ui.add_head_html(generate_theme_css(game.get_theme_colors()))
 
-    # Set body background
-    ui.query('body').style(STYLES['body_bg'])
+    # Set body background with theme colors
+    ui.query('body').style(generate_body_bg(game.get_theme_colors()))
 
     # Main layout container
     with ui.column().classes('w-full max-w-4xl mx-auto p-4 md:p-8'):
