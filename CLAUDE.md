@@ -62,6 +62,16 @@ pip install -r requirements.txt
 - Tracks shown movies to prevent duplicates
 - Game ends when all movies have been shown
 
+### Progressive Reveal (NiceGUI only)
+The movie image starts blurred and gradually clears as time counts down:
+- **Toggle on/off** from the welcome screen (enabled by default)
+- **Max blur:** 10px at start (recognizable but challenging)
+- **Clears linearly** as time decreases
+- **Fully clear at 10 seconds remaining** (builds final tension)
+- **Scales with timer duration** - shorter timers reveal faster
+- **Instant clear** when "REVEAL" button is clicked
+- Uses CSS `filter: blur()` with smooth 0.3s transition
+
 ## Architecture Notes
 - Streamlit version uses session state + JavaScript injection for timer
 - NiceGUI version uses GameState class + native ui.timer()

@@ -689,6 +689,9 @@ class GameState:
         self.hint_used = False  # Track if hint was used this round
         self.awaiting_score = False  # Waiting for coordinator to mark correct/wrong
 
+        # Progressive reveal setting
+        self.progressive_reveal = True  # Image starts blurred and clears over time
+
     def next_movie(self):
         """Pick a random movie that hasn't been shown yet."""
         available = [m for m in self.valid_movies if m['filename'] not in self.shown_movies]
@@ -780,6 +783,28 @@ class GameState:
         """Count of movies not yet shown."""
         return len(self.valid_movies) - len(self.shown_movies)
 
+    def get_timer_duration(self):
+        """Get the current timer duration based on game mode."""
+        return self.timer_duration if self.team_mode else GAME_DURATION_SEC
+
+    def calculate_blur(self):
+        """
+        Calculate blur amount based on time remaining.
+        Returns blur in pixels (max 10px, clears to 0 at 10s remaining).
+        Scales automatically with timer duration.
+        Returns 0 if progressive reveal is disabled.
+        """
+        if not self.progressive_reveal:
+            return 0
+        total_time = self.get_timer_duration()
+        # Clear blur completely in last 10 seconds
+        if self.time_left <= 10:
+            return 0
+        # Calculate ratio: starts at 1.0 (full blur), decreases to 0
+        ratio = (self.time_left - 10) / (total_time - 10)
+        max_blur = 10  # Maximum blur in pixels (recognizable but challenging)
+        return round(ratio * max_blur, 1)
+
     def total_count(self):
         """Total number of movies."""
         return len(self.valid_movies)
@@ -812,6 +837,7 @@ def create_game_ui():
     timer_display = None
     countdown_overlay = None
     image_container = None
+    image_element = None  # Reference to image for blur updates
     hint_container = None
     answer_container = None
     progress_container = None
@@ -832,6 +858,14 @@ def create_game_ui():
         minutes = game.time_left // 60
         seconds = game.time_left % 60
         timer_display.set_text(f"{minutes}:{seconds:02d}")
+
+        # Update progressive blur on image
+        if image_element and not game.show_answer:
+            blur = game.calculate_blur()
+            image_element.style(
+                f'max-height: min(45vh, 350px); object-fit: contain; '
+                f'filter: blur({blur}px); transition: filter 0.3s ease-out;'
+            )
 
         # Countdown overlay for last 10 seconds
         if not countdown_overlay:
@@ -877,16 +911,19 @@ def create_game_ui():
 
         if game.current_movie:
             # Update image and countdown overlay
-            nonlocal countdown_overlay
+            nonlocal countdown_overlay, image_element
             image_container.clear()
             with image_container:
                 # Image with onload handler to start timer
                 img_path = os.path.join(IMAGE_FOLDER, game.current_movie['filename'])
-                img = ui.image(img_path).classes('max-w-full rounded-lg game-image').style(
-                    'max-height: min(45vh, 350px); object-fit: contain;'
+                # Calculate blur: 0 if answer revealed, otherwise based on time remaining
+                blur = 0 if game.show_answer else game.calculate_blur()
+                image_element = ui.image(img_path).classes('max-w-full rounded-lg game-image').style(
+                    f'max-height: min(45vh, 350px); object-fit: contain; '
+                    f'filter: blur({blur}px); transition: filter 0.3s ease-out;'
                 )
                 # Start timer when image loads
-                img.on('load', lambda: start_timer_after_load())
+                image_element.on('load', lambda: start_timer_after_load())
                 # Re-create countdown overlay inside image container
                 countdown_overlay = ui.label("").classes('countdown-overlay').style('display: none;')
 
@@ -1024,6 +1061,12 @@ def create_game_ui():
     def reveal_answer_click():
         game.show_answer = True
         game.timer_active = False
+        # Clear blur instantly on reveal
+        if image_element:
+            image_element.style(
+                'max-height: min(45vh, 350px); object-fit: contain; '
+                'filter: blur(0px); transition: filter 0.3s ease-out;'
+            )
         # In team mode, show scoring buttons
         if game.team_mode:
             game.awaiting_score = True
@@ -1159,12 +1202,22 @@ def create_game_ui():
                     'color: #1A0A14; font-size: clamp(0.9rem, 3vw, 1.1rem); font-weight: 600;'
                 )
 
-                # ---------- GAME MODE TOGGLE ----------
-                with ui.row().classes('items-center gap-4 mt-4'):
-                    ui.label("Game Mode:").style('color: #1A0A14; font-weight: 600;')
-                    ui.switch("Team Battle", value=game.team_mode, on_change=toggle_team_mode).style(
-                        'color: #880E4F;'
-                    )
+                # ---------- GAME OPTIONS ----------
+                with ui.column().classes('items-center gap-2 mt-4'):
+                    # Team mode toggle
+                    with ui.row().classes('items-center gap-4'):
+                        ui.label("Game Mode:").style('color: #1A0A14; font-weight: 600;')
+                        ui.switch("Team Battle", value=game.team_mode, on_change=toggle_team_mode).style(
+                            'color: #880E4F;'
+                        )
+
+                    # Progressive reveal toggle
+                    with ui.row().classes('items-center gap-4'):
+                        ui.label("Progressive Reveal:").style('color: #1A0A14; font-weight: 600;')
+                        ui.switch("", value=game.progressive_reveal,
+                                  on_change=lambda e: setattr(game, 'progressive_reveal', e.value)).style(
+                            'color: #00BFA5;'
+                        ).tooltip('Image starts blurred and clears over time')
 
                 # ---------- TEAM OPTIONS (shown when team mode enabled) ----------
                 team_options_container = ui.column().classes('items-center gap-3 mt-2 w-full')

@@ -20,7 +20,7 @@ Party game improvement ideas for future development.
 | Feature | Description | Priority |
 |---------|-------------|----------|
 | **"I Know It!" button** | Player claims to know answer → stops timer → if wrong, penalty | High |
-| **Progressive reveal** | Image starts blurry/zoomed, gradually clears over 60s | Medium |
+| ~~**Progressive reveal**~~ | ~~Image starts blurry/zoomed, gradually clears over 60s~~ | ✅ Done |
 | **Lifelines** | "50/50" shows 2 choices, "Decade hint" shows release year | Medium |
 | **Difficulty levels** | Easy (popular films), Medium (cult classics), Hard (obscure) | Low |
 
