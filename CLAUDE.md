@@ -97,6 +97,13 @@ Both `data.csv` and `data_hollywood.csv` use the same format:
 3. App auto-filters to only show movies with existing image files
 4. Restart app to reload data
 
+### Recommended Image Dimensions
+- **Aspect ratio: 4:3** (e.g., 1200x900px) — best compromise for both portrait phones and landscape TV/laptop screens
+- **Resolution: 1200x900px** — sharp on a 65" TV, reasonable file size
+- **Format: PNG or WebP**
+- Avoid 16:9 landscape — appears small on mobile phones (width-constrained, leaving empty vertical space)
+- Current images are mostly landscape (16:9), which is why they appear small on mobile
+
 ---
 
 ## Game Mechanics

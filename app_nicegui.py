@@ -513,7 +513,8 @@ def generate_theme_css(theme_colors):
             }}
 
             .game-card {{
-                border-radius: 16px;
+                border-radius: 12px;
+                margin: 0 !important;
             }}
 
             .movie-frame {{
@@ -534,7 +535,22 @@ def generate_theme_css(theme_colors):
             }}
 
             .game-image {{
-                max-height: 35vh !important;
+                max-height: 50vh !important;
+                width: 100% !important;
+            }}
+
+            .film-strip-border {{
+                height: 6px;
+            }}
+
+            .progress-dots {{
+                gap: 4px;
+            }}
+
+            .image-area-container {{
+                padding-top: 0 !important;
+                padding-bottom: 0 !important;
+                min-height: 100px !important;
             }}
 
             .theme-toggle-btn {{
@@ -904,7 +920,7 @@ def create_game_ui():
         if image_element and not game.show_answer:
             blur = game.calculate_blur()
             image_element.style(
-                f'max-height: min(45vh, 350px); object-fit: contain; '
+                f'max-height: min(55vh, 450px); object-fit: contain; '
                 f'filter: blur({blur}px); transition: filter 0.3s ease-out;'
             )
 
@@ -960,7 +976,7 @@ def create_game_ui():
                 # Calculate blur: 0 if answer revealed, otherwise based on time remaining
                 blur = 0 if game.show_answer else game.calculate_blur()
                 image_element = ui.image(img_path).classes('max-w-full rounded-lg game-image').style(
-                    f'max-height: min(45vh, 350px); object-fit: contain; '
+                    f'max-height: min(55vh, 450px); object-fit: contain; '
                     f'filter: blur({blur}px); transition: filter 0.3s ease-out;'
                 )
                 # Start timer when image loads
@@ -1105,7 +1121,7 @@ def create_game_ui():
         # Clear blur instantly on reveal
         if image_element:
             image_element.style(
-                'max-height: min(45vh, 350px); object-fit: contain; '
+                'max-height: min(55vh, 450px); object-fit: contain; '
                 'filter: blur(0px); transition: filter 0.3s ease-out;'
             )
         # In team mode, show scoring buttons
@@ -1236,9 +1252,9 @@ def create_game_ui():
         colors = game.get_theme_colors()
 
         with main_container:
-            with ui.column().classes('w-full items-center justify-center gap-2 md:gap-4 py-4 md:py-6'):
+            with ui.column().classes('w-full items-center justify-center gap-1 sm:gap-2 md:gap-4 py-2 sm:py-4 md:py-6'):
                 # Film reel decoration
-                ui.label("🎞️").style('font-size: clamp(2rem, 6vw, 3rem); animation: reelSpin 4s linear infinite;')
+                ui.label("🎞️").style('font-size: clamp(1.5rem, 6vw, 3rem); animation: reelSpin 4s linear infinite;')
 
                 # Main title - dynamic based on theme
                 title_label = ui.label(theme_config['title_text']).classes('main-title').style(
@@ -1253,10 +1269,10 @@ def create_game_ui():
                 )
 
                 # Decorative elements
-                ui.label("✦ ✦ ✦").style(f'color: {colors["primary"]}; font-size: 1rem; letter-spacing: 12px; margin: 8px 0;')
+                ui.label("✦ ✦ ✦").style(f'color: {colors["primary"]}; font-size: 1rem; letter-spacing: 12px; margin: 2px 0;')
 
                 # ---------- THEME TOGGLE ----------
-                with ui.row().classes('items-center gap-2 mt-2'):
+                with ui.row().classes('items-center gap-2 mt-1'):
                     bollywood_btn = ui.button("🎬 Bollywood", on_click=lambda: select_theme('bollywood')).classes(
                         f'theme-toggle-btn {"active" if game.theme == "bollywood" else "inactive"}'
                     )
@@ -1267,11 +1283,11 @@ def create_game_ui():
                 # Movie count info - uses current theme's data
                 movie_count = len(game.valid_movies)
                 movie_count_label = ui.label(f"🎬 {movie_count} Movies to Guess").style(
-                    f'color: {colors["text_dark"]}; font-size: clamp(0.9rem, 3vw, 1.1rem); font-weight: 600; margin-top: 8px;'
+                    f'color: {colors["text_dark"]}; font-size: clamp(0.9rem, 3vw, 1.1rem); font-weight: 600; margin-top: 2px;'
                 )
 
                 # ---------- GAME OPTIONS ----------
-                with ui.column().classes('items-center gap-2 mt-4'):
+                with ui.column().classes('items-center gap-1 sm:gap-2 mt-2 sm:mt-4'):
                     # Team mode toggle
                     with ui.row().classes('items-center gap-4'):
                         ui.label("Game Mode:").style(f'color: {colors["text_dark"]}; font-weight: 600;')
@@ -1288,7 +1304,7 @@ def create_game_ui():
                         ).tooltip('Image starts blurred and clears over time')
 
                 # ---------- TEAM OPTIONS (shown when team mode enabled) ----------
-                team_options_container = ui.column().classes('items-center gap-3 mt-2 w-full')
+                team_options_container = ui.column().classes('items-center gap-1 sm:gap-3 mt-1 sm:mt-2 w-full')
                 team_options_container.style(f"display: {'flex' if game.team_mode else 'none'};")
 
                 with team_options_container:
@@ -1320,7 +1336,7 @@ def create_game_ui():
                 # Start button
                 ui.button("🎬 START THE SHOW", on_click=start_game_from_welcome).classes(
                     'bollywood-btn btn-magenta'
-                ).style('font-size: clamp(0.8rem, 2.5vw, 1rem); padding: 12px 32px; margin-top: 12px;')
+                ).style('font-size: clamp(0.8rem, 2.5vw, 1rem); padding: 10px 28px; margin-top: 6px;')
 
                 # Timer info
                 duration = game.timer_duration if game.team_mode else GAME_DURATION_SEC
@@ -1340,7 +1356,7 @@ def create_game_ui():
             # Film strip top border
             ui.element('div').classes('film-strip-border w-full')
 
-            with ui.column().classes('w-full p-2 md:p-4 gap-1 md:gap-2'):
+            with ui.column().classes('w-full p-1 sm:p-2 md:p-4 gap-1 md:gap-2'):
                 # ---------- HEADER ROW ----------
                 with ui.row().classes('w-full justify-between items-center gap-2').style('flex-wrap: nowrap;'):
                     # Left side: Title and progress
@@ -1444,7 +1460,7 @@ def create_game_ui():
     ui.query('body').style(generate_body_bg(game.get_theme_colors()))
 
     # Main layout container
-    with ui.column().classes('w-full max-w-4xl mx-auto p-4 md:p-8'):
+    with ui.column().classes('w-full max-w-4xl mx-auto p-1 sm:p-4 md:p-8'):
         # Game card container
         main_container = ui.element('div').classes('game-card w-full')
 
