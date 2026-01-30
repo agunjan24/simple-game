@@ -1,0 +1,14 @@
+[
+  {"filename": "A_Star_Is_Born.png", "movie_name": "A Star Is Born", "hint": "Shallow lyrics", "category": "Romance", "difficulty": "Medium"},
+  {"filename": "Anaconda.png", "movie_name": "Anaconda", "hint": "Giant snake in the Amazon", "category": "Horror", "difficulty": "Easy"},
+  {"filename": "Driving_Miss_Daisy.png", "movie_name": "Driving Miss Daisy", "hint": "Morgan Freeman as chauffeur", "category": "Drama", "difficulty": "Medium"},
+  {"filename": "Forest_Gump.png", "movie_name": "Forrest Gump", "hint": "Life is like a box of chocolates", "category": "Drama", "difficulty": "Easy"},
+  {"filename": "Independence_Day.png", "movie_name": "Independence Day", "hint": "July 4th alien invasion", "category": "Sci-Fi", "difficulty": "Easy"},
+  {"filename": "Jurassic_Park.png", "movie_name": "Jurassic Park", "hint": "Dinosaurs brought back to life", "category": "Sci-Fi", "difficulty": "Easy"},
+  {"filename": "Meet_The_Parents.png", "movie_name": "Meet the Parents", "hint": "Circle of trust", "category": "Comedy", "difficulty": "Easy"},
+  {"filename": "Scent_Of_A_Woman.png", "movie_name": "Scent of a Woman", "hint": "Hoo-ah! Al Pacino", "category": "Drama", "difficulty": "Medium"},
+  {"filename": "Sleepless_In_Seattle.png", "movie_name": "Sleepless in Seattle", "hint": "Tom Hanks and Meg Ryan", "category": "Romance", "difficulty": "Medium"},
+  {"filename": "Striptease.png", "movie_name": "Striptease", "hint": "Demi Moore dancer", "category": "Drama", "difficulty": "Hard"},
+  {"filename": "The_Godfather.png", "movie_name": "The Godfather", "hint": "An offer you can't refuse", "category": "Crime", "difficulty": "Easy"},
+  {"filename": "Titanic.png", "movie_name": "Titanic", "hint": "Jack and Rose", "category": "Romance", "difficulty": "Easy"}
+]
