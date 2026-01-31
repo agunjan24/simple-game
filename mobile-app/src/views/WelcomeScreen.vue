@@ -19,12 +19,12 @@
         <div class="theme-toggle">
           <button
             :class="['theme-btn', store.theme === 'bollywood' ? 'active' : 'inactive']"
-            :style="store.theme === 'bollywood' ? activeBtnStyle : {}"
+            :style="store.theme === 'bollywood' ? activeBtnStyle : inactiveBtnStyle"
             @click="store.setTheme('bollywood')"
           >🎬 Bollywood</button>
           <button
             :class="['theme-btn', store.theme === 'hollywood' ? 'active' : 'inactive']"
-            :style="store.theme === 'hollywood' ? activeBtnStyle : {}"
+            :style="store.theme === 'hollywood' ? activeBtnStyle : inactiveBtnStyle"
             @click="store.setTheme('hollywood')"
           >🎥 Hollywood</button>
         </div>
@@ -40,16 +40,16 @@
             <span :style="{ color: colors.textDark }">Game Mode:</span>
             <label class="toggle-switch">
               <input type="checkbox" v-model="store.teamMode" />
-              <span class="toggle-slider" :style="store.teamMode ? { background: colors.accent } : {}"></span>
+              <span class="toggle-slider" :style="store.teamMode ? { background: '#6495ED' } : {}"></span>
             </label>
-            <span :style="{ color: colors.accentDark }">{{ store.teamMode ? 'Team Battle' : 'Solo' }}</span>
+            <span :style="{ color: colors.textDark }">{{ store.teamMode ? 'Team Battle' : 'Solo' }}</span>
           </div>
 
           <div class="option-row">
             <span :style="{ color: colors.textDark }">Progressive Reveal:</span>
             <label class="toggle-switch">
               <input type="checkbox" v-model="store.progressiveReveal" />
-              <span class="toggle-slider" :style="store.progressiveReveal ? { background: colors.secondary } : {}"></span>
+              <span class="toggle-slider" :style="store.progressiveReveal ? { background: '#6495ED' } : {}"></span>
             </label>
           </div>
         </div>
@@ -109,12 +109,19 @@ const bgStyle = computed(() => ({
 }))
 
 const activeBtnStyle = computed(() => ({
-  background: `linear-gradient(135deg, ${colors.value.primary}, ${colors.value.primaryDark})`,
-  color: colors.value.textDark,
+  background: '#6495ED',
+  color: '#fff',
+  borderColor: '#6495ED',
+  boxShadow: '0 2px 10px rgba(100, 149, 237, 0.5)',
+}))
+const inactiveBtnStyle = computed(() => ({
+  background: '#B0C4EE',
+  color: '#fff',
+  borderColor: '#B0C4EE',
 }))
 
 const startBtnStyle = computed(() => ({
-  background: `linear-gradient(135deg, ${colors.value.accent}, ${colors.value.accentDark})`,
+  background: '#6495ED',
   color: '#fff',
 }))
 
@@ -151,7 +158,7 @@ function startGame() {
     0 0 100px v-bind('colors.primary + "33"'),
     inset 0 1px 0 rgba(255, 255, 255, 0.8);
   border: 2px solid v-bind('colors.primary + "4d"');
-  max-width: 500px;
+  max-width: 850px;
   width: 100%;
   overflow: hidden;
   animation: spotlightPulse 4s ease-in-out infinite;
@@ -161,8 +168,8 @@ function startGame() {
   display: flex;
   flex-direction: column;
   align-items: center;
-  padding: 24px 16px;
-  gap: 6px;
+  padding: 24px 24px;
+  gap: 16px;
   animation: floatUp 0.8s ease-out;
 }
 
@@ -217,6 +224,7 @@ function startGame() {
   font-family: 'Poppins', sans-serif;
   padding: 8px 16px;
   border-radius: 20px;
+  border: 2px solid transparent;
   cursor: pointer;
   font-weight: 600;
   font-size: 0.85rem;
@@ -225,15 +233,11 @@ function startGame() {
 }
 
 .theme-btn.active {
-  border: 2px solid v-bind('colors.primary');
-  box-shadow: 0 2px 10px v-bind('colors.primary + "66"');
+  border: 2px solid transparent;
 }
 
 .theme-btn.inactive {
-  background: transparent;
-  border: 2px solid v-bind('colors.primary + "66"');
-  color: v-bind('colors.textDark');
-  opacity: 0.7;
+  opacity: 0.85;
 }
 
 .theme-btn:hover {
@@ -250,7 +254,6 @@ function startGame() {
   display: flex;
   flex-direction: column;
   gap: 8px;
-  margin-top: 8px;
 }
 
 .option-row {
@@ -258,14 +261,14 @@ function startGame() {
   align-items: center;
   gap: 12px;
   font-weight: 600;
-  font-size: 0.95rem;
+  font-size: 1rem;
 }
 
 .toggle-switch {
   position: relative;
   display: inline-block;
-  width: 44px;
-  height: 24px;
+  width: 36px;
+  height: 20px;
 }
 
 .toggle-switch input {
@@ -279,15 +282,15 @@ function startGame() {
   cursor: pointer;
   inset: 0;
   background: #ccc;
-  border-radius: 24px;
+  border-radius: 20px;
   transition: 0.3s;
 }
 
 .toggle-slider::before {
   content: '';
   position: absolute;
-  height: 18px;
-  width: 18px;
+  height: 14px;
+  width: 14px;
   left: 3px;
   bottom: 3px;
   background: white;
@@ -296,7 +299,7 @@ function startGame() {
 }
 
 .toggle-switch input:checked + .toggle-slider::before {
-  transform: translateX(20px);
+  transform: translateX(16px);
 }
 
 .timer-config {
@@ -363,7 +366,6 @@ function startGame() {
 .dice-btn:active { transform: scale(0.9); }
 
 .start-btn {
-  margin-top: 12px;
   padding: 14px 36px;
   border: none;
   border-radius: 30px;

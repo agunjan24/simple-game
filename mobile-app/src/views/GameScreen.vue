@@ -2,7 +2,7 @@
   <div class="game-screen" :style="bgStyle">
     <div class="game-card">
       <!-- Film strip top -->
-      <div class="film-strip" :style="{ background: colors.primaryDark }"></div>
+      <div class="film-strip" :style="filmStripStyle"></div>
 
       <div class="game-content">
         <!-- Header -->
@@ -69,11 +69,6 @@
           💡 {{ store.hintText }}
         </div>
 
-        <!-- Answer -->
-        <div v-if="store.showAnswer && store.currentMovie" class="answer-box" :style="answerBoxStyle">
-          🎬 {{ store.currentMovie.movie_name }}
-        </div>
-
         <!-- Team scoreboard -->
         <div v-if="store.teamMode" class="scoreboard">
           <div
@@ -92,10 +87,14 @@
             <span class="team-points">{{ store.teamScores[1] }}</span>
           </div>
         </div>
+        <!-- Answer -->
+        <div v-if="store.showAnswer && store.currentMovie" class="answer-box" :style="answerBoxStyle">
+          🎬 {{ store.currentMovie.movie_name }}
+        </div>
       </div>
 
       <!-- Film strip bottom -->
-      <div class="film-strip" :style="{ background: colors.primaryDark }"></div>
+      <div class="film-strip" :style="filmStripStyle"></div>
     </div>
   </div>
 </template>
@@ -124,6 +123,10 @@ const bgStyle = computed(() => ({
     radial-gradient(ellipse at bottom, ${colors.value.accent}1a 0%, transparent 50%),
     linear-gradient(180deg, ${colors.value.bgDark} 0%, ${colors.value.bgMid} 50%, ${colors.value.bgLight} 100%)`,
   minHeight: '100vh',
+}))
+
+const filmStripStyle = computed(() => ({
+  background: `repeating-linear-gradient(90deg, ${colors.value.bgMid} 0px, ${colors.value.bgMid} 10px, ${colors.value.primary} 10px, ${colors.value.primary} 12px, ${colors.value.bgMid} 12px, ${colors.value.bgMid} 22px)`,
 }))
 
 const imageSrc = computed(() => {
@@ -156,25 +159,22 @@ const turnBadgeStyle = computed(() => {
   return { background: grad }
 })
 
-const hintBtnStyle = computed(() => ({
-  background: `linear-gradient(135deg, ${colors.value.primary}, ${colors.value.primaryDark})`,
-  color: colors.value.textDark,
-}))
-const revealBtnStyle = computed(() => ({
-  background: `linear-gradient(135deg, ${colors.value.accent}, ${colors.value.accentDark})`,
+const btnStyle = computed(() => ({
+  background: '#6495ED',
   color: '#fff',
+  borderColor: '#6495ED',
 }))
-const nextBtnStyle = computed(() => ({
-  background: `linear-gradient(135deg, ${colors.value.secondary}, ${colors.value.secondary}cc)`,
-  color: '#fff',
-}))
+const hintBtnStyle = btnStyle
+const revealBtnStyle = btnStyle
+const nextBtnStyle = btnStyle
 const hintBoxStyle = computed(() => ({
-  background: `${colors.value.primaryLight}cc`,
+  background: 'rgba(255, 248, 231, 0.8)',
   color: colors.value.textDark,
 }))
 const answerBoxStyle = computed(() => ({
-  background: `${colors.value.primaryLight}`,
-  color: colors.value.textDark,
+  background: '#E8F5E9',
+  color: '#1A0A14',
+  border: `2px solid ${colors.value.secondary}`,
 }))
 
 function dotStyle(i) {
@@ -272,7 +272,7 @@ onUnmounted(() => {
     0 0 100px v-bind('colors.primary + "33"'),
     inset 0 1px 0 rgba(255, 255, 255, 0.8);
   border: 2px solid v-bind('colors.primary + "4d"');
-  max-width: 600px;
+  max-width: 850px;
   width: 100%;
   overflow: hidden;
   align-self: flex-start;
@@ -281,15 +281,6 @@ onUnmounted(() => {
 .film-strip {
   height: 12px;
   width: 100%;
-  background: repeating-linear-gradient(
-    90deg,
-    v-bind('colors.bgMid') 0px,
-    v-bind('colors.bgMid') 10px,
-    v-bind('colors.primary') 10px,
-    v-bind('colors.primary') 12px,
-    v-bind('colors.bgMid') 12px,
-    v-bind('colors.bgMid') 22px
-  );
 }
 
 .game-content {
@@ -407,19 +398,16 @@ onUnmounted(() => {
   justify-content: center;
   align-items: center;
   min-height: 150px;
-  padding: 4px 0;
+  padding: 4px 0 14px 0;
 }
 
 .movie-image {
   max-width: 100%;
-  max-height: min(55vh, 450px);
+  max-height: min(60vh, 500px);
   object-fit: contain;
   border-radius: 12px;
-  box-shadow:
-    0 10px 40px rgba(0, 0, 0, 0.4),
-    0 0 0 3px v-bind('colors.primary'),
-    0 0 0 6px v-bind('colors.bgMid'),
-    0 0 40px v-bind('colors.primary + "33"');
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  border: 1px solid rgba(0, 0, 0, 0.12);
 }
 
 .countdown-overlay {
@@ -455,12 +443,12 @@ onUnmounted(() => {
   font-size: 0.75rem;
   padding: 8px 18px;
   border-radius: 25px;
-  border: 1.5px solid v-bind('colors.primary');
+  border: 2px solid;
   text-transform: uppercase;
   letter-spacing: 1px;
   cursor: pointer;
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2), inset 0 1px 0 rgba(255, 255, 255, 0.3);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
   touch-action: manipulation;
   -webkit-tap-highlight-color: transparent;
   -webkit-touch-callout: none;
@@ -517,20 +505,19 @@ onUnmounted(() => {
 .hint-box {
   padding: 8px 16px;
   border-radius: 12px;
-  text-align: center;
+  text-align: left;
   font-size: clamp(0.8rem, 2.5vw, 1rem);
   border: 2px solid v-bind('colors.primary');
   animation: floatUp 0.5s ease-out;
 }
 
 .answer-box {
-  padding: 8px 16px;
+  padding: 12px 16px;
   border-radius: 12px;
-  text-align: center;
+  text-align: left;
   font-size: clamp(0.9rem, 3.5vw, 1.5rem);
   font-weight: 700;
   font-family: 'Rozha One', serif;
-  border: 2px solid v-bind('colors.secondary');
   animation: floatUp 0.5s ease-out;
 }
 
@@ -584,15 +571,12 @@ onUnmounted(() => {
   .timer-text { font-size: 0.95rem; }
   .movie-image {
     max-height: 50vh;
-    box-shadow:
-      0 5px 20px rgba(0, 0, 0, 0.4),
-      0 0 0 2px v-bind('colors.primary'),
-      0 0 0 4px v-bind('colors.bgMid');
   }
   .countdown-overlay { font-size: 4rem; }
   .film-strip { height: 6px; }
   .dot { width: 8px; height: 8px; }
   .progress-dots { gap: 4px; }
-  .hint-box, .answer-box { padding: 4px 8px; border-radius: 6px; }
+  .hint-box { padding: 4px 8px; border-radius: 6px; }
+  .answer-box { padding: 8px 8px; }
 }
 </style>
