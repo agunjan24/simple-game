@@ -185,11 +185,11 @@ function startGame() {
   line-height: 1.1;
   background: linear-gradient(
     90deg,
-    v-bind('colors.primary') 0%,
-    v-bind('colors.primaryLight') 25%,
-    v-bind('colors.primary') 50%,
-    v-bind('colors.primaryLight') 75%,
-    v-bind('colors.primary') 100%
+    v-bind('colors.primaryDark') 0%,
+    v-bind('colors.primary') 25%,
+    v-bind('colors.primaryDark') 50%,
+    v-bind('colors.primary') 75%,
+    v-bind('colors.primaryDark') 100%
   );
   background-size: 200% auto;
   -webkit-background-clip: text;
@@ -262,6 +262,14 @@ function startGame() {
   gap: 12px;
   font-weight: 600;
   font-size: 1rem;
+  white-space: nowrap;
+}
+
+@media (max-width: 640px) {
+  .option-row {
+    font-size: 0.85rem;
+    gap: 8px;
+  }
 }
 
 .toggle-switch {
