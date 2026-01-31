@@ -131,7 +131,7 @@ const filmStripStyle = computed(() => ({
 
 const imageSrc = computed(() => {
   if (!store.currentMovie) return ''
-  return `/${config.value.imageFolder}/${store.currentMovie.filename}`
+  return `${config.value.imageFolder}/${store.currentMovie.filename}`
 })
 
 const imageStyle = computed(() => {
@@ -402,7 +402,7 @@ onUnmounted(() => {
 }
 
 .movie-image {
-  max-width: 100%;
+  width: 100%;
   max-height: min(60vh, 500px);
   object-fit: contain;
   border-radius: 12px;

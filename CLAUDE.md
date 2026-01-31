@@ -3,6 +3,12 @@
 ## Overview
 A movie guessing game where users identify movies from screenshot images within a configurable timer. Supports two themes: **Bollywood** and **Hollywood** with distinct styling, color palettes, and movie datasets. Two implementations exist: Streamlit (Bollywood only) and NiceGUI (full-featured with theme support).
 
+### Target Platforms
+The app must look and work well on all of the following:
+- **Laptop/desktop browser** (Chrome, Firefox, Edge, Safari)
+- **Mobile phones** — Android and iOS (browser + native app via Capacitor)
+- **Large displays** — projected or cast to screens up to **65" TV**
+
 ## Tech Stack
 - **Language:** Python 3.11+
 - **Primary Framework:** Streamlit (simpler, Bollywood only)
