@@ -70,7 +70,7 @@ Both `data.csv` and `data_hollywood.csv` use the same format:
 | Column | Description | Example |
 |--------|-------------|---------|
 | `filename` | Image file name (with extension) | `Titanic.png` |
-| `movie_name` | Full movie title (the answer) | `Titanic` |
+| `movie_name` | Full movie title (the answer) — NiceGUI/CSV | `Titanic` |
 | `hint` | Custom hint text or "No hint" | `"Jack and Rose"` |
 | `category` | Genre/category | `Romance` |
 | `difficulty` | Easy, Medium, or Hard | `Easy` |
@@ -102,6 +102,19 @@ Both `data.csv` and `data_hollywood.csv` use the same format:
 2. Add entry to corresponding CSV with matching filename
 3. App auto-filters to only show movies with existing image files
 4. Restart app to reload data
+
+### Mobile App Data Format (JSON)
+The mobile app (`mobile-app/src/data/*.json`) uses a generic data model with `title` instead of `movie_name`:
+
+| Field | Description | Example |
+|-------|-------------|---------|
+| `filename` | Image file name | `Titanic.png` |
+| `title` | The answer (generic, not movie-specific) | `Titanic` |
+| `hint` | Hint text or "No hint" | `"Jack and Rose"` |
+| `category` | Genre/category | `Romance` |
+| `difficulty` | Easy, Medium, or Hard | `Easy` |
+
+The mobile app's store uses generic names (`currentItem`, `validItems`, `shownItems`, `nextItem()`) so the framework supports non-movie categories (e.g., history, puzzles) by adding new theme configs with appropriate `categoryLabel`, `categoryLabelPlural`, `gameTitle`, and `subtitle` fields.
 
 ### Recommended Image Dimensions
 - **Aspect ratio: 4:3** (e.g., 1200x900px) — best compromise for both portrait phones and landscape TV/laptop screens

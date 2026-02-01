@@ -1,7 +1,16 @@
 import { defineStore } from 'pinia'
+import { Capacitor } from '@capacitor/core'
+import { StatusBar, Style } from '@capacitor/status-bar'
 import { THEMES } from '../themes/themes.js'
 import bollywoodData from '../data/bollywood.json'
 import hollywoodData from '../data/hollywood.json'
+
+function updateStatusBar(themeName) {
+  if (!Capacitor.isNativePlatform()) return
+  const colors = THEMES[themeName].colors
+  StatusBar.setStyle({ style: Style.Dark })
+  StatusBar.setBackgroundColor({ color: colors.bgDark })
+}
 
 const DEFAULT_DURATION = 25
 const DEFAULT_THEME = 'bollywood'
@@ -14,9 +23,9 @@ const DATA_MAP = {
 export const useGameStore = defineStore('game', {
   state: () => ({
     theme: DEFAULT_THEME,
-    validMovies: [],
-    shownMovies: [],
-    currentMovie: null,
+    validItems: [],
+    shownItems: [],
+    currentItem: null,
     timeLeft: DEFAULT_DURATION,
     timerActive: false,
     soloDuration: DEFAULT_DURATION,
@@ -38,9 +47,9 @@ export const useGameStore = defineStore('game', {
   getters: {
     themeConfig: (state) => THEMES[state.theme],
     themeColors: (state) => THEMES[state.theme].colors,
-    remainingCount: (state) => state.validMovies.length - state.shownMovies.length,
-    totalCount: (state) => state.validMovies.length,
-    shownCount: (state) => state.shownMovies.length,
+    remainingCount: (state) => state.validItems.length - state.shownItems.length,
+    totalCount: (state) => state.validItems.length,
+    shownCount: (state) => state.shownItems.length,
 
     currentBlur: (state) => {
       if (!state.progressiveReveal) return 0
@@ -51,10 +60,10 @@ export const useGameStore = defineStore('game', {
     },
 
     hintText: (state) => {
-      if (!state.currentMovie) return ''
-      const hint = state.currentMovie.hint
+      if (!state.currentItem) return ''
+      const hint = state.currentItem.hint
       if (!hint || hint === 'No hint') {
-        const name = state.currentMovie.movie_name
+        const name = state.currentItem.title
         return `Starts with '${name[0]}' \u2022 ${name.length} characters`
       }
       return hint
@@ -75,12 +84,13 @@ export const useGameStore = defineStore('game', {
 
   actions: {
     _loadThemeData() {
-      this.validMovies = DATA_MAP[this.theme] || []
+      this.validItems = DATA_MAP[this.theme] || []
     },
 
     init() {
       this._loadThemeData()
       this.randomizeTeamNames()
+      updateStatusBar(this.theme)
     },
 
     setTheme(name) {
@@ -88,16 +98,17 @@ export const useGameStore = defineStore('game', {
       this.theme = name
       this._loadThemeData()
       this.randomizeTeamNames()
-      this.shownMovies = []
+      this.shownItems = []
+      updateStatusBar(name)
     },
 
-    nextMovie() {
-      const available = this.validMovies.filter(
-        (m) => !this.shownMovies.includes(m.filename)
+    nextItem() {
+      const available = this.validItems.filter(
+        (m) => !this.shownItems.includes(m.filename)
       )
       if (available.length > 0) {
-        this.currentMovie = available[Math.floor(Math.random() * available.length)]
-        this.shownMovies.push(this.currentMovie.filename)
+        this.currentItem = available[Math.floor(Math.random() * available.length)]
+        this.shownItems.push(this.currentItem.filename)
         this.timeLeft = this.teamMode ? this.timerDuration : this.soloDuration
         this.showHint = false
         this.showAnswer = false
@@ -108,7 +119,7 @@ export const useGameStore = defineStore('game', {
         return true
       } else {
         this.gameOver = true
-        this.currentMovie = null
+        this.currentItem = null
         this.timerActive = false
         this.currentScreen = 'gameover'
         return false
@@ -116,7 +127,7 @@ export const useGameStore = defineStore('game', {
     },
 
     resetGame() {
-      this.shownMovies = []
+      this.shownItems = []
       this.gameOver = false
       this.score = 0
       this.currentScreen = 'game'
@@ -124,7 +135,7 @@ export const useGameStore = defineStore('game', {
         this.teamScores = [0, 0]
         this.currentTeam = 0
       }
-      this.nextMovie()
+      this.nextItem()
     },
 
     randomizeTeamNames() {

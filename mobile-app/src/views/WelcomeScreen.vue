@@ -10,7 +10,7 @@
         <h1 class="main-title">FRAMES</h1>
 
         <p class="subtitle" :style="{ color: colors.textDark }">
-          THE ULTIMATE MOVIE GUESSING GAME
+          {{ store.themeConfig.subtitle }}
         </p>
 
         <div class="stars" :style="{ color: colors.primary }">✦ ✦ ✦</div>
@@ -29,9 +29,9 @@
           >🎥 Hollywood</button>
         </div>
 
-        <!-- Movie count -->
-        <p class="movie-count" :style="{ color: colors.textDark }">
-          🎬 {{ store.totalCount }} Movies to Guess
+        <!-- Item count -->
+        <p class="item-count" :style="{ color: colors.textDark }">
+          🎬 {{ store.totalCount }} {{ store.themeConfig.categoryLabelPlural }} to Guess
         </p>
 
         <!-- Game options -->
@@ -136,7 +136,7 @@ function updateTimer(e) {
 
 function startGame() {
   store.currentScreen = 'game'
-  store.nextMovie()
+  store.nextItem()
   router.push('/game')
 }
 </script>
@@ -244,7 +244,7 @@ function startGame() {
   transform: scale(1.05);
 }
 
-.movie-count {
+.item-count {
   font-size: clamp(0.9rem, 3vw, 1.1rem);
   font-weight: 600;
   margin-top: 2px;

@@ -15,6 +15,10 @@ export const THEMES = {
       textLight: '#FFF8E7',
       textDark: '#1A0A14',
     },
+    categoryLabel: 'Movie',
+    categoryLabelPlural: 'Movies',
+    gameTitle: 'GUESS THE MOVIE',
+    subtitle: 'THE ULTIMATE MOVIE GUESSING GAME',
     imageFolder: 'images',
     teamNames: [
       ['Shahenshah', 'Mogambo'],
@@ -53,6 +57,10 @@ export const THEMES = {
       textLight: '#FFFFFF',
       textDark: '#1A1A2E',
     },
+    categoryLabel: 'Movie',
+    categoryLabelPlural: 'Movies',
+    gameTitle: 'GUESS THE MOVIE',
+    subtitle: 'THE ULTIMATE MOVIE GUESSING GAME',
     imageFolder: 'images_hollywood',
     teamNames: [
       ['Avengers', 'Justice League'],

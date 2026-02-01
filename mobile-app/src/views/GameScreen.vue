@@ -8,7 +8,7 @@
         <!-- Header -->
         <div class="header-row">
           <div class="header-left">
-            <h2 class="game-title">🎬 GUESS THE MOVIE</h2>
+            <h2 class="game-title">🎬 {{ config.gameTitle }}</h2>
             <!-- Progress dots -->
             <div class="progress-dots">
               <span
@@ -36,10 +36,10 @@
         <!-- Image area -->
         <div class="image-area">
           <img
-            v-if="store.currentMovie"
+            v-if="store.currentItem"
             :src="imageSrc"
             :style="imageStyle"
-            class="movie-image"
+            class="item-image"
             @load="onImageLoad"
             @error="onImageError"
           />
@@ -53,7 +53,7 @@
         <div class="control-buttons">
           <button class="game-btn btn-hint" :style="hintBtnStyle" @click="showHint">💡 HINT</button>
           <button class="game-btn btn-reveal" :style="revealBtnStyle" @click="revealAnswer">🎬 REVEAL</button>
-          <button class="game-btn btn-next" :style="nextBtnStyle" @click="nextMovie">
+          <button class="game-btn btn-next" :style="nextBtnStyle" @click="nextItem">
             {{ store.remainingCount > 0 ? '▶ NEXT' : '🏆 FINISH' }}
           </button>
         </div>
@@ -65,7 +65,7 @@
         </div>
 
         <!-- Hint -->
-        <div v-if="store.showHint && store.currentMovie" class="hint-box" :style="hintBoxStyle">
+        <div v-if="store.showHint && store.currentItem" class="hint-box" :style="hintBoxStyle">
           💡 {{ store.hintText }}
         </div>
 
@@ -88,8 +88,8 @@
           </div>
         </div>
         <!-- Answer -->
-        <div v-if="store.showAnswer && store.currentMovie" class="answer-box" :style="answerBoxStyle">
-          🎬 {{ store.currentMovie.movie_name }}
+        <div v-if="store.showAnswer && store.currentItem" class="answer-box" :style="answerBoxStyle">
+          🎬 {{ store.currentItem.title }}
         </div>
       </div>
 
@@ -130,8 +130,8 @@ const filmStripStyle = computed(() => ({
 }))
 
 const imageSrc = computed(() => {
-  if (!store.currentMovie) return ''
-  return `${config.value.imageFolder}/${store.currentMovie.filename}`
+  if (!store.currentItem) return ''
+  return `${config.value.imageFolder}/${store.currentItem.filename}`
 })
 
 const imageStyle = computed(() => {
@@ -208,7 +208,7 @@ function onImageLoad() {
 
 function onImageError() {
   // Skip to next if image fails
-  store.nextMovie()
+  store.nextItem()
 }
 
 function showHint() {
@@ -234,7 +234,7 @@ function scoreAnswer(correct) {
 function proceedToNext() {
   if (store.teamMode) store.switchTeam()
   if (store.remainingCount > 0) {
-    store.nextMovie()
+    store.nextItem()
     countdownText.value = ''
   } else {
     store.gameOver = true
@@ -243,7 +243,7 @@ function proceedToNext() {
   }
 }
 
-function nextMovie() {
+function nextItem() {
   if (store.teamMode && store.awaitingScore) return
   if (store.teamMode && !store.showAnswer) store.awardPoints(false)
   stop()
@@ -401,7 +401,7 @@ onUnmounted(() => {
   padding: 4px 0 14px 0;
 }
 
-.movie-image {
+.item-image {
   width: 100%;
   max-height: min(60vh, 500px);
   object-fit: contain;
@@ -569,7 +569,7 @@ onUnmounted(() => {
   }
   .timer-circle { width: 48px; height: 48px; }
   .timer-text { font-size: 0.95rem; }
-  .movie-image {
+  .item-image {
     max-height: 50vh;
   }
   .countdown-overlay { font-size: 4rem; }

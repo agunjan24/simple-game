@@ -1,7 +1,7 @@
 <template>
   <div>
-    <p>Bollywood Frames - Mobile App</p>
-    <p>Theme: {{ store.theme }} | Movies: {{ store.totalCount }}</p>
+    <p>CineFrames - Mobile App</p>
+    <p>Theme: {{ store.theme }} | {{ store.themeConfig.categoryLabelPlural }}: {{ store.totalCount }}</p>
   </div>
 </template>
 

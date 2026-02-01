@@ -1,12 +1,12 @@
 [
-  {"filename": "BhaagMilkhaBhaag.jpg", "movie_name": "Bhaag Milkha Bhaag", "hint": "The Flying Sikh", "category": "Sports", "difficulty": "Easy"},
-  {"filename": "chanduchampion.jpg", "movie_name": "Chandu Champion", "hint": "Kartik Aryan", "category": "Sports", "difficulty": "Hard"},
-  {"filename": "missionistanbul.jpg", "movie_name": "Mission Istanbul", "hint": "Turkiye", "category": "Spy", "difficulty": "Medium"},
-  {"filename": "ramterekitnenaam.jpg", "movie_name": "Ram Tere Kitne Naam", "hint": "Sanjeev Kumar", "category": "Religious", "difficulty": "Medium"},
-  {"filename": "SalaamNamaste.jpg", "movie_name": "Salaam Namaste", "hint": "Set In Australia", "category": "Romantic", "difficulty": "Easy"},
-  {"filename": "Padmaavat.jpg", "movie_name": "Padmaavat", "hint": "Khilji", "category": "Drama", "difficulty": "Easy"},
-  {"filename": "Tango_Charlie.jpg", "movie_name": "Tango Charlie", "hint": "Indian Army", "category": "War", "difficulty": "Medium"},
-  {"filename": "Uri_The_Surgical_Strike.jpg", "movie_name": "Uri The Surgical Strike", "hint": "How's the josh?", "category": "War", "difficulty": "Easy"},
-  {"filename": "Taare_Zameen_Par.jpg", "movie_name": "Taare Zameen Par", "hint": "Dyslexia", "category": "Drama", "difficulty": "Easy"},
-  {"filename": "Patthar_Ke_Phool.jpg", "movie_name": "Patthar Ke Phool", "hint": "Salman", "category": "Romantic", "difficulty": "Easy"}
+  {"filename": "BhaagMilkhaBhaag.jpg", "title": "Bhaag Milkha Bhaag", "hint": "The Flying Sikh", "category": "Sports", "difficulty": "Easy"},
+  {"filename": "chanduchampion.jpg", "title": "Chandu Champion", "hint": "Kartik Aryan", "category": "Sports", "difficulty": "Hard"},
+  {"filename": "missionistanbul.jpg", "title": "Mission Istanbul", "hint": "Turkiye", "category": "Spy", "difficulty": "Medium"},
+  {"filename": "ramterekitnenaam.jpg", "title": "Ram Tere Kitne Naam", "hint": "Sanjeev Kumar", "category": "Religious", "difficulty": "Medium"},
+  {"filename": "SalaamNamaste.jpg", "title": "Salaam Namaste", "hint": "Set In Australia", "category": "Romantic", "difficulty": "Easy"},
+  {"filename": "Padmaavat.jpg", "title": "Padmaavat", "hint": "Khilji", "category": "Drama", "difficulty": "Easy"},
+  {"filename": "Tango_Charlie.jpg", "title": "Tango Charlie", "hint": "Indian Army", "category": "War", "difficulty": "Medium"},
+  {"filename": "Uri_The_Surgical_Strike.jpg", "title": "Uri The Surgical Strike", "hint": "How's the josh?", "category": "War", "difficulty": "Easy"},
+  {"filename": "Taare_Zameen_Par.jpg", "title": "Taare Zameen Par", "hint": "Dyslexia", "category": "Drama", "difficulty": "Easy"},
+  {"filename": "Patthar_Ke_Phool.jpg", "title": "Patthar Ke Phool", "hint": "Salman", "category": "Romantic", "difficulty": "Easy"}
 ]

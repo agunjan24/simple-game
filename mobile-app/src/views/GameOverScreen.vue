@@ -42,7 +42,7 @@
         <!-- Solo mode results -->
         <template v-else>
           <h1 class="result-title">PICTURE PERFECT!</h1>
-          <p class="result-sub">You've seen all {{ store.totalCount }} movies!</p>
+          <p class="result-sub">You've seen all {{ store.totalCount }} {{ store.themeConfig.categoryLabelPlural.toLowerCase() }}!</p>
         </template>
 
         <div class="star-row">⭐ 🌟 ⭐ 🌟 ⭐</div>
