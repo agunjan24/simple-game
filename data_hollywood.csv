@@ -1,13 +1,12 @@
 filename,movie_name,hint,category,difficulty
-A_Star_Is_Born.png,A Star Is Born,"Shallow lyrics",Romance,Medium
-Anaconda.png,Anaconda,"Giant snake in the Amazon",Horror,Easy
-Driving_Miss_Daisy.png,Driving Miss Daisy,"Morgan Freeman as chauffeur",Drama,Medium
-Forest_Gump.png,Forrest Gump,"Life is like a box of chocolates",Drama,Easy
-Independence_Day.png,Independence Day,"July 4th alien invasion",Sci-Fi,Easy
-Jurassic_Park.png,Jurassic Park,"Dinosaurs brought back to life",Sci-Fi,Easy
-Meet_The_Parents.png,Meet the Parents,"Circle of trust",Comedy,Easy
-Scent_Of_A_Woman.png,Scent of a Woman,"Hoo-ah! Al Pacino",Drama,Medium
-Sleepless_In_Seattle.png,Sleepless in Seattle,"Tom Hanks and Meg Ryan",Romance,Medium
-Striptease.png,Striptease,"Demi Moore dancer",Drama,Hard
-The_Godfather.png,The Godfather,"An offer you can't refuse",Crime,Easy
-Titanic.png,Titanic,"Jack and Rose",Romance,Easy
+A_Star_Is_Born.webp,A Star Is Born,Shallow lyrics,Romance,Medium
+Anaconda.webp,Anaconda,Giant snake in the Amazon,Horror,Easy
+Driving_Miss_Daisy.webp,Driving Miss Daisy,Morgan Freeman as chauffeur,Drama,Hard
+Forest_Gump.webp,Forrest Gump,Life is like a box of chocolates,Drama,Easy
+Independence_Day.webp,Independence Day,July 4th alien invasion,Sci-Fi,Easy
+Jurassic_Park.webp,Jurassic Park,Dinosaurs brought back to life,Sci-Fi,Easy
+Meet_The_Parents.webp,Meet the Parents,Circle of trust,Comedy,Easy
+Scent_Of_A_Woman.webp,Scent of a Woman,Hoo-ah! Al Pacino,Drama,Medium
+Sleepless_In_Seattle.webp,Sleepless in Seattle,Tom Hanks and Meg Ryan,Romance,Medium
+Rocky.webp,Rocky,Boxing,Drama,Easy
+Titanic.webp,Titanic,Jack and Rose,Romance,Easy
