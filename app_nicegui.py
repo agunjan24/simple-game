@@ -1347,12 +1347,10 @@ def create_game_ui():
             # Answer stays hidden (show_answer remains False)
             if countdown_overlay:
                 countdown_overlay.style('display: none;')
-            # Update image to clear blur
-            if image_element:
-                image_element.style(
-                    'max-height: min(55vh, 450px); object-fit: contain; '
-                    'filter: blur(0px); transition: filter 0.3s ease-out;'
-                )
+            # Remove clickable cursor from timer using JavaScript
+            ui.run_javascript("document.querySelector('.timer-clickable')?.classList.remove('timer-clickable')")
+            # Refresh content to update image (removes clickable class since blur is now 0)
+            refresh_game_content()
 
     # ---------- FEATURE 3: Click Image to Clear Blur ----------
     def on_image_click():
@@ -1367,12 +1365,8 @@ def create_game_ui():
         game.image_revealed = True
         # Timer continues (we don't stop it)
         # Answer stays hidden (show_answer remains False)
-        # Update image to clear blur
-        if image_element:
-            image_element.style(
-                'max-height: min(55vh, 450px); object-fit: contain; '
-                'filter: blur(0px); transition: filter 0.3s ease-out;'
-            )
+        # Refresh content to update image (removes clickable class and clears blur)
+        refresh_game_content()
 
     # ---------- BUTTON HANDLERS ----------
     def show_hint_click():
