@@ -428,6 +428,89 @@ def generate_theme_css(theme_colors):
             animation: glowPulse 2s infinite;
         }}
 
+        /* Feature 1: Clickable dots for history navigation */
+        .progress-dot.clickable {{
+            cursor: pointer;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }}
+
+        .progress-dot.clickable:hover {{
+            transform: scale(1.3);
+            box-shadow: 0 0 15px {c['primary']};
+        }}
+
+        .progress-dot.reviewing {{
+            background: {c['secondary']} !important;
+            box-shadow: 0 0 15px {c['secondary']}99;
+            animation: glowPulse 2s infinite;
+        }}
+
+        /* Feature 2: Clickable timer */
+        .timer-clickable {{
+            cursor: pointer;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }}
+
+        .timer-clickable:hover {{
+            transform: scale(1.1);
+        }}
+
+        .timer-clickable:active {{
+            transform: scale(0.95);
+        }}
+
+        /* Feature 3: Clickable image */
+        .image-clickable {{
+            cursor: pointer;
+            transition: box-shadow 0.2s;
+        }}
+
+        .image-clickable:hover {{
+            box-shadow: 0 10px 50px rgba(0,0,0,0.5);
+        }}
+
+        /* Feature 1: Review mode indicator */
+        .review-indicator {{
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 12px;
+            flex-wrap: wrap;
+        }}
+
+        .review-badge {{
+            background: linear-gradient(135deg, {c['secondary']}, {c['secondary']}cc);
+            color: white;
+            font-size: clamp(0.8rem, 3vw, 1rem);
+            font-weight: 700;
+            padding: 6px 16px;
+            border-radius: 25px;
+            box-shadow: 0 3px 10px rgba(0,0,0,0.3);
+        }}
+
+        .back-btn {{
+            background: linear-gradient(135deg, #FF7043, #E64A19);
+            color: white;
+            font-family: 'Poppins', sans-serif;
+            font-size: clamp(0.7rem, 2.5vw, 0.85rem);
+            font-weight: 600;
+            padding: 6px 14px;
+            border-radius: 20px;
+            border: none;
+            cursor: pointer;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+            transition: transform 0.2s, box-shadow 0.2s;
+        }}
+
+        .back-btn:hover {{
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+        }}
+
+        .back-btn:active {{
+            transform: scale(0.95);
+        }}
+
         /* Confetti */
         .confetti {{
             position: fixed;
@@ -720,6 +803,17 @@ class GameState:
         # Progressive reveal setting
         self.progressive_reveal = True  # Image starts blurred and clears over time
 
+        # Feature 1: History navigation (review mode)
+        self.reviewing_movie = None  # Movie being reviewed (or None)
+        self.saved_time_left = None  # Saved timer when entering review
+        self.saved_timer_active = False  # Saved timer state
+
+        # Feature 2: Timer pause
+        self.timer_paused = False  # Timer manually paused by clicking
+
+        # Feature 3: Image click to clear blur
+        self.image_revealed = False  # Image blur cleared by clicking
+
     def _load_theme_data(self):
         """Load data for current theme."""
         config = self.get_theme_config()
@@ -764,6 +858,9 @@ class GameState:
             self.awaiting_score = False
             self.game_over = False
             self.timer_active = False  # Don't start timer until image loads
+            # Reset Feature 2 & 3 state for new movie
+            self.timer_paused = False
+            self.image_revealed = False
             return True
         else:
             self.game_over = True
@@ -805,7 +902,10 @@ class GameState:
         duration = self.timer_duration if self.team_mode else GAME_DURATION_SEC
         time_ratio = self.time_left / duration
 
-        if time_ratio > 0.66:  # First third of time
+        # Feature 2 & 3: Timer paused or image revealed locks to last-third rate (50 points)
+        if self.timer_paused or self.image_revealed:
+            points = 50
+        elif time_ratio > 0.66:  # First third of time
             points = 100
         elif time_ratio > 0.33:  # Middle third
             points = 75
@@ -853,6 +953,9 @@ class GameState:
         """
         if not self.progressive_reveal:
             return 0
+        # Feature 2 & 3: Instant clear when timer paused or image revealed
+        if self.timer_paused or self.image_revealed:
+            return 0
         total_time = self.get_timer_duration()
         # Clear blur completely in last 10 seconds
         if self.time_left <= 10:
@@ -879,6 +982,49 @@ class GameState:
             movie_name = self.current_movie['movie_name']
             return f"Starts with '{movie_name[0]}' • {len(movie_name)} characters"
         return custom_hint.strip('"')
+
+    def get_hint_text_for_movie(self, movie):
+        """Generate hint text for a specific movie (used in review mode)."""
+        if not movie:
+            return ""
+        custom_hint = movie.get('hint', '')
+        if pd.isna(custom_hint) or custom_hint == '' or custom_hint == '"No hint"':
+            movie_name = movie['movie_name']
+            return f"Starts with '{movie_name[0]}' • {len(movie_name)} characters"
+        return custom_hint.strip('"')
+
+    # Feature 1: History navigation (review mode)
+    def is_reviewing(self):
+        """Check if currently in review mode."""
+        return self.reviewing_movie is not None
+
+    def enter_review(self, index):
+        """Enter review mode to view a previously shown movie."""
+        if index < 0 or index >= len(self.shown_movies) - 1:
+            return  # Can't review current or future movies
+        filename = self.shown_movies[index]
+        movie = next((m for m in self.valid_movies if m['filename'] == filename), None)
+        if not movie:
+            return
+
+        # Save current game state
+        self.saved_time_left = self.time_left
+        self.saved_timer_active = self.timer_active
+        self.reviewing_movie = movie
+        # Pause timer while reviewing
+        self.timer_active = False
+
+    def exit_review(self):
+        """Exit review mode and return to current game."""
+        if not self.reviewing_movie:
+            return
+        self.reviewing_movie = None
+        # Restore saved time but keep timer paused (user must click timer to resume)
+        if self.saved_time_left is not None:
+            self.time_left = self.saved_time_left
+            self.saved_time_left = None
+        # Timer stays paused - user clicks timer to resume (consistent with Feature 2)
+        self.saved_timer_active = False
 
 
 # =============================================================================
@@ -957,58 +1103,85 @@ def create_game_ui():
                 for i in range(game.total_count()):
                     dot_class = 'progress-dot'
                     if i < game.shown_count() - 1:
-                        dot_class += ' completed'
-                    elif i == game.shown_count() - 1:
+                        dot_class += ' completed clickable'
+                        # Check if this dot is the one being reviewed
+                        if game.is_reviewing() and game.shown_movies[i] == game.reviewing_movie['filename']:
+                            dot_class += ' reviewing'
+                    elif i == game.shown_count() - 1 and not game.is_reviewing():
                         dot_class += ' current'
-                    ui.element('div').classes(dot_class)
+                    dot = ui.element('div').classes(dot_class)
+                    # Make completed dots clickable
+                    if i < game.shown_count() - 1:
+                        dot.on('click', lambda e, idx=i: on_dot_click(idx))
 
         if game.game_over:
             show_game_over()
             return
 
-        if game.current_movie:
+        # Determine which movie to display (review mode or current)
+        display_movie = game.reviewing_movie if game.is_reviewing() else game.current_movie
+
+        if display_movie:
             # Update image and countdown overlay
             nonlocal countdown_overlay, image_element
             image_container.clear()
             with image_container:
                 # Image with onload handler to start timer
-                img_path = os.path.join(game.get_image_folder(), game.current_movie['filename'])
-                # Calculate blur: 0 if answer revealed, otherwise based on time remaining
-                blur = 0 if game.show_answer else game.calculate_blur()
-                image_element = ui.image(img_path).classes('max-w-full rounded-lg game-image').style(
+                img_path = os.path.join(game.get_image_folder(), display_movie['filename'])
+                # In review mode: no blur. Normal mode: blur based on answer state and time
+                if game.is_reviewing():
+                    blur = 0
+                else:
+                    blur = 0 if game.show_answer else game.calculate_blur()
+
+                # Determine if image should be clickable (Feature 3)
+                image_clickable = not game.is_reviewing() and not game.show_answer and blur > 0
+                image_classes = 'max-w-full rounded-lg game-image' + (' image-clickable' if image_clickable else '')
+
+                image_element = ui.image(img_path).classes(image_classes).style(
                     f'max-height: min(55vh, 450px); object-fit: contain; '
                     f'filter: blur({blur}px); transition: filter 0.3s ease-out;'
                 )
-                # Start timer when image loads
+                # Add click handler for image (Feature 3)
+                if image_clickable:
+                    image_element.on('click', on_image_click)
+                # Start timer when image loads (only in normal mode)
                 image_element.on('load', lambda: start_timer_after_load())
-                # Re-create countdown overlay inside image container
-                countdown_overlay = ui.label("").classes('countdown-overlay').style('display: none;')
+                # Re-create countdown overlay inside image container (only in normal mode)
+                if not game.is_reviewing():
+                    countdown_overlay = ui.label("").classes('countdown-overlay').style('display: none;')
 
             # Update hint - more compact
             hint_container.clear()
-            if game.show_hint:
+            # In review mode, use local review state; in normal mode, use game state
+            show_hint_now = review_show_hint['value'] if game.is_reviewing() else game.show_hint
+            if show_hint_now:
+                hint_text = game.get_hint_text_for_movie(display_movie) if game.is_reviewing() else game.get_hint_text()
                 with hint_container:
                     with ui.element('div').classes('hint-box').style('padding: 6px 12px; margin-top: 4px;'):
-                        ui.label(f"💡 {game.get_hint_text()}").style(
+                        ui.label(f"💡 {hint_text}").style(
                             'color: #1A0A14; font-size: clamp(0.8rem, 2.5vw, 1rem);'
                         )
 
             # Update answer - more compact
             answer_container.clear()
-            if game.show_answer:
+            # In review mode, use local review state; in normal mode, use game state
+            show_answer_now = review_show_answer['value'] if game.is_reviewing() else game.show_answer
+            if show_answer_now:
                 with answer_container:
                     with ui.element('div').classes('answer-box').style('padding: 6px 12px; margin-top: 4px;'):
-                        ui.label(f"🎬 {game.current_movie['movie_name']}").classes('movie-answer-text').style(
+                        ui.label(f"🎬 {display_movie['movie_name']}").classes('movie-answer-text').style(
                             'color: #1A0A14; font-size: clamp(0.9rem, 3.5vw, 1.5rem); font-weight: 700; '
                             'font-family: "Rozha One", serif;'
                         )
 
-            # Update next button
-            remaining = game.remaining_count()
-            if remaining > 0:
-                next_btn.set_text("▶ NEXT")
-            else:
-                next_btn.set_text("🏆 FINISH")
+            # Update next button (only in normal mode)
+            if not game.is_reviewing() and next_btn:
+                remaining = game.remaining_count()
+                if remaining > 0:
+                    next_btn.set_text("▶ NEXT")
+                else:
+                    next_btn.set_text("🏆 FINISH")
 
     # ---------- GAME OVER SCREEN ----------
     def show_game_over():
@@ -1106,8 +1279,101 @@ def create_game_ui():
     # ---------- TIMER START (after image loads) ----------
     def start_timer_after_load():
         """Start the timer once the image has loaded."""
+        # Don't auto-start timer in review mode
+        if game.is_reviewing():
+            return
         if not game.timer_active and not game.show_answer and not game.game_over:
             game.timer_active = True
+
+    # ---------- FEATURE 1: History Navigation (Review Mode) ----------
+    # Local state for review mode hint/answer display
+    review_show_hint = {'value': False}
+    review_show_answer = {'value': False}
+
+    def on_dot_click(index):
+        """Handle click on a completed progress dot."""
+        # Only allow clicking completed dots (not current or future)
+        if index >= game.shown_count() - 1:
+            return
+        if game.is_reviewing():
+            # If already reviewing, can switch to different completed item
+            if index < game.shown_count() - 1:
+                game.enter_review(index)
+                review_show_hint['value'] = False
+                review_show_answer['value'] = False
+                build_game_screen()  # Rebuild to show review mode
+            return
+        # Stop timer and enter review mode
+        game.timer_active = False
+        game.enter_review(index)
+        review_show_hint['value'] = False
+        review_show_answer['value'] = False
+        build_game_screen()  # Rebuild to show review mode
+
+    def exit_review_mode():
+        """Exit review mode and return to current game."""
+        game.exit_review()
+        review_show_hint['value'] = False
+        review_show_answer['value'] = False
+        build_game_screen()  # Rebuild for normal game
+
+    def show_review_hint():
+        """Show hint in review mode."""
+        review_show_hint['value'] = True
+        refresh_game_content()
+
+    def show_review_answer():
+        """Show answer in review mode."""
+        review_show_answer['value'] = True
+        refresh_game_content()
+
+    # ---------- FEATURE 2: Click Timer to Pause ----------
+    def on_timer_click():
+        """Handle click on the timer to pause/resume."""
+        if game.is_reviewing():
+            return  # No timer interaction in review mode
+        if game.show_answer:
+            return  # Answer already revealed
+        if game.game_over:
+            return  # Game is over
+
+        if game.timer_active:
+            # Pause the timer
+            game.timer_active = False
+            game.timer_paused = True
+            # Blur clears instantly (handled in calculate_blur)
+            # Answer stays hidden (show_answer remains False)
+            if countdown_overlay:
+                countdown_overlay.style('display: none;')
+            # Update image to clear blur
+            if image_element:
+                image_element.style(
+                    'max-height: min(55vh, 450px); object-fit: contain; '
+                    'filter: blur(0px); transition: filter 0.3s ease-out;'
+                )
+        elif game.time_left > 0:
+            # Resume the timer (e.g., after returning from review mode)
+            game.timer_active = True
+
+    # ---------- FEATURE 3: Click Image to Clear Blur ----------
+    def on_image_click():
+        """Handle click on the image to clear blur."""
+        if game.is_reviewing():
+            return  # No effect in review mode
+        if game.show_answer:
+            return  # Already revealed
+        if game.calculate_blur() == 0:
+            return  # Already clear
+
+        game.image_revealed = True
+        # Timer continues (we don't stop it)
+        # Answer stays hidden (show_answer remains False)
+        # Update image to clear blur
+        if image_element:
+            image_element.style(
+                'max-height: min(55vh, 450px); object-fit: contain; '
+                'filter: blur(0px); transition: filter 0.3s ease-out;'
+            )
 
     # ---------- BUTTON HANDLERS ----------
     def show_hint_click():
@@ -1368,13 +1634,24 @@ def create_game_ui():
                         # Progress indicator
                         progress_container = ui.element('div').classes('mt-1')
 
-                    # Timer - compact circular design
-                    with ui.element('div').classes('timer-container').style('width: 50px; height: 50px;'):
+                    # Timer - compact circular design (clickable to pause/resume)
+                    timer_clickable = not game.is_reviewing() and not game.show_answer and not game.game_over
+                    timer_classes = 'timer-container' + (' timer-clickable' if timer_clickable else '')
+                    timer_container_el = ui.element('div').classes(timer_classes).style('width: 50px; height: 50px;')
+                    if timer_clickable:
+                        timer_container_el.on('click', on_timer_click)
+                    with timer_container_el:
                         with ui.element('div').classes('timer-inner').style('width: 100%; height: 100%;'):
                             timer_display = ui.label(f"{game.time_left // 60}:{game.time_left % 60:02d}").classes('timer-text').style('font-size: 1.1rem;')
 
-                # ---------- TEAM TURN INDICATOR (Team mode only) - styled badge ----------
-                if game.team_mode:
+                # ---------- REVIEW MODE INDICATOR (Feature 1) ----------
+                if game.is_reviewing():
+                    with ui.row().classes('w-full justify-center items-center gap-3'):
+                        ui.label("📖 Reviewing Previous").classes('review-badge')
+                        ui.button("← Back to Game", on_click=exit_review_mode).classes('back-btn')
+
+                # ---------- TEAM TURN INDICATOR (Team mode only, not in review mode) - styled badge ----------
+                elif game.team_mode:
                     team_color = "#E91E63" if game.current_team == 0 else "#2196F3"
                     team_gradient = "linear-gradient(135deg, #E91E63, #C2185B)" if game.current_team == 0 else "linear-gradient(135deg, #2196F3, #1565C0)"
                     team_emoji = "🔴" if game.current_team == 0 else "🔵"
@@ -1391,14 +1668,19 @@ def create_game_ui():
                     'w-full flex justify-center items-center py-1 sm:py-2 image-area-container'
                 ).style('min-height: 150px; position: relative;')
 
-                # ---------- CONTROL BUTTONS ----------
-                with ui.row().classes('w-full justify-center gap-1 md:gap-3 flex-wrap'):
-                    ui.button("💡 HINT", on_click=show_hint_click).classes('bollywood-btn btn-gold')
-                    ui.button("🎬 REVEAL", on_click=reveal_answer_click).classes('bollywood-btn btn-magenta')
-                    next_btn = ui.button("▶ NEXT", on_click=next_movie_click).classes('bollywood-btn btn-turquoise')
+                # ---------- CONTROL BUTTONS (different in review mode) ----------
+                if game.is_reviewing():
+                    with ui.row().classes('w-full justify-center gap-1 md:gap-3 flex-wrap'):
+                        ui.button("💡 HINT", on_click=show_review_hint).classes('bollywood-btn btn-gold')
+                        ui.button("🎬 REVEAL", on_click=show_review_answer).classes('bollywood-btn btn-magenta')
+                else:
+                    with ui.row().classes('w-full justify-center gap-1 md:gap-3 flex-wrap'):
+                        ui.button("💡 HINT", on_click=show_hint_click).classes('bollywood-btn btn-gold')
+                        ui.button("🎬 REVEAL", on_click=reveal_answer_click).classes('bollywood-btn btn-magenta')
+                        next_btn = ui.button("▶ NEXT", on_click=next_movie_click).classes('bollywood-btn btn-turquoise')
 
-                # ---------- SCORING BUTTONS (Team mode, shown after reveal) ----------
-                if game.team_mode:
+                # ---------- SCORING BUTTONS (Team mode, shown after reveal, not in review mode) ----------
+                if game.team_mode and not game.is_reviewing():
                     scoring_buttons_container = ui.row().classes('w-full justify-center items-center gap-3')
                     scoring_buttons_container.style('display: none;')  # Hidden initially
 
