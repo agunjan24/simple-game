@@ -25,8 +25,8 @@
               ></span>
             </div>
           </div>
-          <!-- Feature 2: Clickable timer to pause/resume -->
-          <div class="timer-circle" :class="{ clickable: !store.isReviewing && !store.showAnswer && !store.gameOver }" @click="onTimerClick">
+          <!-- Feature 2: Clickable timer to pause (one-way action) -->
+          <div class="timer-circle" :class="{ clickable: !store.isReviewing && !store.showAnswer && !store.gameOver && !store.timerPaused }" @click="onTimerClick">
             <div class="timer-inner">
               <span class="timer-text">{{ timerDisplay }}</span>
             </div>
@@ -48,12 +48,12 @@
 
         <!-- Image area -->
         <div class="image-area">
-          <!-- Feature 3: Clickable image to clear blur -->
+          <!-- Feature 3: Clickable image to clear blur (one-way action) -->
           <img
             v-if="displayItem"
             :src="imageSrc"
             :style="imageStyle"
-            :class="['item-image', { clickable: !store.isReviewing && !store.showAnswer && store.currentBlur > 0 }]"
+            :class="['item-image', { clickable: !store.isReviewing && !store.showAnswer && !store.imageRevealed && store.currentBlur > 0 }]"
             @load="onImageLoad"
             @error="onImageError"
             @click="onImageClick"
@@ -331,22 +331,20 @@ function showReviewAnswer() {
   reviewShowAnswer.value = true
 }
 
-// Feature 2: Click timer to pause or resume
+// Feature 2: Click timer to pause (one-way action)
 function onTimerClick() {
   if (store.isReviewing) return // No timer interaction in review mode
   if (store.showAnswer) return // Answer already revealed
   if (store.gameOver) return // Game is over
+  if (store.timerPaused) return // Already paused - no restart allowed
 
   if (store.timerActive) {
-    // Pause the timer
+    // Pause the timer (one-way action - user uses nav buttons when ready)
     stop()
     store.timerPaused = true
     // Blur clears instantly (handled in currentBlur getter)
     // Answer stays hidden (showAnswer remains false)
     countdownText.value = '' // Clear any countdown overlay
-  } else if (store.timeLeft > 0) {
-    // Resume the timer (e.g., after returning from review mode)
-    start()
   }
 }
 
