@@ -1134,8 +1134,8 @@ def create_game_ui():
                 else:
                     blur = 0 if game.show_answer else game.calculate_blur()
 
-                # Determine if image should be clickable (Feature 3)
-                image_clickable = not game.is_reviewing() and not game.show_answer and blur > 0
+                # Determine if image should be clickable (Feature 3, one-way action)
+                image_clickable = not game.is_reviewing() and not game.show_answer and not game.image_revealed and blur > 0
                 image_classes = 'max-w-full rounded-lg game-image' + (' image-clickable' if image_clickable else '')
 
                 image_element = ui.image(img_path).classes(image_classes).style(
@@ -1329,16 +1329,18 @@ def create_game_ui():
 
     # ---------- FEATURE 2: Click Timer to Pause ----------
     def on_timer_click():
-        """Handle click on the timer to pause/resume."""
+        """Handle click on the timer to pause (one-way action)."""
         if game.is_reviewing():
             return  # No timer interaction in review mode
         if game.show_answer:
             return  # Answer already revealed
         if game.game_over:
             return  # Game is over
+        if game.timer_paused:
+            return  # Already paused - no restart allowed
 
         if game.timer_active:
-            # Pause the timer
+            # Pause the timer (one-way action - user uses nav buttons when ready)
             game.timer_active = False
             game.timer_paused = True
             # Blur clears instantly (handled in calculate_blur)
@@ -1351,9 +1353,6 @@ def create_game_ui():
                     'max-height: min(55vh, 450px); object-fit: contain; '
                     'filter: blur(0px); transition: filter 0.3s ease-out;'
                 )
-        elif game.time_left > 0:
-            # Resume the timer (e.g., after returning from review mode)
-            game.timer_active = True
 
     # ---------- FEATURE 3: Click Image to Clear Blur ----------
     def on_image_click():
@@ -1634,8 +1633,8 @@ def create_game_ui():
                         # Progress indicator
                         progress_container = ui.element('div').classes('mt-1')
 
-                    # Timer - compact circular design (clickable to pause/resume)
-                    timer_clickable = not game.is_reviewing() and not game.show_answer and not game.game_over
+                    # Timer - compact circular design (clickable to pause, one-way action)
+                    timer_clickable = not game.is_reviewing() and not game.show_answer and not game.game_over and not game.timer_paused
                     timer_classes = 'timer-container' + (' timer-clickable' if timer_clickable else '')
                     timer_container_el = ui.element('div').classes(timer_classes).style('width: 50px; height: 50px;')
                     if timer_clickable:
