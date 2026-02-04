@@ -42,6 +42,14 @@ export const useGameStore = defineStore('game', {
     teamScores: [0, 0],
     teamNames: ['Team A', 'Team B'],
     progressiveReveal: true,
+    // Feature 1: History navigation (review mode)
+    reviewingItem: null,
+    savedTimeLeft: null,
+    savedTimerActive: false,
+    // Feature 2: Timer pause
+    timerPaused: false,
+    // Feature 3: Image click to clear blur
+    imageRevealed: false,
   }),
 
   getters: {
@@ -53,11 +61,16 @@ export const useGameStore = defineStore('game', {
 
     currentBlur: (state) => {
       if (!state.progressiveReveal) return 0
+      // Feature 2 & 3: Instant clear when timer paused or image revealed
+      if (state.timerPaused || state.imageRevealed) return 0
       const total = state.teamMode ? state.timerDuration : state.soloDuration
       if (state.timeLeft <= 10) return 0
       const ratio = (state.timeLeft - 10) / (total - 10)
       return Math.round(ratio * 100) / 10 // max 10px
     },
+
+    // Feature 1: Check if in review mode
+    isReviewing: (state) => state.reviewingItem !== null,
 
     hintText: (state) => {
       if (!state.currentItem) return ''
@@ -116,6 +129,9 @@ export const useGameStore = defineStore('game', {
         this.awaitingScore = false
         this.gameOver = false
         this.timerActive = false
+        // Reset Feature 2 & 3 state for new item
+        this.timerPaused = false
+        this.imageRevealed = false
         return true
       } else {
         this.gameOver = true
@@ -153,9 +169,16 @@ export const useGameStore = defineStore('game', {
       const timeRatio = this.timeLeft / duration
 
       let points
-      if (timeRatio > 0.66) points = 100
-      else if (timeRatio > 0.33) points = 75
-      else points = 50
+      // Feature 2 & 3: Timer paused or image revealed locks to last-third rate (50 points)
+      if (this.timerPaused || this.imageRevealed) {
+        points = 50
+      } else if (timeRatio > 0.66) {
+        points = 100
+      } else if (timeRatio > 0.33) {
+        points = 75
+      } else {
+        points = 50
+      }
 
       if (this.hintUsed) points = Math.max(0, points - 25)
       return points
@@ -169,6 +192,34 @@ export const useGameStore = defineStore('game', {
         this.score += points
       }
       return points
+    },
+
+    // Feature 1: Enter review mode to view a previously shown item
+    enterReview(index) {
+      if (index < 0 || index >= this.shownItems.length - 1) return // Can't review current or future
+      const filename = this.shownItems[index]
+      const item = this.validItems.find((m) => m.filename === filename)
+      if (!item) return
+
+      // Save current game state
+      this.savedTimeLeft = this.timeLeft
+      this.savedTimerActive = this.timerActive
+      this.reviewingItem = item
+      // Pause timer while reviewing
+      this.timerActive = false
+    },
+
+    // Feature 1: Exit review mode and return to current game
+    exitReview() {
+      if (!this.reviewingItem) return
+      this.reviewingItem = null
+      // Restore saved time but keep timer paused (user must click timer to resume)
+      if (this.savedTimeLeft !== null) {
+        this.timeLeft = this.savedTimeLeft
+        this.savedTimeLeft = null
+      }
+      // Timer stays paused - user clicks timer to resume (consistent with Feature 2)
+      this.savedTimerActive = false
     },
   },
 })

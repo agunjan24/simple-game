@@ -9,25 +9,38 @@
         <div class="header-row">
           <div class="header-left">
             <h2 class="game-title">🎬 {{ config.gameTitle }}</h2>
-            <!-- Progress dots -->
+            <!-- Progress dots - Feature 1: Clickable completed dots -->
             <div class="progress-dots">
               <span
                 v-for="i in store.totalCount"
                 :key="i"
-                :class="['dot', i - 1 < store.shownCount - 1 ? 'completed' : '', i - 1 === store.shownCount - 1 ? 'current' : '']"
+                :class="[
+                  'dot',
+                  i - 1 < store.shownCount - 1 ? 'completed clickable' : '',
+                  i - 1 === store.shownCount - 1 && !store.isReviewing ? 'current' : '',
+                  store.isReviewing && store.shownItems[i - 1] === store.reviewingItem?.filename ? 'reviewing' : ''
+                ]"
                 :style="dotStyle(i - 1)"
+                @click="onDotClick(i - 1)"
               ></span>
             </div>
           </div>
-          <div class="timer-circle">
+          <!-- Feature 2: Clickable timer to pause/resume -->
+          <div class="timer-circle" :class="{ clickable: !store.isReviewing && !store.showAnswer && !store.gameOver }" @click="onTimerClick">
             <div class="timer-inner">
               <span class="timer-text">{{ timerDisplay }}</span>
             </div>
           </div>
         </div>
 
+        <!-- Feature 1: Review mode indicator -->
+        <div v-if="store.isReviewing" class="review-indicator">
+          <span class="review-badge">📖 Reviewing Previous</span>
+          <button class="back-btn" @click="exitReviewMode">← Back to Game</button>
+        </div>
+
         <!-- Team turn indicator -->
-        <div v-if="store.teamMode" class="turn-indicator">
+        <div v-if="store.teamMode && !store.isReviewing" class="turn-indicator">
           <span class="turn-badge" :style="turnBadgeStyle">
             ✨ {{ store.currentTeamName }}'s Turn ✨
           </span>
@@ -35,22 +48,28 @@
 
         <!-- Image area -->
         <div class="image-area">
+          <!-- Feature 3: Clickable image to clear blur -->
           <img
-            v-if="store.currentItem"
+            v-if="displayItem"
             :src="imageSrc"
             :style="imageStyle"
-            class="item-image"
+            :class="['item-image', { clickable: !store.isReviewing && !store.showAnswer && store.currentBlur > 0 }]"
             @load="onImageLoad"
             @error="onImageError"
+            @click="onImageClick"
           />
-          <!-- Countdown overlay -->
-          <div v-if="countdownText" class="countdown-overlay" :class="{ clock: countdownText === '⏰' }">
+          <!-- Countdown overlay (only in normal mode) -->
+          <div v-if="countdownText && !store.isReviewing" class="countdown-overlay" :class="{ clock: countdownText === '⏰' }">
             {{ countdownText }}
           </div>
         </div>
 
-        <!-- Control buttons -->
-        <div class="control-buttons">
+        <!-- Control buttons (different in review mode) -->
+        <div v-if="store.isReviewing" class="control-buttons">
+          <button class="game-btn btn-hint" :style="hintBtnStyle" @click="showReviewHint">💡 HINT</button>
+          <button class="game-btn btn-reveal" :style="revealBtnStyle" @click="showReviewAnswer">🎬 REVEAL</button>
+        </div>
+        <div v-else class="control-buttons">
           <button class="game-btn btn-hint" :style="hintBtnStyle" @click="showHint">💡 HINT</button>
           <button class="game-btn btn-reveal" :style="revealBtnStyle" @click="revealAnswer">🎬 REVEAL</button>
           <button class="game-btn btn-next" :style="nextBtnStyle" @click="nextItem">
@@ -58,15 +77,15 @@
           </button>
         </div>
 
-        <!-- Scoring buttons (team mode after reveal) -->
-        <div v-if="store.teamMode && store.awaitingScore" class="scoring-buttons">
+        <!-- Scoring buttons (team mode after reveal, not in review mode) -->
+        <div v-if="store.teamMode && store.awaitingScore && !store.isReviewing" class="scoring-buttons">
           <button class="score-btn correct" @click="scoreAnswer(true)">✓</button>
           <button class="score-btn wrong" @click="scoreAnswer(false)">✗</button>
         </div>
 
-        <!-- Hint -->
-        <div v-if="store.showHint && store.currentItem" class="hint-box" :style="hintBoxStyle">
-          💡 {{ store.hintText }}
+        <!-- Hint (show review hint or regular hint) -->
+        <div v-if="(store.showHint && displayItem && !store.isReviewing) || (store.isReviewing && reviewShowHint)" class="hint-box" :style="hintBoxStyle">
+          💡 {{ displayHintText }}
         </div>
 
         <!-- Team scoreboard -->
@@ -87,9 +106,9 @@
             <span class="team-points">{{ store.teamScores[1] }}</span>
           </div>
         </div>
-        <!-- Answer -->
-        <div v-if="store.showAnswer && store.currentItem" class="answer-box" :style="answerBoxStyle">
-          🎬 {{ store.currentItem.title }}
+        <!-- Answer (show review answer or regular answer) -->
+        <div v-if="(store.showAnswer && displayItem && !store.isReviewing) || (store.isReviewing && reviewShowAnswer)" class="answer-box" :style="answerBoxStyle">
+          🎬 {{ displayItem?.title }}
         </div>
       </div>
 
@@ -114,8 +133,15 @@ const { playTick } = useAudio()
 const countdownText = ref('')
 let countdownTimeout = null
 
+// Feature 1: Review mode local state
+const reviewShowHint = ref(false)
+const reviewShowAnswer = ref(false)
+
 const colors = computed(() => store.themeColors)
 const config = computed(() => store.themeConfig)
+
+// Feature 1: Display item is either the reviewing item or the current item
+const displayItem = computed(() => store.isReviewing ? store.reviewingItem : store.currentItem)
 
 const bgStyle = computed(() => ({
   background: `
@@ -130,11 +156,27 @@ const filmStripStyle = computed(() => ({
 }))
 
 const imageSrc = computed(() => {
-  if (!store.currentItem) return ''
-  return `${config.value.imageFolder}/${store.currentItem.filename}`
+  if (!displayItem.value) return ''
+  return `${config.value.imageFolder}/${displayItem.value.filename}`
+})
+
+// Feature 1: Hint text for display item
+const displayHintText = computed(() => {
+  const item = displayItem.value
+  if (!item) return ''
+  const hint = item.hint
+  if (!hint || hint === 'No hint') {
+    const name = item.title
+    return `Starts with '${name[0]}' • ${name.length} characters`
+  }
+  return hint
 })
 
 const imageStyle = computed(() => {
+  // Feature 1: In review mode, image is always clear
+  if (store.isReviewing) {
+    return { filter: 'blur(0px)', transition: 'filter 0.3s ease-out' }
+  }
   const blur = store.showAnswer ? 0 : store.currentBlur
   return {
     filter: `blur(${blur}px)`,
@@ -201,6 +243,8 @@ watch(() => store.timeLeft, (tl) => {
 })
 
 function onImageLoad() {
+  // Don't auto-start timer in review mode
+  if (store.isReviewing) return
   if (!store.timerActive && !store.showAnswer && !store.gameOver) {
     start()
   }
@@ -248,6 +292,73 @@ function nextItem() {
   if (store.teamMode && !store.showAnswer) store.awardPoints(false)
   stop()
   proceedToNext()
+}
+
+// Feature 1: Click on completed dot to enter review mode
+function onDotClick(index) {
+  // Only allow clicking completed dots (not current or future)
+  if (index >= store.shownCount - 1) return
+  if (store.isReviewing) {
+    // If already reviewing, can switch to different completed item
+    if (index < store.shownCount - 1) {
+      store.enterReview(index)
+      reviewShowHint.value = false
+      reviewShowAnswer.value = false
+    }
+    return
+  }
+  // Stop timer and enter review mode
+  stop()
+  store.enterReview(index)
+  reviewShowHint.value = false
+  reviewShowAnswer.value = false
+}
+
+// Feature 1: Exit review mode
+function exitReviewMode() {
+  store.exitReview()
+  reviewShowHint.value = false
+  reviewShowAnswer.value = false
+  // Timer stays paused - user can click timer to resume if desired
+}
+
+// Feature 1: Review mode hint/reveal
+function showReviewHint() {
+  reviewShowHint.value = true
+}
+
+function showReviewAnswer() {
+  reviewShowAnswer.value = true
+}
+
+// Feature 2: Click timer to pause or resume
+function onTimerClick() {
+  if (store.isReviewing) return // No timer interaction in review mode
+  if (store.showAnswer) return // Answer already revealed
+  if (store.gameOver) return // Game is over
+
+  if (store.timerActive) {
+    // Pause the timer
+    stop()
+    store.timerPaused = true
+    // Blur clears instantly (handled in currentBlur getter)
+    // Answer stays hidden (showAnswer remains false)
+    countdownText.value = '' // Clear any countdown overlay
+  } else if (store.timeLeft > 0) {
+    // Resume the timer (e.g., after returning from review mode)
+    start()
+  }
+}
+
+// Feature 3: Click image to clear blur only
+function onImageClick() {
+  if (store.isReviewing) return // No effect in review mode
+  if (store.showAnswer) return // Already revealed
+  if (store.currentBlur === 0) return // Already clear
+
+  store.imageRevealed = true
+  // Timer continues (we don't call stop())
+  // Answer stays hidden (showAnswer remains false)
 }
 
 onUnmounted(() => {
@@ -345,6 +456,24 @@ onUnmounted(() => {
   animation: glowPulse 2s infinite;
 }
 
+/* Feature 1: Clickable dots for history navigation */
+.dot.clickable {
+  cursor: pointer;
+  transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.dot.clickable:hover {
+  transform: scale(1.3);
+  box-shadow: 0 0 12px v-bind('colors.primary');
+}
+
+.dot.reviewing {
+  background: v-bind('colors.secondary') !important;
+  box-shadow: 0 0 12px v-bind('colors.secondary + "99"');
+  animation: glowPulse 2s infinite;
+}
+
+/* Feature 2: Clickable timer to pause */
 .timer-circle {
   width: 56px;
   height: 56px;
@@ -357,6 +486,19 @@ onUnmounted(() => {
   align-items: center;
   justify-content: center;
   transition: all 0.3s;
+}
+
+.timer-circle.clickable {
+  cursor: pointer;
+}
+
+.timer-circle.clickable:hover {
+  transform: scale(1.1);
+  box-shadow: 0 6px 24px v-bind('colors.primary + "99"'), inset 0 2px 4px rgba(255, 255, 255, 0.3);
+}
+
+.timer-circle.clickable:active {
+  transform: scale(0.95);
 }
 
 .timer-inner {
@@ -374,6 +516,50 @@ onUnmounted(() => {
   font-size: 1.2rem;
   font-weight: 800;
   color: v-bind('colors.primary');
+}
+
+/* Feature 1: Review mode indicator */
+.review-indicator {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.review-badge {
+  background: linear-gradient(135deg, #00BFA5, #00897B);
+  color: white;
+  font-size: clamp(0.8rem, 3vw, 1rem);
+  font-weight: 700;
+  padding: 6px 16px;
+  border-radius: 25px;
+  box-shadow: 0 3px 10px rgba(0, 0, 0, 0.3);
+}
+
+.back-btn {
+  background: linear-gradient(135deg, #FF7043, #E64A19);
+  color: white;
+  font-family: 'Poppins', sans-serif;
+  font-size: clamp(0.7rem, 2.5vw, 0.85rem);
+  font-weight: 600;
+  padding: 6px 14px;
+  border-radius: 20px;
+  border: none;
+  cursor: pointer;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+  transition: transform 0.2s, box-shadow 0.2s;
+  touch-action: manipulation;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.back-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+}
+
+.back-btn:active {
+  transform: scale(0.95);
 }
 
 .turn-indicator {
@@ -401,6 +587,7 @@ onUnmounted(() => {
   padding: 4px 0 14px 0;
 }
 
+/* Feature 3: Clickable image to clear blur */
 .item-image {
   width: 100%;
   max-height: min(60vh, 500px);
@@ -408,6 +595,14 @@ onUnmounted(() => {
   border-radius: 12px;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
   border: 1px solid rgba(0, 0, 0, 0.12);
+}
+
+.item-image.clickable {
+  cursor: pointer;
+}
+
+.item-image.clickable:hover {
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.2);
 }
 
 .countdown-overlay {
