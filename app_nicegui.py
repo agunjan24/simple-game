@@ -1038,7 +1038,6 @@ def create_game_ui():
     # UI element references
     main_container = None
     timer_display = None
-    timer_container_el = None  # Reference to timer for class updates
     countdown_overlay = None
     image_container = None
     image_element = None  # Reference to image for blur updates
@@ -1348,12 +1347,8 @@ def create_game_ui():
             # Answer stays hidden (show_answer remains False)
             if countdown_overlay:
                 countdown_overlay.style('display: none;')
-            # Remove clickable class from timer (no more hand cursor)
-            if timer_container_el:
-                timer_container_el.classes(remove='timer-clickable')
-            # Update image to clear blur and remove clickable class
+            # Update image to clear blur
             if image_element:
-                image_element.classes(remove='image-clickable')
                 image_element.style(
                     'max-height: min(55vh, 450px); object-fit: contain; '
                     'filter: blur(0px); transition: filter 0.3s ease-out;'
@@ -1372,9 +1367,8 @@ def create_game_ui():
         game.image_revealed = True
         # Timer continues (we don't stop it)
         # Answer stays hidden (show_answer remains False)
-        # Update image to clear blur and remove clickable class (no more hand cursor)
+        # Update image to clear blur
         if image_element:
-            image_element.classes(remove='image-clickable')
             image_element.style(
                 'max-height: min(55vh, 450px); object-fit: contain; '
                 'filter: blur(0px); transition: filter 0.3s ease-out;'
@@ -1618,7 +1612,7 @@ def create_game_ui():
     # ---------- GAME SCREEN ----------
     def build_game_screen():
         """Build the main game screen."""
-        nonlocal timer_display, timer_container_el, image_container, hint_container, answer_container, progress_container, next_btn
+        nonlocal timer_display, image_container, hint_container, answer_container, progress_container, next_btn
         nonlocal scoreboard_container, scoring_buttons_container, countdown_overlay
 
         main_container.clear()
