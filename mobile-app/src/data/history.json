@@ -1,0 +1,12 @@
+[
+  {"filename": "moon_landing.webp", "title": "Moon Landing (1969)", "hint": "One small step for man", "category": "Space", "difficulty": "Easy"},
+  {"filename": "declaration_independence.webp", "title": "Signing of the Declaration of Independence (1776)", "hint": "July 4th in Philadelphia", "category": "Founding", "difficulty": "Easy"},
+  {"filename": "boston_tea_party.webp", "title": "Boston Tea Party (1773)", "hint": "No taxation without representation", "category": "Revolution", "difficulty": "Medium"},
+  {"filename": "pearl_harbor.webp", "title": "Pearl Harbor Attack (1941)", "hint": "A date which will live in infamy", "category": "War", "difficulty": "Easy"},
+  {"filename": "Wright_Brothers.webp", "title": "Wright Brothers First Flight (1903)", "hint": "12 seconds at Kitty Hawk", "category": "Innovation", "difficulty": "Medium"},
+  {"filename": "mlk_dream.webp", "title": "MLK I Have a Dream Speech (1963)", "hint": "March on Washington", "category": "Civil Rights", "difficulty": "Easy"},
+  {"filename": "lewis_clark_expedition.webp", "title": "Lewis and Clark Expedition (1804)", "hint": "Journey to the Pacific", "category": "Exploration", "difficulty": "Hard"},
+  {"filename": "gold_rush.webp", "title": "Gold Rush (1849)", "hint": "Eureka in California", "category": "Expansion", "difficulty": "Medium"},
+  {"filename": "berlin_wall.webp", "title": "Fall of the Berlin Wall (1989)", "hint": "Mr. Gorbachev tear down this wall", "category": "Cold War", "difficulty": "Medium"},
+  {"filename": "Iwo_jima.webp", "title": "Raising the Flag on Iwo Jima (1945)", "hint": "Iconic WWII photograph", "category": "War", "difficulty": "Easy"}
+]

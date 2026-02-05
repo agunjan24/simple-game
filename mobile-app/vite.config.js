@@ -9,6 +9,7 @@ export default defineConfig({
       targets: [
         { src: '../images', dest: '.' },
         { src: '../images_hollywood', dest: '.' },
+        { src: '../images_history', dest: '.' },
       ],
     }),
   ],

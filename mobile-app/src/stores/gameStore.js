@@ -4,6 +4,7 @@ import { StatusBar, Style } from '@capacitor/status-bar'
 import { THEMES } from '../themes/themes.js'
 import bollywoodData from '../data/bollywood.json'
 import hollywoodData from '../data/hollywood.json'
+import historyData from '../data/history.json'
 
 function updateStatusBar(themeName) {
   if (!Capacitor.isNativePlatform()) return
@@ -18,6 +19,7 @@ const DEFAULT_THEME = 'bollywood'
 const DATA_MAP = {
   bollywood: bollywoodData,
   hollywood: hollywoodData,
+  history: historyData,
 }
 
 export const useGameStore = defineStore('game', {

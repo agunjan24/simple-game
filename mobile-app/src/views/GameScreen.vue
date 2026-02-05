@@ -145,7 +145,7 @@
           <span class="help-icon-cell">●</span>
           <span class="help-action" :style="{ color: colors.textDark }">Tap Dot</span>
           <span class="help-arrow" :style="{ color: colors.primaryDark }">→</span>
-          <span class="help-desc" :style="{ color: colors.textDark }">Review past movie</span>
+          <span class="help-desc" :style="{ color: colors.textDark }">Review past {{ categoryLabel }}</span>
         </div>
       </div>
     </div>
@@ -175,6 +175,7 @@ const reviewShowAnswer = ref(false)
 
 const colors = computed(() => store.themeColors)
 const config = computed(() => store.themeConfig)
+const categoryLabel = computed(() => config.value.categoryLabel.toLowerCase())
 
 // Feature 1: Display item is either the reviewing item or the current item
 const displayItem = computed(() => store.isReviewing ? store.reviewingItem : store.currentItem)
