@@ -741,38 +741,32 @@ def generate_theme_css(theme_colors):
 
         /* Help modal content */
         .help-row {{
-            display: flex;
+            display: grid;
+            grid-template-columns: 28px auto 1fr;
             align-items: center;
-            gap: 10px;
-            padding: 3px 0;
+            gap: 6px;
+            padding: 2px 0;
         }}
 
         .help-row-icon {{
-            font-size: 1.3rem;
-            width: 32px;
+            font-size: 1.2rem;
             text-align: center;
-            flex-shrink: 0;
         }}
 
         .help-row-action {{
-            font-size: 1rem;
+            font-size: 0.95rem;
             font-weight: 700;
             color: {c['text_dark']};
             font-family: 'Poppins', sans-serif;
             white-space: nowrap;
         }}
 
-        .help-row-arrow {{
-            color: {c['primary_dark']};
-            font-size: 1rem;
-            flex-shrink: 0;
-        }}
-
         .help-row-desc {{
-            font-size: 0.95rem;
+            font-size: 0.9rem;
             color: {c['text_dark']};
             font-family: 'Poppins', sans-serif;
             opacity: 0.75;
+            white-space: nowrap;
         }}
 
         .help-prose {{
@@ -831,21 +825,21 @@ def generate_theme_css(theme_colors):
             }}
 
             .help-row {{
-                gap: 8px;
-                padding: 2px 0;
+                grid-template-columns: 24px auto 1fr;
+                gap: 5px;
+                padding: 1px 0;
             }}
 
             .help-row-icon {{
-                font-size: 1.1rem;
-                width: 28px;
+                font-size: 1rem;
             }}
 
             .help-row-action {{
-                font-size: 0.9rem;
+                font-size: 0.85rem;
             }}
 
             .help-row-desc {{
-                font-size: 0.85rem;
+                font-size: 0.8rem;
             }}
         }}
     </style>
@@ -1847,15 +1841,14 @@ def create_game_ui():
             ui.label("Tips & Tricks").classes('help-section-label')
 
             help_items = [
-                ("🖼️", "Tap Image", "Clear blur early"),
-                ("⏱️", "Tap Timer", "Pause & clear blur"),
-                ("●",  "Tap Dot",   f"Review past {category}"),
+                ("🖼️", "Tap Image →", "Clear blur early"),
+                ("⏱️", "Tap Timer →", "Pause & clear blur"),
+                ("●",  "Tap Dot →",   f"Review past {category}"),
             ]
             for icon, action, desc in help_items:
                 with ui.element('div').classes('help-row'):
                     ui.label(icon).classes('help-row-icon')
                     ui.label(action).classes('help-row-action')
-                    ui.label("→").classes('help-row-arrow')
                     ui.label(desc).classes('help-row-desc')
 
             # --- Team Mode ---
@@ -1891,15 +1884,14 @@ def create_game_ui():
                 ).props('flat dense')
 
             help_items = [
-                ("🖼️", "Tap Image", "Clear blur early"),
-                ("⏱️", "Tap Timer", "Pause & clear blur"),
-                ("●",  "Tap Dot",   f"Review past {category}"),
+                ("🖼️", "Tap Image →", "Clear blur early"),
+                ("⏱️", "Tap Timer →", "Pause & clear blur"),
+                ("●",  "Tap Dot →",   f"Review past {category}"),
             ]
             for icon, action, desc in help_items:
                 with ui.element('div').classes('help-row'):
                     ui.label(icon).classes('help-row-icon')
                     ui.label(action).classes('help-row-action')
-                    ui.label("→").classes('help-row-arrow')
                     ui.label(desc).classes('help-row-desc')
 
         dialog.open()
