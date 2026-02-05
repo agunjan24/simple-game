@@ -656,6 +656,147 @@ def generate_theme_css(theme_colors):
         .mobile-icon-btn:active {{
             transform: scale(0.95);
         }}
+
+        /* Help icon */
+        .help-icon {{
+            width: 28px;
+            height: 28px;
+            border-radius: 50%;
+            background: linear-gradient(145deg, {c['primary_light']}, {c['primary']});
+            color: {c['text_dark']};
+            font-family: 'Poppins', sans-serif;
+            font-weight: 700;
+            font-size: 0.85rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            border: 1.5px solid {c['primary_dark']};
+            box-shadow: 0 2px 6px rgba(0,0,0,0.2);
+            transition: transform 0.2s, box-shadow 0.2s;
+            touch-action: manipulation;
+            -webkit-tap-highlight-color: transparent;
+            flex-shrink: 0;
+        }}
+
+        .help-icon:hover {{
+            transform: scale(1.1);
+            box-shadow: 0 3px 10px {c['primary']}80;
+        }}
+
+        .help-icon:active {{
+            transform: scale(0.95);
+        }}
+
+        /* Help modal content */
+        .help-row {{
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 3px 0;
+        }}
+
+        .help-row-icon {{
+            font-size: 1.3rem;
+            width: 32px;
+            text-align: center;
+            flex-shrink: 0;
+        }}
+
+        .help-row-action {{
+            font-size: 1rem;
+            font-weight: 700;
+            color: {c['text_dark']};
+            font-family: 'Poppins', sans-serif;
+            white-space: nowrap;
+        }}
+
+        .help-row-arrow {{
+            color: {c['primary_dark']};
+            font-size: 1rem;
+            flex-shrink: 0;
+        }}
+
+        .help-row-desc {{
+            font-size: 0.95rem;
+            color: {c['text_dark']};
+            font-family: 'Poppins', sans-serif;
+            opacity: 0.75;
+        }}
+
+        .help-prose {{
+            font-family: 'Poppins', sans-serif;
+            font-size: 0.9rem;
+            color: {c['text_dark']};
+            line-height: 1.45;
+            margin: 2px 0;
+        }}
+
+        .help-card {{
+            max-height: 85vh;
+            overflow-y: auto;
+        }}
+
+        .help-section-divider {{
+            border: none;
+            border-top: 2px solid {c['primary']}44;
+            margin: 6px 0 4px 0;
+        }}
+
+        .help-section-label {{
+            font-family: 'Poppins', sans-serif;
+            font-weight: 700;
+            font-size: 0.85rem;
+            color: {c['primary_dark']};
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-top: 2px;
+        }}
+
+        @media (max-width: 640px) {{
+            .help-icon {{
+                width: 24px;
+                height: 24px;
+                font-size: 0.75rem;
+            }}
+
+            .help-card {{
+                padding: 16px 18px !important;
+                max-height: 80vh;
+            }}
+
+            .help-prose {{
+                font-size: 0.82rem;
+                line-height: 1.35;
+            }}
+
+            .help-section-label {{
+                font-size: 0.78rem;
+                margin-top: 0;
+            }}
+
+            .help-section-divider {{
+                margin: 4px 0 2px 0;
+            }}
+
+            .help-row {{
+                gap: 8px;
+                padding: 2px 0;
+            }}
+
+            .help-row-icon {{
+                font-size: 1.1rem;
+                width: 28px;
+            }}
+
+            .help-row-action {{
+                font-size: 0.9rem;
+            }}
+
+            .help-row-desc {{
+                font-size: 0.85rem;
+            }}
+        }}
     </style>
 
     <script>
@@ -1279,8 +1420,10 @@ def create_game_ui():
     # ---------- TIMER START (after image loads) ----------
     def start_timer_after_load():
         """Start the timer once the image has loaded."""
-        # Don't auto-start timer in review mode
+        # Don't auto-start timer in review mode or if manually paused
         if game.is_reviewing():
+            return
+        if game.timer_paused:
             return
         if not game.timer_active and not game.show_answer and not game.game_over:
             game.timer_active = True
@@ -1597,11 +1740,110 @@ def create_game_ui():
                     'bollywood-btn btn-magenta'
                 ).style('font-size: clamp(0.8rem, 2.5vw, 1rem); padding: 10px 28px; margin-top: 6px;')
 
+                # How to Play link
+                ui.label("? How to Play").style(
+                    f'color: {colors["primary_dark"]}; font-size: clamp(0.8rem, 2.5vw, 0.95rem); '
+                    f'cursor: pointer; margin-top: 4px; opacity: 0.7; '
+                    f'font-family: "Poppins", sans-serif; font-weight: 600;'
+                ).on('click', lambda: show_how_to_play())
+
                 # Timer info
                 duration = game.timer_duration if game.team_mode else GAME_DURATION_SEC
                 timer_label = ui.label(f"⏱️ {duration} seconds per round").style(
                     f'color: {colors["accent_dark"]}; font-size: clamp(0.75rem, 2.5vw, 0.9rem); margin-top: 8px;'
                 )
+
+    # ---------- HELP MODALS ----------
+    def show_how_to_play():
+        """Welcome screen: full How to Play guide."""
+        colors = game.get_theme_colors()
+        with ui.dialog().style('align-items: center; justify-content: center;') as dialog, ui.card().classes('help-card').style(
+            f'background: {colors["text_light"]}; '
+            f'border: 2px solid {colors["primary"]}; border-radius: 16px; '
+            f'max-width: 460px; width: 92vw; padding: 24px 28px; '
+            f'box-shadow: 0 20px 60px rgba(0,0,0,0.5);'
+        ):
+            # Header
+            with ui.row().classes('w-full justify-between items-center').style('margin-bottom: 8px;'):
+                ui.label("How to Play").style(
+                    f'font-family: "Rozha One", serif; font-size: 1.6rem; '
+                    f'color: {colors["text_dark"]};'
+                )
+                ui.button("✕", on_click=dialog.close).style(
+                    'background: transparent; border: none; font-size: 1.4rem; '
+                    'cursor: pointer; min-width: auto; padding: 4px; color: #888; box-shadow: none;'
+                ).props('flat dense')
+
+            # --- Game Mechanics ---
+            ui.label("The Basics").classes('help-section-label')
+            ui.label(
+                "A movie screenshot appears blurred and progressively clears as time runs down. "
+                "Guess the movie before the timer expires! A countdown appears for the last 10 seconds."
+            ).classes('help-prose')
+            ui.label(
+                "Blurriness can be turned off with the Progressive Reveal toggle on the welcome screen."
+            ).classes('help-prose').style('opacity: 0.65; font-size: 0.82rem;')
+
+            # --- Hidden Features ---
+            ui.element('hr').classes('help-section-divider')
+            ui.label("Tips & Tricks").classes('help-section-label')
+
+            help_items = [
+                ("🖼️", "Tap Image", "Clear blur early"),
+                ("⏱️", "Tap Timer", "Pause & clear blur"),
+                ("●",  "Tap Dot",   "Review past movie"),
+            ]
+            for icon, action, desc in help_items:
+                with ui.element('div').classes('help-row'):
+                    ui.label(icon).classes('help-row-icon')
+                    ui.label(action).classes('help-row-action')
+                    ui.label("→").classes('help-row-arrow')
+                    ui.label(desc).classes('help-row-desc')
+
+            # --- Team Mode ---
+            ui.element('hr').classes('help-section-divider')
+            ui.label("Team Mode Scoring").classes('help-section-label')
+            ui.label(
+                "100 pts in the first third of time, 75 in the middle, 50 in the last third. "
+                "Using a hint costs 25 pts. "
+                "Tapping the image or timer early locks scoring to 50 pts."
+            ).classes('help-prose')
+
+        dialog.open()
+
+    def show_quick_tips():
+        """Game screen: compact quick tips for hidden features."""
+        colors = game.get_theme_colors()
+        with ui.dialog().style('align-items: center; justify-content: center;') as dialog, ui.card().style(
+            f'background: {colors["text_light"]}; '
+            f'border: 2px solid {colors["primary"]}; border-radius: 16px; '
+            f'max-width: 460px; width: 92vw; padding: 24px 28px; '
+            f'box-shadow: 0 20px 60px rgba(0,0,0,0.5);'
+        ):
+            # Header
+            with ui.row().classes('w-full justify-between items-center').style('margin-bottom: 8px;'):
+                ui.label("Quick Tips").style(
+                    f'font-family: "Rozha One", serif; font-size: 1.6rem; '
+                    f'color: {colors["text_dark"]};'
+                )
+                ui.button("✕", on_click=dialog.close).style(
+                    'background: transparent; border: none; font-size: 1.4rem; '
+                    'cursor: pointer; min-width: auto; padding: 4px; color: #888; box-shadow: none;'
+                ).props('flat dense')
+
+            help_items = [
+                ("🖼️", "Tap Image", "Clear blur early"),
+                ("⏱️", "Tap Timer", "Pause & clear blur"),
+                ("●",  "Tap Dot",   "Review past movie"),
+            ]
+            for icon, action, desc in help_items:
+                with ui.element('div').classes('help-row'):
+                    ui.label(icon).classes('help-row-icon')
+                    ui.label(action).classes('help-row-action')
+                    ui.label("→").classes('help-row-arrow')
+                    ui.label(desc).classes('help-row-desc')
+
+        dialog.open()
 
     # ---------- GAME SCREEN ----------
     def build_game_screen():
@@ -1627,15 +1869,21 @@ def create_game_ui():
                         # Progress indicator
                         progress_container = ui.element('div').classes('mt-1')
 
-                    # Timer - compact circular design (clickable to pause, one-way action)
-                    timer_clickable = not game.is_reviewing() and not game.show_answer and not game.game_over and not game.timer_paused
-                    timer_classes = 'timer-container' + (' timer-clickable' if timer_clickable else '')
-                    timer_container_el = ui.element('div').classes(timer_classes).style('width: 50px; height: 50px;')
-                    if timer_clickable:
-                        timer_container_el.on('click', on_timer_click)
-                    with timer_container_el:
-                        with ui.element('div').classes('timer-inner').style('width: 100%; height: 100%;'):
-                            timer_display = ui.label(f"{game.time_left // 60}:{game.time_left % 60:02d}").classes('timer-text').style('font-size: 1.1rem;')
+                    # Right side: Timer + Help icon
+                    with ui.row().classes('items-center gap-2').style('flex-shrink: 0;'):
+                        # Timer - compact circular design (clickable to pause, one-way action)
+                        timer_clickable = not game.is_reviewing() and not game.show_answer and not game.game_over and not game.timer_paused
+                        timer_classes = 'timer-container' + (' timer-clickable' if timer_clickable else '')
+                        timer_container_el = ui.element('div').classes(timer_classes).style('width: 50px; height: 50px;')
+                        if timer_clickable:
+                            timer_container_el.on('click', on_timer_click)
+                        with timer_container_el:
+                            with ui.element('div').classes('timer-inner').style('width: 100%; height: 100%;'):
+                                timer_display = ui.label(f"{game.time_left // 60}:{game.time_left % 60:02d}").classes('timer-text').style('font-size: 1.1rem;')
+
+                        # Help icon
+                        with ui.element('div').classes('help-icon').on('click', lambda: show_quick_tips()):
+                            ui.label('?').style('margin: 0; padding: 0; line-height: 1;')
 
                 # ---------- REVIEW MODE INDICATOR (Feature 1) ----------
                 if game.is_reviewing():
