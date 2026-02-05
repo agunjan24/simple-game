@@ -27,6 +27,11 @@
             :style="store.theme === 'hollywood' ? activeBtnStyle : inactiveBtnStyle"
             @click="store.setTheme('hollywood')"
           >🎥 Hollywood</button>
+          <button
+            :class="['theme-btn', store.theme === 'history' ? 'active' : 'inactive']"
+            :style="store.theme === 'history' ? activeBtnStyle : inactiveBtnStyle"
+            @click="store.setTheme('history')"
+          >📜 History</button>
         </div>
 
         <!-- Item count -->
