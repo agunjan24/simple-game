@@ -36,6 +36,10 @@ THEMES = {
     'bollywood': {
         'name': 'Bollywood Frames',
         'title_text': 'BOLLYWOOD',
+        'subtitle': 'THE ULTIMATE MOVIE GUESSING GAME',
+        'category_label': 'movie',
+        'category_label_plural': 'movies',
+        'game_title': 'GUESS THE MOVIE',
         'colors': {
             'primary': '#D4AF37',        # Gold
             'primary_light': '#F4D03F',
@@ -75,6 +79,10 @@ THEMES = {
     'hollywood': {
         'name': 'Hollywood Frames',
         'title_text': 'HOLLYWOOD',
+        'subtitle': 'THE ULTIMATE MOVIE GUESSING GAME',
+        'category_label': 'movie',
+        'category_label_plural': 'movies',
+        'game_title': 'GUESS THE MOVIE',
         'colors': {
             'primary': '#C0C0C0',        # Silver/Platinum
             'primary_light': '#E8E8E8',
@@ -113,6 +121,49 @@ THEMES = {
             "Here's looking at you, kid... better luck next time!",
             "I am inevitable... your loss!",
             "Frankly, my dear, I don't give a damn about your score!",
+        ],
+    },
+    'history': {
+        'name': 'History Frames',
+        'title_text': 'HISTORY',
+        'subtitle': 'THE ULTIMATE HISTORY GUESSING GAME',
+        'category_label': 'moment',
+        'category_label_plural': 'moments',
+        'game_title': 'GUESS THE MOMENT',
+        'colors': {
+            'primary': '#C9A84C',        # Parchment Gold
+            'primary_light': '#E8D5A3',  # Light Parchment
+            'primary_dark': '#8B6914',   # Bronze
+            'accent': '#8B0000',          # Deep Red
+            'accent_dark': '#5C0000',     # Darker Red
+            'secondary': '#4682B4',       # Steel Blue
+            'bg_dark': '#0A0A0F',         # Near Black
+            'bg_mid': '#0F1A2E',          # Deep Navy
+            'bg_light': '#162040',        # Navy
+            'text_light': '#F5ECD7',      # Parchment Cream
+            'text_dark': '#0F1A2E',       # Deep Navy
+        },
+        'csv_file': 'data_history.csv',
+        'image_folder': 'images_history',
+        'team_names': [
+            ("Patriots", "Loyalists"),
+            ("Union", "Confederacy"),
+            ("Federalists", "Republicans"),
+            ("Hamilton", "Burr"),
+            ("North", "South"),
+            ("Eagles", "Redcoats"),
+            ("Founders", "Pioneers"),
+            ("Liberty", "Crown"),
+        ],
+        'winner_phrases': [
+            "We the champions of this great nation!",
+            "One giant leap for the winning team!",
+            "Victory is yours — history will remember this!",
+        ],
+        'loser_phrases': [
+            "Those who cannot remember history are condemned to repeat it!",
+            "Better luck in the next chapter of history!",
+            "History is written by the victors... and that's not you!",
         ],
     }
 }
@@ -1331,6 +1382,7 @@ def create_game_ui():
         if countdown_overlay:
             countdown_overlay.style('display: none;')
         main_container.clear()
+        category_plural = game.get_theme_config().get('category_label_plural', 'movies')
 
         with main_container:
             ui.run_javascript('playVictory(); createConfetti();')
@@ -1405,7 +1457,7 @@ def create_game_ui():
                     ui.label("PICTURE PERFECT!").classes('main-title').style(
                         'font-size: clamp(1.5rem, 7vw, 2.5rem); white-space: nowrap;'
                     )
-                    ui.label(f"You've seen all {game.total_count()} movies!").style(
+                    ui.label(f"You've seen all {game.total_count()} {category_plural}!").style(
                         'color: #1A0A14; font-size: 1.3rem; opacity: 0.8;'
                     )
 
@@ -1665,7 +1717,8 @@ def create_game_ui():
                 ui.label("FRAMES").classes('main-title').style('font-size: clamp(1.8rem, 8vw, 3rem);')
 
                 # Subtitle
-                ui.label("THE ULTIMATE MOVIE GUESSING GAME").style(
+                subtitle_text = theme_config.get('subtitle', 'THE ULTIMATE GUESSING GAME')
+                ui.label(subtitle_text).style(
                     f'color: {colors["text_dark"]}; font-size: clamp(0.6rem, 2.5vw, 0.95rem); letter-spacing: 2px; '
                     'text-transform: uppercase; opacity: 0.7; margin-top: 4px;'
                 )
@@ -1674,17 +1727,21 @@ def create_game_ui():
                 ui.label("✦ ✦ ✦").style(f'color: {colors["primary"]}; font-size: 1rem; letter-spacing: 12px; margin: 2px 0;')
 
                 # ---------- THEME TOGGLE ----------
-                with ui.row().classes('items-center gap-2 mt-1'):
+                with ui.row().classes('items-center gap-2 mt-1 flex-wrap justify-center'):
                     bollywood_btn = ui.button("🎬 Bollywood", on_click=lambda: select_theme('bollywood')).classes(
                         f'theme-toggle-btn {"active" if game.theme == "bollywood" else "inactive"}'
                     )
                     hollywood_btn = ui.button("🎥 Hollywood", on_click=lambda: select_theme('hollywood')).classes(
                         f'theme-toggle-btn {"active" if game.theme == "hollywood" else "inactive"}'
                     )
+                    history_btn = ui.button("📜 History", on_click=lambda: select_theme('history')).classes(
+                        f'theme-toggle-btn {"active" if game.theme == "history" else "inactive"}'
+                    )
 
-                # Movie count info - uses current theme's data
-                movie_count = len(game.valid_movies)
-                movie_count_label = ui.label(f"🎬 {movie_count} Movies to Guess").style(
+                # Item count info - uses current theme's data
+                item_count = len(game.valid_movies)
+                item_label = game.get_theme_config().get('category_label_plural', 'movies').capitalize()
+                movie_count_label = ui.label(f"🎬 {item_count} {item_label} to Guess").style(
                     f'color: {colors["text_dark"]}; font-size: clamp(0.9rem, 3vw, 1.1rem); font-weight: 600; margin-top: 2px;'
                 )
 
@@ -1775,10 +1832,11 @@ def create_game_ui():
                 ).props('flat dense')
 
             # --- Game Mechanics ---
+            category = game.get_theme_config().get('category_label', 'movie')
             ui.label("The Basics").classes('help-section-label')
             ui.label(
-                "A movie screenshot appears blurred and progressively clears as time runs down. "
-                "Guess the movie before the timer expires! A countdown appears for the last 10 seconds."
+                f"An image appears blurred and progressively clears as time runs down. "
+                f"Guess the {category} before the timer expires! A countdown appears for the last 10 seconds."
             ).classes('help-prose')
             ui.label(
                 "Blurriness can be turned off with the Progressive Reveal toggle on the welcome screen."
@@ -1791,7 +1849,7 @@ def create_game_ui():
             help_items = [
                 ("🖼️", "Tap Image", "Clear blur early"),
                 ("⏱️", "Tap Timer", "Pause & clear blur"),
-                ("●",  "Tap Dot",   "Review past movie"),
+                ("●",  "Tap Dot",   f"Review past {category}"),
             ]
             for icon, action, desc in help_items:
                 with ui.element('div').classes('help-row'):
@@ -1814,6 +1872,7 @@ def create_game_ui():
     def show_quick_tips():
         """Game screen: compact quick tips for hidden features."""
         colors = game.get_theme_colors()
+        category = game.get_theme_config().get('category_label', 'movie')
         with ui.dialog().style('align-items: center; justify-content: center;') as dialog, ui.card().style(
             f'background: {colors["text_light"]}; '
             f'border: 2px solid {colors["primary"]}; border-radius: 16px; '
@@ -1834,7 +1893,7 @@ def create_game_ui():
             help_items = [
                 ("🖼️", "Tap Image", "Clear blur early"),
                 ("⏱️", "Tap Timer", "Pause & clear blur"),
-                ("●",  "Tap Dot",   "Review past movie"),
+                ("●",  "Tap Dot",   f"Review past {category}"),
             ]
             for icon, action, desc in help_items:
                 with ui.element('div').classes('help-row'):
@@ -1859,10 +1918,11 @@ def create_game_ui():
 
             with ui.column().classes('w-full p-1 sm:p-2 md:p-4 gap-1 md:gap-2'):
                 # ---------- HEADER ROW ----------
+                game_title = game.get_theme_config().get('game_title', 'GUESS THE MOVIE')
                 with ui.row().classes('w-full justify-between items-center gap-2').style('flex-wrap: nowrap;'):
                     # Left side: Title and progress
                     with ui.column().classes('gap-0'):
-                        ui.label("🎬 GUESS THE MOVIE").classes('main-title').style(
+                        ui.label(f"🎬 {game_title}").classes('main-title').style(
                             'font-family: "Rozha One", serif; font-size: clamp(1rem, 4vw, 1.5rem); '
                             'letter-spacing: 1px; filter: drop-shadow(0 1px 2px rgba(0,0,0,0.3));'
                         )
