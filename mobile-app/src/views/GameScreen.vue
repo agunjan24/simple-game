@@ -25,11 +25,16 @@
               ></span>
             </div>
           </div>
-          <!-- Feature 2: Clickable timer to pause (one-way action) -->
-          <div class="timer-circle" :class="{ clickable: !store.isReviewing && !store.showAnswer && !store.gameOver && !store.timerPaused }" @click="onTimerClick">
-            <div class="timer-inner">
-              <span class="timer-text">{{ timerDisplay }}</span>
+          <!-- Right side: Timer + Help icon -->
+          <div class="header-right">
+            <!-- Feature 2: Clickable timer to pause (one-way action) -->
+            <div class="timer-circle" :class="{ clickable: !store.isReviewing && !store.showAnswer && !store.gameOver && !store.timerPaused }" @click="onTimerClick">
+              <div class="timer-inner">
+                <span class="timer-text">{{ timerDisplay }}</span>
+              </div>
             </div>
+            <!-- Quick Tips icon -->
+            <div class="quick-tips-icon" @click="showQuickTips = true">?</div>
           </div>
         </div>
 
@@ -115,11 +120,40 @@
       <!-- Film strip bottom -->
       <div class="film-strip" :style="filmStripStyle"></div>
     </div>
+
+    <!-- Quick Tips modal -->
+    <div v-if="showQuickTips" class="modal-overlay" @click.self="showQuickTips = false">
+      <div class="modal-card" :style="{ background: colors.textLight, borderColor: colors.primary }">
+        <div class="modal-header">
+          <span class="modal-title">Quick Tips</span>
+          <button class="modal-close" @click="showQuickTips = false">✕</button>
+        </div>
+
+        <div class="help-row">
+          <span class="help-icon-cell">🖼️</span>
+          <span class="help-action" :style="{ color: colors.textDark }">Tap Image</span>
+          <span class="help-arrow" :style="{ color: colors.primaryDark }">→</span>
+          <span class="help-desc" :style="{ color: colors.textDark }">Clear blur early</span>
+        </div>
+        <div class="help-row">
+          <span class="help-icon-cell">⏱️</span>
+          <span class="help-action" :style="{ color: colors.textDark }">Tap Timer</span>
+          <span class="help-arrow" :style="{ color: colors.primaryDark }">→</span>
+          <span class="help-desc" :style="{ color: colors.textDark }">Pause & clear blur</span>
+        </div>
+        <div class="help-row">
+          <span class="help-icon-cell">●</span>
+          <span class="help-action" :style="{ color: colors.textDark }">Tap Dot</span>
+          <span class="help-arrow" :style="{ color: colors.primaryDark }">→</span>
+          <span class="help-desc" :style="{ color: colors.textDark }">Review past movie</span>
+        </div>
+      </div>
+    </div>
   </div>
 </template>
 
 <script setup>
-import { ref, computed, watch, onUnmounted } from 'vue'
+import { ref, computed, watch, onMounted, onUnmounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { useGameStore } from '../stores/gameStore.js'
 import { useTimer } from '../composables/useTimer.js'
@@ -132,6 +166,8 @@ const { playTick } = useAudio()
 
 const countdownText = ref('')
 let countdownTimeout = null
+
+const showQuickTips = ref(false)
 
 // Feature 1: Review mode local state
 const reviewShowHint = ref(false)
@@ -243,8 +279,9 @@ watch(() => store.timeLeft, (tl) => {
 })
 
 function onImageLoad() {
-  // Don't auto-start timer in review mode
+  // Don't auto-start timer in review mode or if manually paused
   if (store.isReviewing) return
+  if (store.timerPaused) return
   if (!store.timerActive && !store.showAnswer && !store.gameOver) {
     start()
   }
@@ -359,9 +396,14 @@ function onImageClick() {
   // Answer stays hidden (showAnswer remains false)
 }
 
+function onEscape(e) {
+  if (e.key === 'Escape') showQuickTips.value = false
+}
+onMounted(() => window.addEventListener('keydown', onEscape))
 onUnmounted(() => {
   stop()
   if (countdownTimeout) clearTimeout(countdownTimeout)
+  window.removeEventListener('keydown', onEscape)
 })
 </script>
 
@@ -750,6 +792,118 @@ onUnmounted(() => {
   font-size: 0.8rem;
 }
 
+.header-right {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-shrink: 0;
+}
+
+.quick-tips-icon {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  background: linear-gradient(145deg, v-bind('colors.primaryLight'), v-bind('colors.primary'));
+  color: v-bind('colors.textDark');
+  font-family: 'Poppins', sans-serif;
+  font-weight: 700;
+  font-size: 0.85rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  border: 1.5px solid v-bind('colors.primaryDark');
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
+  transition: transform 0.2s, box-shadow 0.2s;
+  touch-action: manipulation;
+  -webkit-tap-highlight-color: transparent;
+  flex-shrink: 0;
+}
+
+.quick-tips-icon:hover {
+  transform: scale(1.1);
+  box-shadow: 0 3px 10px v-bind('colors.primary + "80"');
+}
+
+.quick-tips-icon:active {
+  transform: scale(0.95);
+}
+
+/* Modal */
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  padding: 16px;
+}
+
+.modal-card {
+  border: 2px solid;
+  border-radius: 16px;
+  max-width: 460px;
+  width: 92vw;
+  padding: 24px 28px;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+}
+
+.modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 8px;
+}
+
+.modal-title {
+  font-family: 'Rozha One', serif;
+  font-size: 1.6rem;
+  color: v-bind('colors.textDark');
+}
+
+.modal-close {
+  background: transparent;
+  border: none;
+  font-size: 1.4rem;
+  cursor: pointer;
+  color: #888;
+  padding: 4px;
+}
+
+.help-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 3px 0;
+}
+
+.help-icon-cell {
+  font-size: 1.3rem;
+  width: 32px;
+  text-align: center;
+  flex-shrink: 0;
+}
+
+.help-action {
+  font-size: 1rem;
+  font-weight: 700;
+  font-family: 'Poppins', sans-serif;
+  white-space: nowrap;
+}
+
+.help-arrow {
+  font-size: 1rem;
+  flex-shrink: 0;
+}
+
+.help-desc {
+  font-size: 0.95rem;
+  font-family: 'Poppins', sans-serif;
+  opacity: 0.75;
+}
+
 @media (max-width: 640px) {
   .game-card { border-radius: 12px; }
   .game-content { padding: 6px 8px; }
@@ -771,5 +925,33 @@ onUnmounted(() => {
   .progress-dots { gap: 4px; }
   .hint-box { padding: 4px 8px; border-radius: 6px; }
   .answer-box { padding: 8px 8px; }
+
+  .quick-tips-icon {
+    width: 24px;
+    height: 24px;
+    font-size: 0.75rem;
+  }
+
+  .modal-card {
+    padding: 16px 18px;
+  }
+
+  .help-row {
+    gap: 8px;
+    padding: 2px 0;
+  }
+
+  .help-icon-cell {
+    font-size: 1.1rem;
+    width: 28px;
+  }
+
+  .help-action {
+    font-size: 0.9rem;
+  }
+
+  .help-desc {
+    font-size: 0.85rem;
+  }
 }
 </style>

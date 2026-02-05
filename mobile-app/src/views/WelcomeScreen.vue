@@ -82,9 +82,63 @@
           🎬 START THE SHOW
         </button>
 
+        <!-- How to Play link -->
+        <span class="how-to-play-link" :style="{ color: colors.primaryDark }" @click="showHowToPlay = true">
+          ? How to Play
+        </span>
+
         <!-- Timer info -->
         <p class="timer-info" :style="{ color: colors.accentDark }">
           ⏱️ {{ store.currentTimerDuration }} seconds per round
+        </p>
+      </div>
+    </div>
+
+    <!-- How to Play modal -->
+    <div v-if="showHowToPlay" class="modal-overlay" @click.self="showHowToPlay = false">
+      <div class="modal-card help-card" :style="{ background: colors.textLight, borderColor: colors.primary }">
+        <div class="modal-header">
+          <span class="modal-title">How to Play</span>
+          <button class="modal-close" @click="showHowToPlay = false">✕</button>
+        </div>
+
+        <div class="help-section-label" :style="{ color: colors.primaryDark }">The Basics</div>
+        <p class="help-prose" :style="{ color: colors.textDark }">
+          A movie screenshot appears blurred and progressively clears as time runs down.
+          Guess the movie before the timer expires! A countdown appears for the last 10 seconds.
+        </p>
+        <p class="help-prose help-note" :style="{ color: colors.textDark }">
+          Blurriness can be turned off with the Progressive Reveal toggle on the welcome screen.
+        </p>
+
+        <hr class="help-divider" :style="{ borderColor: colors.primary + '44' }" />
+        <div class="help-section-label" :style="{ color: colors.primaryDark }">Tips &amp; Tricks</div>
+
+        <div class="help-row">
+          <span class="help-icon">🖼️</span>
+          <span class="help-action" :style="{ color: colors.textDark }">Tap Image</span>
+          <span class="help-arrow" :style="{ color: colors.primaryDark }">→</span>
+          <span class="help-desc" :style="{ color: colors.textDark }">Clear blur early</span>
+        </div>
+        <div class="help-row">
+          <span class="help-icon">⏱️</span>
+          <span class="help-action" :style="{ color: colors.textDark }">Tap Timer</span>
+          <span class="help-arrow" :style="{ color: colors.primaryDark }">→</span>
+          <span class="help-desc" :style="{ color: colors.textDark }">Pause & clear blur</span>
+        </div>
+        <div class="help-row">
+          <span class="help-icon">●</span>
+          <span class="help-action" :style="{ color: colors.textDark }">Tap Dot</span>
+          <span class="help-arrow" :style="{ color: colors.primaryDark }">→</span>
+          <span class="help-desc" :style="{ color: colors.textDark }">Review past movie</span>
+        </div>
+
+        <hr class="help-divider" :style="{ borderColor: colors.primary + '44' }" />
+        <div class="help-section-label" :style="{ color: colors.primaryDark }">Team Mode Scoring</div>
+        <p class="help-prose" :style="{ color: colors.textDark }">
+          100 pts in the first third of time, 75 in the middle, 50 in the last third.
+          Using a hint costs 25 pts.
+          Tapping the image or timer early locks scoring to 50 pts.
         </p>
       </div>
     </div>
@@ -92,13 +146,20 @@
 </template>
 
 <script setup>
-import { computed } from 'vue'
+import { ref, computed, onMounted, onUnmounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { useGameStore } from '../stores/gameStore.js'
 
 const store = useGameStore()
 const router = useRouter()
 const colors = computed(() => store.themeColors)
+const showHowToPlay = ref(false)
+
+function onEscape(e) {
+  if (e.key === 'Escape') showHowToPlay.value = false
+}
+onMounted(() => window.addEventListener('keydown', onEscape))
+onUnmounted(() => window.removeEventListener('keydown', onEscape))
 
 const bgStyle = computed(() => ({
   background: `
@@ -409,6 +470,127 @@ function startGame() {
   margin-top: 8px;
 }
 
+.how-to-play-link {
+  font-family: 'Poppins', sans-serif;
+  font-size: clamp(0.8rem, 2.5vw, 0.95rem);
+  font-weight: 600;
+  cursor: pointer;
+  opacity: 0.7;
+  margin-top: 4px;
+  transition: opacity 0.2s;
+}
+
+.how-to-play-link:hover {
+  opacity: 1;
+}
+
+/* Modal overlay */
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  padding: 16px;
+}
+
+.modal-card {
+  border: 2px solid;
+  border-radius: 16px;
+  max-width: 460px;
+  width: 92vw;
+  padding: 24px 28px;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+}
+
+.help-card {
+  max-height: 85vh;
+  overflow-y: auto;
+}
+
+.modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 8px;
+}
+
+.modal-title {
+  font-family: 'Rozha One', serif;
+  font-size: 1.6rem;
+  color: v-bind('colors.textDark');
+}
+
+.modal-close {
+  background: transparent;
+  border: none;
+  font-size: 1.4rem;
+  cursor: pointer;
+  color: #888;
+  padding: 4px;
+}
+
+.help-section-label {
+  font-family: 'Poppins', sans-serif;
+  font-weight: 700;
+  font-size: 0.85rem;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  margin-top: 2px;
+}
+
+.help-prose {
+  font-family: 'Poppins', sans-serif;
+  font-size: 0.9rem;
+  line-height: 1.45;
+  margin: 2px 0;
+}
+
+.help-note {
+  opacity: 0.65;
+  font-size: 0.82rem;
+}
+
+.help-divider {
+  border: none;
+  border-top: 2px solid;
+  margin: 6px 0 4px 0;
+}
+
+.help-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 3px 0;
+}
+
+.help-icon {
+  font-size: 1.3rem;
+  width: 32px;
+  text-align: center;
+  flex-shrink: 0;
+}
+
+.help-action {
+  font-size: 1rem;
+  font-weight: 700;
+  font-family: 'Poppins', sans-serif;
+  white-space: nowrap;
+}
+
+.help-arrow {
+  font-size: 1rem;
+  flex-shrink: 0;
+}
+
+.help-desc {
+  font-size: 0.95rem;
+  font-family: 'Poppins', sans-serif;
+  opacity: 0.75;
+}
+
 @media (max-width: 640px) {
   .game-card {
     border-radius: 12px;
@@ -422,6 +604,43 @@ function startGame() {
 
   .start-btn {
     padding: 10px 28px;
+  }
+
+  .modal-card {
+    padding: 16px 18px;
+    max-height: 80vh;
+  }
+
+  .help-prose {
+    font-size: 0.82rem;
+    line-height: 1.35;
+  }
+
+  .help-section-label {
+    font-size: 0.78rem;
+    margin-top: 0;
+  }
+
+  .help-divider {
+    margin: 4px 0 2px 0;
+  }
+
+  .help-row {
+    gap: 8px;
+    padding: 2px 0;
+  }
+
+  .help-icon {
+    font-size: 1.1rem;
+    width: 28px;
+  }
+
+  .help-action {
+    font-size: 0.9rem;
+  }
+
+  .help-desc {
+    font-size: 0.85rem;
   }
 }
 </style>
