@@ -1,0 +1,13 @@
+[
+  {"filename": "A_Star_Is_Born.webp", "title": "A Star Is Born", "hint": "Shallow lyrics", "category": "Romance", "difficulty": "Medium"},
+  {"filename": "Anaconda.webp", "title": "Anaconda", "hint": "Giant snake in the Amazon", "category": "Horror", "difficulty": "Easy"},
+  {"filename": "Driving_Miss_Daisy.webp", "title": "Driving Miss Daisy", "hint": "Morgan Freeman as chauffeur", "category": "Drama", "difficulty": "Hard"},
+  {"filename": "Forest_Gump.webp", "title": "Forrest Gump", "hint": "Life is like a box of chocolates", "category": "Drama", "difficulty": "Easy"},
+  {"filename": "Independence_Day.webp", "title": "Independence Day", "hint": "July 4th alien invasion", "category": "Sci-Fi", "difficulty": "Easy"},
+  {"filename": "Jurassic_Park.webp", "title": "Jurassic Park", "hint": "Dinosaurs brought back to life", "category": "Sci-Fi", "difficulty": "Easy"},
+  {"filename": "Meet_The_Parents.webp", "title": "Meet the Parents", "hint": "Circle of trust", "category": "Comedy", "difficulty": "Easy"},
+  {"filename": "Scent_Of_A_Woman.webp", "title": "Scent of a Woman", "hint": "Hoo-ah! Al Pacino", "category": "Drama", "difficulty": "Medium"},
+  {"filename": "Sleepless_In_Seattle.webp", "title": "Sleepless in Seattle", "hint": "Tom Hanks and Meg Ryan", "category": "Romance", "difficulty": "Medium"},
+  {"filename": "Rocky.webp", "title": "Rocky", "hint": "Boxing", "category": "Drama", "difficulty": "Easy"},
+  {"filename": "Titanic.webp", "title": "Titanic", "hint": "Jack and Rose", "category": "Romance", "difficulty": "Easy"}
+]
