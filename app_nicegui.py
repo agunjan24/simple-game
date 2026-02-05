@@ -114,6 +114,45 @@ THEMES = {
             "I am inevitable... your loss!",
             "Frankly, my dear, I don't give a damn about your score!",
         ],
+    },
+    'history': {
+        'name': 'History Frames',
+        'title_text': 'HISTORY',
+        'colors': {
+            'primary': '#C9A84C',        # Parchment Gold
+            'primary_light': '#E8D5A3',  # Light Parchment
+            'primary_dark': '#8B6914',   # Bronze
+            'accent': '#8B0000',          # Deep Red
+            'accent_dark': '#5C0000',     # Darker Red
+            'secondary': '#4682B4',       # Steel Blue
+            'bg_dark': '#0A0A0F',         # Near Black
+            'bg_mid': '#0F1A2E',          # Deep Navy
+            'bg_light': '#162040',        # Navy
+            'text_light': '#F5ECD7',      # Parchment Cream
+            'text_dark': '#0F1A2E',       # Deep Navy
+        },
+        'csv_file': 'data_history.csv',
+        'image_folder': 'images_history',
+        'team_names': [
+            ("Patriots", "Loyalists"),
+            ("Union", "Confederacy"),
+            ("Federalists", "Republicans"),
+            ("Hamilton", "Burr"),
+            ("North", "South"),
+            ("Eagles", "Redcoats"),
+            ("Founders", "Pioneers"),
+            ("Liberty", "Crown"),
+        ],
+        'winner_phrases': [
+            "We the champions of this great nation!",
+            "One giant leap for the winning team!",
+            "Victory is yours — history will remember this!",
+        ],
+        'loser_phrases': [
+            "Those who cannot remember history are condemned to repeat it!",
+            "Better luck in the next chapter of history!",
+            "History is written by the victors... and that's not you!",
+        ],
     }
 }
 
@@ -1674,17 +1713,22 @@ def create_game_ui():
                 ui.label("✦ ✦ ✦").style(f'color: {colors["primary"]}; font-size: 1rem; letter-spacing: 12px; margin: 2px 0;')
 
                 # ---------- THEME TOGGLE ----------
-                with ui.row().classes('items-center gap-2 mt-1'):
+                with ui.row().classes('items-center gap-2 mt-1 flex-wrap justify-center'):
                     bollywood_btn = ui.button("🎬 Bollywood", on_click=lambda: select_theme('bollywood')).classes(
                         f'theme-toggle-btn {"active" if game.theme == "bollywood" else "inactive"}'
                     )
                     hollywood_btn = ui.button("🎥 Hollywood", on_click=lambda: select_theme('hollywood')).classes(
                         f'theme-toggle-btn {"active" if game.theme == "hollywood" else "inactive"}'
                     )
+                    history_btn = ui.button("📜 History", on_click=lambda: select_theme('history')).classes(
+                        f'theme-toggle-btn {"active" if game.theme == "history" else "inactive"}'
+                    )
 
-                # Movie count info - uses current theme's data
-                movie_count = len(game.valid_movies)
-                movie_count_label = ui.label(f"🎬 {movie_count} Movies to Guess").style(
+                # Item count info - uses current theme's data
+                item_count = len(game.valid_movies)
+                # Use "Moments" for history theme, "Movies" for others
+                item_label = "Moments" if game.theme == "history" else "Movies"
+                movie_count_label = ui.label(f"🎬 {item_count} {item_label} to Guess").style(
                     f'color: {colors["text_dark"]}; font-size: clamp(0.9rem, 3vw, 1.1rem); font-weight: 600; margin-top: 2px;'
                 )
 

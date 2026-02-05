@@ -1,7 +1,7 @@
-# Bollywood/Hollywood Frames - Project Guide
+# Bollywood/Hollywood/History Frames - Project Guide
 
 ## Overview
-A movie guessing game where users identify movies from screenshot images within a configurable timer. Supports two themes: **Bollywood** and **Hollywood** with distinct styling, color palettes, and movie datasets. Two implementations exist: Streamlit (Bollywood only) and NiceGUI (full-featured with theme support).
+A guessing game where users identify movies or historical moments from screenshot images within a configurable timer. Supports three themes: **Bollywood**, **Hollywood**, and **History** with distinct styling, color palettes, and datasets. Two implementations exist: Streamlit (Bollywood only) and NiceGUI (full-featured with theme support).
 
 ## Tech Stack
 - **Language:** Python 3.11+
@@ -22,8 +22,11 @@ bollywood-game/
 ├── data.csv                # Bollywood movie metadata (10 movies)
 ├── images/                 # Bollywood movie screenshots
 │
-├── data_hollywood.csv      # Hollywood movie metadata (12 movies)
-└── images_hollywood/       # Hollywood movie screenshots
+├── data_hollywood.csv      # Hollywood movie metadata (11 movies)
+├── images_hollywood/       # Hollywood movie screenshots
+│
+├── data_history.csv        # American history moments (10 items)
+└── images_history/         # History moment images
 ```
 
 ## Running the App
@@ -169,19 +172,19 @@ THEMES = {
 
 ### Color Palettes
 
-| Element | Bollywood | Hollywood |
-|---------|-----------|-----------|
-| **Primary** | Gold (#D4AF37) | Silver (#C0C0C0) |
-| **Primary Light** | #F4D03F | #E8E8E8 |
-| **Primary Dark** | #B8860B | #A0A0A0 |
-| **Accent** | Magenta (#E91E63) | Red (#FF4444) |
-| **Accent Dark** | #880E4F | #CC0000 |
-| **Secondary** | Turquoise (#00BFA5) | Royal Blue (#4169E1) |
-| **Background Dark** | #0D0208 | #0A0A0A |
-| **Background Mid** | #1A0A14 (Maroon) | #1A1A2E (Navy) |
-| **Background Light** | #150520 | #16213E |
-| **Text Light** | Cream (#FFF8E7) | White (#FFFFFF) |
-| **Text Dark** | #1A0A14 | #1A1A2E |
+| Element | Bollywood | Hollywood | History |
+|---------|-----------|-----------|---------|
+| **Primary** | Gold (#D4AF37) | Silver (#C0C0C0) | Parchment Gold (#C9A84C) |
+| **Primary Light** | #F4D03F | #E8E8E8 | #E8D5A3 |
+| **Primary Dark** | #B8860B | #A0A0A0 | Bronze (#8B6914) |
+| **Accent** | Magenta (#E91E63) | Red (#FF4444) | Deep Red (#8B0000) |
+| **Accent Dark** | #880E4F | #CC0000 | #5C0000 |
+| **Secondary** | Turquoise (#00BFA5) | Royal Blue (#4169E1) | Steel Blue (#4682B4) |
+| **Background Dark** | #0D0208 | #0A0A0A | #0A0A0F |
+| **Background Mid** | #1A0A14 (Maroon) | #1A1A2E (Navy) | #0F1A2E (Deep Navy) |
+| **Background Light** | #150520 | #16213E | #162040 |
+| **Text Light** | Cream (#FFF8E7) | White (#FFFFFF) | Parchment (#F5ECD7) |
+| **Text Dark** | #1A0A14 | #1A1A2E | #0F1A2E |
 
 ### Team Name Pairs
 
@@ -204,6 +207,16 @@ THEMES = {
 - Gotham vs Metropolis
 - Rebels vs Empire
 - Autobots vs Decepticons
+
+**History:**
+- Patriots vs Loyalists
+- Union vs Confederacy
+- Federalists vs Republicans
+- Hamilton vs Burr
+- North vs South
+- Eagles vs Redcoats
+- Founders vs Pioneers
+- Liberty vs Crown
 
 ### Adding a New Theme
 1. Add new theme entry to `THEMES` dictionary with all required keys
