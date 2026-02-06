@@ -130,3 +130,35 @@ export const THEMES = {
     ],
   },
 }
+
+export const CATEGORIES = {
+  movies: {
+    icon: '🎬',
+    name: 'Movies',
+    description: 'Guess the movie from the scene',
+    color: '#FFD700',
+    colorDark: '#DAA520',
+    subcategories: {
+      bollywood: { icon: '🇮🇳', name: 'Bollywood', themeKey: 'bollywood' },
+      hollywood: { icon: '🎥', name: 'Hollywood', themeKey: 'hollywood' },
+    },
+  },
+  history: {
+    icon: '📚',
+    name: 'History',
+    description: 'Identify historical moments',
+    color: '#C9A84C',
+    colorDark: '#8B6914',
+    subcategories: {
+      american: { icon: '🦅', name: 'American', themeKey: 'history' },
+    },
+  },
+  yolo: {
+    icon: '🎲',
+    name: 'YOLO',
+    description: 'Random mix of everything!',
+    color: '#FF6B6B',
+    colorDark: '#CC4444',
+    subcategories: null,
+  },
+}

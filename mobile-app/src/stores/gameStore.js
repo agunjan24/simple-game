@@ -1,7 +1,7 @@
 import { defineStore } from 'pinia'
 import { Capacitor } from '@capacitor/core'
 import { StatusBar, Style } from '@capacitor/status-bar'
-import { THEMES } from '../themes/themes.js'
+import { THEMES, CATEGORIES } from '../themes/themes.js'
 import bollywoodData from '../data/bollywood.json'
 import hollywoodData from '../data/hollywood.json'
 import historyData from '../data/history.json'
@@ -44,6 +44,10 @@ export const useGameStore = defineStore('game', {
     teamScores: [0, 0],
     teamNames: ['Team A', 'Team B'],
     progressiveReveal: true,
+    // Welcome flow state
+    selectedCategory: null,
+    selectedSubcategory: null,
+    welcomeStep: 1,
     // Feature 1: History navigation (review mode)
     reviewingItem: null,
     savedTimeLeft: null,
@@ -60,6 +64,8 @@ export const useGameStore = defineStore('game', {
     remainingCount: (state) => state.validItems.length - state.shownItems.length,
     totalCount: (state) => state.validItems.length,
     shownCount: (state) => state.shownItems.length,
+
+    getItemCount: () => (themeKey) => (DATA_MAP[themeKey] || []).length,
 
     currentBlur: (state) => {
       if (!state.progressiveReveal) return 0
@@ -98,6 +104,43 @@ export const useGameStore = defineStore('game', {
   },
 
   actions: {
+    selectCategory(catKey) {
+      this.selectedCategory = catKey
+      const cat = CATEGORIES[catKey]
+      if (!cat.subcategories) {
+        // YOLO: pick a random theme
+        const allThemeKeys = Object.keys(THEMES)
+        const randomKey = allThemeKeys[Math.floor(Math.random() * allThemeKeys.length)]
+        this.selectedSubcategory = null
+        this.setTheme(randomKey)
+        this.welcomeStep = 3
+      } else {
+        const subKeys = Object.keys(cat.subcategories)
+        if (subKeys.length === 1) {
+          // Single subcategory: auto-select and skip to step 3
+          const subKey = subKeys[0]
+          this.selectedSubcategory = subKey
+          this.setTheme(cat.subcategories[subKey].themeKey)
+          this.welcomeStep = 3
+        } else {
+          this.welcomeStep = 2
+        }
+      }
+    },
+
+    selectSubcategory(subKey) {
+      this.selectedSubcategory = subKey
+      const cat = CATEGORIES[this.selectedCategory]
+      this.setTheme(cat.subcategories[subKey].themeKey)
+      this.welcomeStep = 3
+    },
+
+    resetWelcome() {
+      this.welcomeStep = 1
+      this.selectedCategory = null
+      this.selectedSubcategory = null
+    },
+
     _loadThemeData() {
       this.validItems = DATA_MAP[this.theme] || []
     },
