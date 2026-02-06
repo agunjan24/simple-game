@@ -438,6 +438,385 @@ This neutral base allows individual category/subcategory colors to pop when sele
 
 ---
 
+---
+
+## 11. Mobile App Implementation (Vue 3 + Capacitor)
+
+The mobile app (`mobile-app/`) uses a different tech stack but the same UX concepts apply. This section covers mobile-specific implementation details.
+
+### Current Mobile Architecture
+
+| Component | Technology |
+|-----------|------------|
+| Framework | Vue 3 (Composition API) |
+| State | Pinia store (`gameStore.js`) |
+| Routing | Vue Router (3 views) |
+| Data | Static JSON files |
+| Native | Capacitor 8 (Android/iOS) |
+| Build | Vite |
+
+### Key Files to Modify
+
+```
+mobile-app/src/
+├── views/
+│   └── WelcomeScreen.vue      # Main changes here
+├── stores/
+│   └── gameStore.js           # Add category/subcategory state
+├── themes/
+│   └── themes.js → categories.js  # Restructure
+├── data/
+│   ├── categories.json        # NEW: category index
+│   ├── bollywood.json         # Existing (becomes subcategory)
+│   ├── hollywood.json         # Existing (becomes subcategory)
+│   └── history.json           # Existing (becomes subcategory)
+└── components/
+    └── CategoryDrum.vue       # NEW: reusable drum component
+```
+
+### Data Structure Changes
+
+#### New: `categories.json` (Index File)
+
+```json
+{
+  "movies": {
+    "icon": "🎬",
+    "name": "Movies",
+    "description": "Guess the movie from the scene",
+    "color": "#FFD700",
+    "subcategories": {
+      "bollywood": {
+        "icon": "🇮🇳",
+        "name": "Bollywood",
+        "dataFile": "bollywood.json",
+        "imageFolder": "images",
+        "categoryLabel": "Movie",
+        "categoryLabelPlural": "Movies"
+      },
+      "hollywood": {
+        "icon": "🎥",
+        "name": "Hollywood",
+        "dataFile": "hollywood.json",
+        "imageFolder": "images_hollywood",
+        "categoryLabel": "Movie",
+        "categoryLabelPlural": "Movies"
+      }
+    }
+  },
+  "history": {
+    "icon": "📚",
+    "name": "History",
+    "description": "Identify historical moments",
+    "color": "#C9A84C",
+    "subcategories": {
+      "american": {
+        "icon": "🦅",
+        "name": "American",
+        "dataFile": "history.json",
+        "imageFolder": "images_history",
+        "categoryLabel": "Moment",
+        "categoryLabelPlural": "Moments",
+        "ageGroup": "all"
+      }
+    }
+  },
+  "yolo": {
+    "icon": "🎲",
+    "name": "YOLO",
+    "description": "Random mix of everything!",
+    "color": "#FF6B6B",
+    "subcategories": null
+  }
+}
+```
+
+### Pinia Store Changes (`gameStore.js`)
+
+```javascript
+// New state properties
+state: () => ({
+  // Existing
+  theme: 'bollywood',
+  // New
+  category: null,        // 'movies', 'history', 'stem', 'yolo'
+  subcategory: null,     // 'bollywood', 'hollywood', 'american', etc.
+  selectionStep: 1,      // 1=category, 2=subcategory, 3=config
+
+  // Computed from category+subcategory
+  activeThemeConfig: null,
+  // ...existing state
+}),
+
+// New actions
+actions: {
+  selectCategory(categoryKey) {
+    this.category = categoryKey;
+    const cat = CATEGORIES[categoryKey];
+
+    if (categoryKey === 'yolo') {
+      this.prepareYoloMode();
+      this.selectionStep = 3;
+    } else if (Object.keys(cat.subcategories).length === 1) {
+      // Auto-select single subcategory
+      this.selectSubcategory(Object.keys(cat.subcategories)[0]);
+    } else {
+      this.selectionStep = 2;
+    }
+  },
+
+  selectSubcategory(subcategoryKey) {
+    this.subcategory = subcategoryKey;
+    this.loadSubcategoryData();
+    this.selectionStep = 3;
+  },
+
+  goBackToCategory() {
+    this.subcategory = null;
+    this.selectionStep = 1;
+  },
+
+  prepareYoloMode() {
+    // Pool all items from all subcategories
+    this.items = [...bollywoodData, ...hollywoodData, ...historyData];
+    this.shuffleItems();
+  }
+}
+```
+
+### New Component: `CategoryDrum.vue`
+
+```vue
+<template>
+  <div class="drum-container"
+       @touchstart="onTouchStart"
+       @touchend="onTouchEnd">
+
+    <button class="arrow-btn left" @click="rotate(-1)">◀</button>
+
+    <div class="cards-track" :style="trackStyle">
+      <div
+        v-for="(cat, key) in categories"
+        :key="key"
+        class="category-card"
+        :class="{ selected: key === currentKey, dim: key !== currentKey }"
+        :style="{ '--card-color': cat.color }"
+        @click="onCardClick(key)"
+      >
+        <span class="card-icon">{{ cat.icon }}</span>
+        <span class="card-name">{{ cat.name }}</span>
+        <span class="card-count">{{ getItemCount(key) }} items</span>
+      </div>
+    </div>
+
+    <button class="arrow-btn right" @click="rotate(1)">▶</button>
+  </div>
+</template>
+
+<script setup>
+import { ref, computed } from 'vue';
+import { useGameStore } from '@/stores/gameStore';
+
+const props = defineProps({
+  categories: Object,
+  modelValue: String
+});
+
+const emit = defineEmits(['update:modelValue', 'select']);
+
+const currentIndex = ref(0);
+const touchStartX = ref(0);
+
+// Touch handling with momentum
+function onTouchStart(e) {
+  touchStartX.value = e.touches[0].clientX;
+}
+
+function onTouchEnd(e) {
+  const diff = touchStartX.value - e.changedTouches[0].clientX;
+  if (Math.abs(diff) > 50) {
+    rotate(diff > 0 ? 1 : -1);
+  }
+}
+
+function rotate(direction) {
+  const keys = Object.keys(props.categories);
+  currentIndex.value = (currentIndex.value + direction + keys.length) % keys.length;
+  emit('update:modelValue', keys[currentIndex.value]);
+
+  // Play click sound via useAudio composable
+  playDrumClick();
+}
+
+function onCardClick(key) {
+  const keys = Object.keys(props.categories);
+  const targetIndex = keys.indexOf(key);
+
+  if (targetIndex === currentIndex.value) {
+    // Center card clicked - select it
+    emit('select', key);
+  } else {
+    // Side card clicked - rotate to it
+    currentIndex.value = targetIndex;
+    emit('update:modelValue', key);
+  }
+}
+</script>
+```
+
+### WelcomeScreen.vue Changes
+
+```vue
+<template>
+  <div class="welcome-screen">
+    <!-- Header (unchanged) -->
+    <header>...</header>
+
+    <!-- Step Indicator -->
+    <div class="step-dots">
+      <span :class="{ active: step >= 1, completed: step > 1 }"></span>
+      <span :class="{ active: step >= 2, completed: step > 2 }"></span>
+      <span :class="{ active: step >= 3 }"></span>
+    </div>
+
+    <!-- Step 1: Category Selection -->
+    <section v-if="step === 1" class="category-section">
+      <h2>Choose Your Category</h2>
+      <CategoryDrum
+        :categories="categories"
+        v-model="selectedCategory"
+        @select="onCategorySelect"
+      />
+      <p class="hint">Swipe to browse • Tap to select</p>
+    </section>
+
+    <!-- Step 2: Subcategory Selection -->
+    <Transition name="slide-up">
+      <section v-if="step === 2" class="subcategory-section">
+        <div class="selected-badge">
+          {{ categories[selectedCategory].icon }}
+          {{ categories[selectedCategory].name }}
+          <span class="checkmark">✓</span>
+        </div>
+
+        <h3>Choose Subcategory</h3>
+
+        <div class="subcategory-grid">
+          <button
+            v-for="(sub, key) in currentSubcategories"
+            :key="key"
+            class="subcategory-card"
+            @click="onSubcategorySelect(key)"
+          >
+            <span class="sub-icon">{{ sub.icon }}</span>
+            <span class="sub-name">{{ sub.name }}</span>
+            <span class="sub-count">{{ sub.itemCount }} items</span>
+          </button>
+        </div>
+
+        <button class="back-link" @click="step = 1">
+          ← Change Category
+        </button>
+      </section>
+    </Transition>
+
+    <!-- Step 3: Game Config (existing, mostly unchanged) -->
+    <Transition name="slide-up">
+      <section v-if="step === 3" class="config-section">
+        <!-- Existing game mode, timer, team config -->
+      </section>
+    </Transition>
+  </div>
+</template>
+```
+
+### Mobile-Specific CSS Considerations
+
+```css
+/* Drum optimizations for touch */
+.drum-container {
+  touch-action: pan-x;  /* Allow horizontal swipe only */
+  -webkit-overflow-scrolling: touch;
+  user-select: none;
+}
+
+.category-card {
+  /* Prevent iOS tap delay */
+  touch-action: manipulation;
+  -webkit-tap-highlight-color: transparent;
+
+  /* Larger touch targets on mobile */
+  min-width: 100px;
+  min-height: 120px;
+}
+
+/* Reduce animations on mobile for performance */
+@media (max-width: 640px) {
+  .category-card {
+    transition: transform 0.2s, opacity 0.2s;
+  }
+
+  /* Disable complex animations */
+  .drum-spin-animation {
+    animation: none;
+  }
+}
+
+/* Handle notch/safe areas */
+.welcome-screen {
+  padding-top: env(safe-area-inset-top);
+  padding-bottom: env(safe-area-inset-bottom);
+}
+```
+
+### Capacitor Native Enhancements
+
+```javascript
+// In WelcomeScreen.vue or a composable
+
+import { Haptics, ImpactStyle } from '@capacitor/haptics';
+import { StatusBar, Style } from '@capacitor/status-bar';
+
+// Haptic feedback on drum rotation
+async function playDrumClick() {
+  await Haptics.impact({ style: ImpactStyle.Light });
+}
+
+// Haptic feedback on selection
+async function playSelectFeedback() {
+  await Haptics.impact({ style: ImpactStyle.Medium });
+}
+
+// Update status bar color based on selected category
+async function updateStatusBarColor(color) {
+  await StatusBar.setBackgroundColor({ color });
+}
+```
+
+### Implementation Order for Mobile
+
+1. **Create `categories.json`** - Define category structure
+2. **Update `gameStore.js`** - Add category/subcategory state and actions
+3. **Create `CategoryDrum.vue`** - Reusable drum component
+4. **Refactor `WelcomeScreen.vue`** - 3-step flow with transitions
+5. **Add haptic feedback** - Capacitor Haptics plugin
+6. **Test touch gestures** - iOS Safari and Android Chrome
+7. **Polish animations** - Ensure 60fps on older devices
+
+### Shared vs Platform-Specific Code
+
+| Aspect | Shared | Platform-Specific |
+|--------|--------|-------------------|
+| Category data structure | ✅ Same JSON schema | |
+| UX flow (3 steps) | ✅ Same concept | |
+| Drum interaction | ✅ Same gestures | |
+| Animation CSS | | ✅ Lighter on mobile |
+| Sound effects | | ✅ Web Audio (web) vs native (mobile) |
+| Haptics | | ✅ Capacitor only |
+| Status bar | | ✅ Capacitor only |
+
+---
+
 ## Summary
 
 This UX design:
@@ -448,3 +827,5 @@ This UX design:
 - ✅ Maintains entertainment value (YOLO mode, satisfying animations)
 - ✅ Preserves existing theme system (colors, team names, etc.)
 - ✅ Progressive disclosure (category → subcategory → config → play)
+- ✅ **Mobile-native enhancements** (haptics, status bar, touch optimization)
+- ✅ **Reusable components** (CategoryDrum works in both NiceGUI JS and Vue)
