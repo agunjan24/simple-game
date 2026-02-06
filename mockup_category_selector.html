@@ -1,0 +1,1014 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Frames - Category Selector Mockup</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&family=Rozha+One&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Poppins', sans-serif;
+            background: linear-gradient(135deg, #0a0a0f 0%, #1a1a2e 50%, #0f0f1a 100%);
+            min-height: 100vh;
+            color: #fff;
+            overflow-x: hidden;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        /* Header */
+        .header {
+            text-align: center;
+            padding: 30px 0;
+        }
+
+        .film-reel {
+            font-size: 3rem;
+            animation: spin 4s linear infinite;
+            display: inline-block;
+        }
+
+        @keyframes spin {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+
+        .main-title {
+            font-family: 'Rozha One', serif;
+            font-size: clamp(2rem, 6vw, 3.5rem);
+            background: linear-gradient(90deg, #FFD700, #FFF8DC, #FFD700, #DAA520);
+            background-size: 200% auto;
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            animation: shimmer 3s ease-in-out infinite;
+            margin: 10px 0;
+        }
+
+        @keyframes shimmer {
+            0%, 100% { background-position: 0% center; }
+            50% { background-position: 100% center; }
+        }
+
+        .subtitle {
+            color: #aaa;
+            font-size: 1rem;
+            letter-spacing: 0.3em;
+        }
+
+        /* Section Headers */
+        .section-header {
+            text-align: center;
+            margin: 30px 0 20px;
+            position: relative;
+        }
+
+        .section-header::before,
+        .section-header::after {
+            content: '';
+            position: absolute;
+            top: 50%;
+            width: 25%;
+            height: 1px;
+            background: linear-gradient(90deg, transparent, #FFD700, transparent);
+        }
+
+        .section-header::before { left: 5%; }
+        .section-header::after { right: 5%; }
+
+        .section-header h2 {
+            font-size: 0.9rem;
+            letter-spacing: 0.2em;
+            color: #FFD700;
+            text-transform: uppercase;
+        }
+
+        /* Category Drum */
+        .drum-container {
+            position: relative;
+            padding: 20px 0;
+            overflow: hidden;
+        }
+
+        .drum-track {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 15px;
+            padding: 20px;
+            position: relative;
+        }
+
+        .arrow-btn {
+            background: rgba(255, 215, 0, 0.1);
+            border: 2px solid #FFD700;
+            color: #FFD700;
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            font-size: 1.5rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            flex-shrink: 0;
+        }
+
+        .arrow-btn:hover {
+            background: #FFD700;
+            color: #1a1a2e;
+            transform: scale(1.1);
+            box-shadow: 0 0 20px rgba(255, 215, 0, 0.5);
+        }
+
+        .cards-viewport {
+            display: flex;
+            gap: 15px;
+            transition: transform 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+        }
+
+        .category-card {
+            width: 140px;
+            height: 160px;
+            background: linear-gradient(145deg, #2a2a3e, #1a1a2e);
+            border: 2px solid #333;
+            border-radius: 15px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            flex-shrink: 0;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .category-card::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle, rgba(255,255,255,0.1) 0%, transparent 70%);
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+
+        .category-card:hover::before {
+            opacity: 1;
+        }
+
+        .category-card.dim {
+            opacity: 0.5;
+            transform: scale(0.9);
+        }
+
+        .category-card.selected {
+            opacity: 1;
+            transform: scale(1.05);
+            border-color: var(--card-color, #FFD700);
+            box-shadow: 0 0 30px var(--card-glow, rgba(255, 215, 0, 0.5)),
+                        inset 0 0 20px rgba(255, 255, 255, 0.05);
+        }
+
+        .category-card.selected::after {
+            content: '';
+            position: absolute;
+            inset: -2px;
+            border-radius: 15px;
+            background: linear-gradient(45deg, var(--card-color, #FFD700), transparent, var(--card-color, #FFD700));
+            z-index: -1;
+            animation: border-glow 2s linear infinite;
+        }
+
+        @keyframes border-glow {
+            0%, 100% { opacity: 0.5; }
+            50% { opacity: 1; }
+        }
+
+        .card-icon {
+            font-size: 3rem;
+            margin-bottom: 10px;
+        }
+
+        .card-name {
+            font-weight: 600;
+            font-size: 1rem;
+            color: #fff;
+        }
+
+        .card-count {
+            font-size: 0.75rem;
+            color: #888;
+            margin-top: 5px;
+        }
+
+        /* Category Colors */
+        .category-card[data-category="movies"] { --card-color: #FFD700; --card-glow: rgba(255, 215, 0, 0.5); }
+        .category-card[data-category="history"] { --card-color: #C9A84C; --card-glow: rgba(201, 168, 76, 0.5); }
+        .category-card[data-category="stem"] { --card-color: #00CED1; --card-glow: rgba(0, 206, 209, 0.5); }
+        .category-card[data-category="yolo"] { --card-color: #FF6B6B; --card-glow: rgba(255, 107, 107, 0.5); }
+
+        .instruction-text {
+            text-align: center;
+            color: #666;
+            font-size: 0.85rem;
+            margin-top: 15px;
+        }
+
+        /* Subcategory Panel */
+        .subcategory-panel {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.5s ease, opacity 0.3s ease;
+            opacity: 0;
+        }
+
+        .subcategory-panel.visible {
+            max-height: 400px;
+            opacity: 1;
+        }
+
+        .subcategory-header {
+            text-align: center;
+            padding: 20px 0 10px;
+        }
+
+        .selected-category {
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            background: rgba(255, 215, 0, 0.1);
+            border: 1px solid #FFD700;
+            padding: 8px 20px;
+            border-radius: 30px;
+            font-size: 0.9rem;
+        }
+
+        .selected-category .checkmark {
+            color: #4CAF50;
+        }
+
+        .subcategory-grid {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            flex-wrap: wrap;
+            padding: 20px;
+        }
+
+        .subcategory-card {
+            width: 160px;
+            padding: 25px 15px;
+            background: linear-gradient(145deg, #2a2a3e, #1a1a2e);
+            border: 2px solid #444;
+            border-radius: 12px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .subcategory-card:hover {
+            border-color: var(--sub-color, #FFD700);
+            transform: translateY(-5px);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+        }
+
+        .subcategory-card.selected {
+            border-color: var(--sub-color, #FFD700);
+            background: linear-gradient(145deg, #3a3a4e, #2a2a3e);
+            box-shadow: 0 0 20px var(--sub-glow, rgba(255, 215, 0, 0.3));
+        }
+
+        .sub-icon {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+        }
+
+        .sub-name {
+            font-weight: 600;
+            margin-bottom: 5px;
+        }
+
+        .sub-count {
+            font-size: 0.8rem;
+            color: #888;
+        }
+
+        .back-link {
+            text-align: center;
+            margin-top: 15px;
+        }
+
+        .back-link a {
+            color: #888;
+            text-decoration: none;
+            font-size: 0.85rem;
+            transition: color 0.3s;
+        }
+
+        .back-link a:hover {
+            color: #FFD700;
+        }
+
+        /* Game Config Panel */
+        .config-panel {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.5s ease, opacity 0.3s ease;
+            opacity: 0;
+        }
+
+        .config-panel.visible {
+            max-height: 600px;
+            opacity: 1;
+        }
+
+        .config-box {
+            background: linear-gradient(145deg, #1a1a2e, #0f0f1a);
+            border: 1px solid #333;
+            border-radius: 15px;
+            padding: 30px;
+            margin: 20px;
+        }
+
+        .config-header {
+            text-align: center;
+            margin-bottom: 25px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid #333;
+        }
+
+        .config-header h3 {
+            font-size: 1.3rem;
+            color: #FFD700;
+        }
+
+        .config-header p {
+            color: #888;
+            font-size: 0.9rem;
+            margin-top: 5px;
+        }
+
+        .config-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px 0;
+            border-bottom: 1px solid #222;
+        }
+
+        .config-label {
+            font-weight: 500;
+            color: #ccc;
+        }
+
+        /* Toggle Switch */
+        .toggle-container {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+        }
+
+        .toggle-option {
+            padding: 8px 16px;
+            border-radius: 20px;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-size: 0.85rem;
+        }
+
+        .toggle-option.inactive {
+            background: transparent;
+            color: #666;
+        }
+
+        .toggle-option.active {
+            background: linear-gradient(135deg, #FFD700, #DAA520);
+            color: #1a1a2e;
+            font-weight: 600;
+        }
+
+        /* Switch */
+        .switch {
+            width: 50px;
+            height: 26px;
+            background: #333;
+            border-radius: 13px;
+            position: relative;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+
+        .switch.on {
+            background: linear-gradient(135deg, #4CAF50, #45a049);
+        }
+
+        .switch::after {
+            content: '';
+            position: absolute;
+            width: 22px;
+            height: 22px;
+            background: #fff;
+            border-radius: 50%;
+            top: 2px;
+            left: 2px;
+            transition: transform 0.3s;
+        }
+
+        .switch.on::after {
+            transform: translateX(24px);
+        }
+
+        /* Team Config */
+        .team-config {
+            margin-top: 20px;
+            padding: 20px;
+            background: rgba(255, 215, 0, 0.05);
+            border-radius: 12px;
+            border: 1px solid #333;
+        }
+
+        .team-display {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 20px;
+            font-size: 1.1rem;
+            margin-bottom: 15px;
+        }
+
+        .team-name {
+            font-weight: 600;
+        }
+
+        .team-name.red { color: #FF6B6B; }
+        .team-name.blue { color: #4169E1; }
+
+        .vs-text {
+            color: #888;
+            font-style: italic;
+        }
+
+        .randomize-btn {
+            background: transparent;
+            border: 1px solid #FFD700;
+            color: #FFD700;
+            padding: 5px 10px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 1.2rem;
+            transition: all 0.3s;
+        }
+
+        .randomize-btn:hover {
+            background: #FFD700;
+            color: #1a1a2e;
+        }
+
+        .timer-config {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 10px;
+            margin-top: 15px;
+        }
+
+        .timer-config input {
+            width: 80px;
+            padding: 8px;
+            border: 1px solid #444;
+            border-radius: 8px;
+            background: #1a1a2e;
+            color: #fff;
+            text-align: center;
+            font-size: 1rem;
+        }
+
+        /* Start Button */
+        .start-btn {
+            display: block;
+            width: 100%;
+            max-width: 400px;
+            margin: 30px auto 20px;
+            padding: 18px 40px;
+            font-size: 1.2rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            background: linear-gradient(135deg, #FFD700, #DAA520);
+            color: #1a1a2e;
+            border: none;
+            border-radius: 30px;
+            cursor: pointer;
+            transition: all 0.3s;
+            box-shadow: 0 5px 20px rgba(255, 215, 0, 0.3);
+        }
+
+        .start-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 10px 30px rgba(255, 215, 0, 0.5);
+        }
+
+        .start-btn:active {
+            transform: translateY(0);
+        }
+
+        .footer-links {
+            display: flex;
+            justify-content: center;
+            gap: 30px;
+            margin-top: 10px;
+        }
+
+        .footer-links a {
+            color: #888;
+            text-decoration: none;
+            font-size: 0.85rem;
+            transition: color 0.3s;
+        }
+
+        .footer-links a:hover {
+            color: #FFD700;
+        }
+
+        /* Step Indicator */
+        .step-indicator {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            margin: 20px 0;
+        }
+
+        .step-dot {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            background: #333;
+            transition: all 0.3s;
+        }
+
+        .step-dot.active {
+            background: #FFD700;
+            box-shadow: 0 0 10px rgba(255, 215, 0, 0.5);
+        }
+
+        .step-dot.completed {
+            background: #4CAF50;
+        }
+
+        /* Mobile Responsive */
+        @media (max-width: 640px) {
+            .category-card {
+                width: 110px;
+                height: 130px;
+            }
+
+            .card-icon {
+                font-size: 2.2rem;
+            }
+
+            .card-name {
+                font-size: 0.85rem;
+            }
+
+            .arrow-btn {
+                width: 40px;
+                height: 40px;
+                font-size: 1.2rem;
+            }
+
+            .subcategory-card {
+                width: 140px;
+            }
+
+            .config-box {
+                margin: 10px;
+                padding: 20px;
+            }
+        }
+
+        /* YOLO Special */
+        .yolo-shuffle {
+            display: none;
+            text-align: center;
+            padding: 30px;
+        }
+
+        .yolo-shuffle.visible {
+            display: block;
+        }
+
+        .shuffle-animation {
+            font-size: 4rem;
+            animation: shuffle 0.5s infinite;
+        }
+
+        @keyframes shuffle {
+            0%, 100% { transform: rotate(-5deg); }
+            50% { transform: rotate(5deg); }
+        }
+
+        .yolo-text {
+            color: #FF6B6B;
+            font-size: 1.2rem;
+            margin-top: 15px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Header -->
+        <div class="header">
+            <div class="film-reel">🎞️</div>
+            <h1 class="main-title">FRAMES</h1>
+            <p class="subtitle">GUESS • LEARN • PLAY</p>
+        </div>
+
+        <!-- Step Indicator -->
+        <div class="step-indicator">
+            <div class="step-dot active" id="step1"></div>
+            <div class="step-dot" id="step2"></div>
+            <div class="step-dot" id="step3"></div>
+        </div>
+
+        <!-- Step 1: Category Selection -->
+        <div class="section-header">
+            <h2>Choose Your Category</h2>
+        </div>
+
+        <div class="drum-container">
+            <div class="drum-track">
+                <button class="arrow-btn" onclick="rotateDrum(-1)">◀</button>
+
+                <div class="cards-viewport" id="cardsViewport">
+                    <div class="category-card dim" data-category="movies" onclick="selectCategory('movies')">
+                        <div class="card-icon">🎬</div>
+                        <div class="card-name">Movies</div>
+                        <div class="card-count">22 films</div>
+                    </div>
+                    <div class="category-card selected" data-category="history" onclick="selectCategory('history')">
+                        <div class="card-icon">📚</div>
+                        <div class="card-name">History</div>
+                        <div class="card-count">30 moments</div>
+                    </div>
+                    <div class="category-card dim" data-category="stem" onclick="selectCategory('stem')">
+                        <div class="card-icon">🔬</div>
+                        <div class="card-name">STEM</div>
+                        <div class="card-count">Coming Soon</div>
+                    </div>
+                    <div class="category-card dim" data-category="yolo" onclick="selectCategory('yolo')">
+                        <div class="card-icon">🎲</div>
+                        <div class="card-name">YOLO</div>
+                        <div class="card-count">Random Mix</div>
+                    </div>
+                </div>
+
+                <button class="arrow-btn" onclick="rotateDrum(1)">▶</button>
+            </div>
+        </div>
+
+        <p class="instruction-text">
+            <span class="desktop-hint">← → Arrow keys or click to browse • Enter to select</span>
+            <span class="mobile-hint" style="display: none;">Swipe to browse • Tap to select</span>
+        </p>
+
+        <!-- Step 2: Subcategory Selection -->
+        <div class="subcategory-panel" id="subcategoryPanel">
+            <div class="subcategory-header">
+                <div class="selected-category" id="selectedCategoryBadge">
+                    <span id="selectedCategoryIcon">📚</span>
+                    <span id="selectedCategoryName">History</span>
+                    <span class="checkmark">✓</span>
+                </div>
+            </div>
+
+            <p style="text-align: center; color: #888; font-size: 0.9rem; margin-bottom: 10px;">
+                Choose your subcategory:
+            </p>
+
+            <div class="subcategory-grid" id="subcategoryGrid">
+                <!-- Populated by JS -->
+            </div>
+
+            <div class="back-link">
+                <a href="#" onclick="goBackToCategories(); return false;">← Change Category</a>
+            </div>
+        </div>
+
+        <!-- YOLO Shuffle Animation -->
+        <div class="yolo-shuffle" id="yoloShuffle">
+            <div class="shuffle-animation">🎲🎬📚🔬</div>
+            <p class="yolo-text">Mixing everything together...</p>
+            <p style="color: #888; margin-top: 10px;">52 items from all categories</p>
+        </div>
+
+        <!-- Step 3: Game Configuration -->
+        <div class="config-panel" id="configPanel">
+            <div class="config-box">
+                <div class="config-header">
+                    <h3 id="configTitle">📚 American History</h3>
+                    <p id="configSubtitle">10 historical moments to identify</p>
+                </div>
+
+                <div class="config-row">
+                    <span class="config-label">Game Mode</span>
+                    <div class="toggle-container">
+                        <span class="toggle-option active" id="soloBtn" onclick="setMode('solo')">Solo</span>
+                        <span class="toggle-option inactive" id="teamBtn" onclick="setMode('team')">Team Battle</span>
+                    </div>
+                </div>
+
+                <div class="config-row">
+                    <span class="config-label">Progressive Reveal</span>
+                    <div class="switch on" id="revealSwitch" onclick="toggleSwitch(this)"></div>
+                </div>
+
+                <div class="team-config" id="teamConfig" style="display: none;">
+                    <div class="team-display">
+                        <span class="team-name red">🔴 Patriots</span>
+                        <span class="vs-text">vs</span>
+                        <span class="team-name blue">Loyalists 🔵</span>
+                        <button class="randomize-btn" onclick="randomizeTeams()">🎲</button>
+                    </div>
+                    <div class="timer-config">
+                        <span>⏱️</span>
+                        <input type="number" value="45" min="15" max="120" id="timerInput">
+                        <span>seconds</span>
+                    </div>
+                </div>
+            </div>
+
+            <button class="start-btn" onclick="startGame()">
+                🎬 Start the Show 🎬
+            </button>
+
+            <div class="footer-links">
+                <a href="#" onclick="goBackToSubcategories(); return false;">← Back</a>
+                <a href="#">? How to Play</a>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Data
+        const categories = {
+            movies: {
+                icon: '🎬',
+                name: 'Movies',
+                color: '#FFD700',
+                subcategories: {
+                    bollywood: { icon: '🇮🇳', name: 'Bollywood', count: 10 },
+                    hollywood: { icon: '🎥', name: 'Hollywood', count: 12 }
+                }
+            },
+            history: {
+                icon: '📚',
+                name: 'History',
+                color: '#C9A84C',
+                subcategories: {
+                    american: { icon: '🦅', name: 'American', count: 10 },
+                    kids: { icon: '🎒', name: 'For Kids (K-5)', count: 8 },
+                    teens: { icon: '📖', name: 'For Teens (6-12)', count: 12 }
+                }
+            },
+            stem: {
+                icon: '🔬',
+                name: 'STEM',
+                color: '#00CED1',
+                subcategories: {
+                    science: { icon: '🧪', name: 'Science', count: 0 },
+                    math: { icon: '🔢', name: 'Math', count: 0 },
+                    tech: { icon: '💻', name: 'Technology', count: 0 }
+                }
+            },
+            yolo: {
+                icon: '🎲',
+                name: 'YOLO',
+                color: '#FF6B6B',
+                subcategories: null
+            }
+        };
+
+        const teamNames = {
+            movies: [['Shahenshah', 'Mogambo'], ['Avengers', 'Justice League']],
+            history: [['Patriots', 'Loyalists'], ['Union', 'Confederacy']],
+            stem: [['Newton', 'Einstein'], ['Curie', 'Darwin']],
+            yolo: [['Team A', 'Team B'], ['Winners', 'Contenders']]
+        };
+
+        let currentCategoryIndex = 1; // Start with History selected
+        let currentCategory = 'history';
+        let currentSubcategory = null;
+        const categoryKeys = Object.keys(categories);
+
+        // Initialize
+        document.addEventListener('DOMContentLoaded', () => {
+            updateDrumDisplay();
+        });
+
+        function rotateDrum(direction) {
+            currentCategoryIndex = (currentCategoryIndex + direction + categoryKeys.length) % categoryKeys.length;
+            currentCategory = categoryKeys[currentCategoryIndex];
+            updateDrumDisplay();
+
+            // Play click sound (would be actual audio in production)
+            console.log('click');
+        }
+
+        function updateDrumDisplay() {
+            const cards = document.querySelectorAll('.category-card');
+            cards.forEach((card, index) => {
+                card.classList.remove('selected', 'dim');
+                if (index === currentCategoryIndex) {
+                    card.classList.add('selected');
+                } else {
+                    card.classList.add('dim');
+                }
+            });
+        }
+
+        function selectCategory(category) {
+            currentCategory = category;
+            currentCategoryIndex = categoryKeys.indexOf(category);
+            updateDrumDisplay();
+
+            // Update step indicator
+            document.getElementById('step1').classList.add('completed');
+            document.getElementById('step2').classList.add('active');
+
+            const cat = categories[category];
+
+            if (category === 'yolo') {
+                // Show YOLO shuffle
+                document.getElementById('subcategoryPanel').classList.remove('visible');
+                document.getElementById('yoloShuffle').classList.add('visible');
+                document.getElementById('configPanel').classList.remove('visible');
+
+                setTimeout(() => {
+                    document.getElementById('yoloShuffle').classList.remove('visible');
+                    showConfigPanel('🎲 YOLO Mode', '52 random items from all categories');
+                }, 1500);
+            } else if (cat.subcategories) {
+                // Show subcategories
+                document.getElementById('yoloShuffle').classList.remove('visible');
+                showSubcategories(category);
+            }
+        }
+
+        function showSubcategories(category) {
+            const cat = categories[category];
+            document.getElementById('selectedCategoryIcon').textContent = cat.icon;
+            document.getElementById('selectedCategoryName').textContent = cat.name;
+
+            const grid = document.getElementById('subcategoryGrid');
+            grid.innerHTML = '';
+
+            for (const [key, sub] of Object.entries(cat.subcategories)) {
+                const card = document.createElement('div');
+                card.className = 'subcategory-card';
+                card.style.setProperty('--sub-color', cat.color);
+                card.style.setProperty('--sub-glow', cat.color + '40');
+                card.onclick = () => selectSubcategory(category, key);
+                card.innerHTML = `
+                    <div class="sub-icon">${sub.icon}</div>
+                    <div class="sub-name">${sub.name}</div>
+                    <div class="sub-count">${sub.count > 0 ? sub.count + ' items' : 'Coming Soon'}</div>
+                `;
+                grid.appendChild(card);
+            }
+
+            document.getElementById('subcategoryPanel').classList.add('visible');
+            document.getElementById('configPanel').classList.remove('visible');
+        }
+
+        function selectSubcategory(category, subcategory) {
+            currentSubcategory = subcategory;
+
+            // Update step indicator
+            document.getElementById('step2').classList.add('completed');
+            document.getElementById('step3').classList.add('active');
+
+            const cat = categories[category];
+            const sub = cat.subcategories[subcategory];
+
+            // Highlight selected
+            document.querySelectorAll('.subcategory-card').forEach((card, i) => {
+                const keys = Object.keys(cat.subcategories);
+                if (keys[i] === subcategory) {
+                    card.classList.add('selected');
+                } else {
+                    card.classList.remove('selected');
+                }
+            });
+
+            setTimeout(() => {
+                showConfigPanel(
+                    `${cat.icon} ${cat.name}: ${sub.name}`,
+                    `${sub.count} items to identify`
+                );
+            }, 300);
+        }
+
+        function showConfigPanel(title, subtitle) {
+            document.getElementById('configTitle').textContent = title;
+            document.getElementById('configSubtitle').textContent = subtitle;
+            document.getElementById('configPanel').classList.add('visible');
+
+            // Set appropriate team names
+            randomizeTeams();
+        }
+
+        function goBackToCategories() {
+            document.getElementById('subcategoryPanel').classList.remove('visible');
+            document.getElementById('configPanel').classList.remove('visible');
+            document.getElementById('yoloShuffle').classList.remove('visible');
+
+            // Reset step indicators
+            document.getElementById('step1').classList.remove('completed');
+            document.getElementById('step1').classList.add('active');
+            document.getElementById('step2').classList.remove('active', 'completed');
+            document.getElementById('step3').classList.remove('active', 'completed');
+        }
+
+        function goBackToSubcategories() {
+            document.getElementById('configPanel').classList.remove('visible');
+
+            // Reset step 3
+            document.getElementById('step2').classList.remove('completed');
+            document.getElementById('step3').classList.remove('active');
+        }
+
+        function setMode(mode) {
+            if (mode === 'solo') {
+                document.getElementById('soloBtn').classList.add('active');
+                document.getElementById('soloBtn').classList.remove('inactive');
+                document.getElementById('teamBtn').classList.remove('active');
+                document.getElementById('teamBtn').classList.add('inactive');
+                document.getElementById('teamConfig').style.display = 'none';
+            } else {
+                document.getElementById('teamBtn').classList.add('active');
+                document.getElementById('teamBtn').classList.remove('inactive');
+                document.getElementById('soloBtn').classList.remove('active');
+                document.getElementById('soloBtn').classList.add('inactive');
+                document.getElementById('teamConfig').style.display = 'block';
+            }
+        }
+
+        function toggleSwitch(el) {
+            el.classList.toggle('on');
+        }
+
+        function randomizeTeams() {
+            const teams = teamNames[currentCategory] || teamNames.yolo;
+            const pair = teams[Math.floor(Math.random() * teams.length)];
+
+            const display = document.querySelector('.team-display');
+            display.innerHTML = `
+                <span class="team-name red">🔴 ${pair[0]}</span>
+                <span class="vs-text">vs</span>
+                <span class="team-name blue">${pair[1]} 🔵</span>
+                <button class="randomize-btn" onclick="randomizeTeams()">🎲</button>
+            `;
+        }
+
+        function startGame() {
+            alert('Game would start now!\n\nCategory: ' + currentCategory + '\nSubcategory: ' + (currentSubcategory || 'N/A'));
+        }
+
+        // Keyboard navigation
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'ArrowLeft') rotateDrum(-1);
+            if (e.key === 'ArrowRight') rotateDrum(1);
+            if (e.key === 'Enter') selectCategory(currentCategory);
+        });
+
+        // Touch swipe support
+        let touchStartX = 0;
+        const viewport = document.getElementById('cardsViewport');
+
+        viewport.addEventListener('touchstart', (e) => {
+            touchStartX = e.touches[0].clientX;
+        });
+
+        viewport.addEventListener('touchend', (e) => {
+            const touchEndX = e.changedTouches[0].clientX;
+            const diff = touchStartX - touchEndX;
+
+            if (Math.abs(diff) > 50) {
+                rotateDrum(diff > 0 ? 1 : -1);
+            }
+        });
+    </script>
+</body>
+</html>

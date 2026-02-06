@@ -168,6 +168,41 @@ THEMES = {
     }
 }
 
+# =============================================================================
+# CATEGORY / SUBCATEGORY CONFIGURATION
+# =============================================================================
+CATEGORIES = {
+    'movies': {
+        'icon': '🎬',
+        'name': 'Movies',
+        'description': 'Guess the movie from the scene',
+        'color': '#FFD700',
+        'color_dark': '#DAA520',
+        'subcategories': {
+            'bollywood': {'icon': '🇮🇳', 'name': 'Bollywood', 'theme_key': 'bollywood'},
+            'hollywood': {'icon': '🎥', 'name': 'Hollywood', 'theme_key': 'hollywood'},
+        }
+    },
+    'history': {
+        'icon': '📚',
+        'name': 'History',
+        'description': 'Identify historical moments',
+        'color': '#C9A84C',
+        'color_dark': '#8B6914',
+        'subcategories': {
+            'american': {'icon': '🦅', 'name': 'American', 'theme_key': 'history'},
+        }
+    },
+    'yolo': {
+        'icon': '🎲',
+        'name': 'YOLO',
+        'description': 'Random mix of everything!',
+        'color': '#FF6B6B',
+        'color_dark': '#CC4444',
+        'subcategories': None,  # No subcategories - randomly picks a theme
+    }
+}
+
 def get_timer_duration():
     if len(sys.argv) > 1:
         try:
@@ -611,6 +646,198 @@ def generate_theme_css(theme_colors):
             transform: scale(1.05);
         }}
 
+        /* ===== CATEGORY / SUBCATEGORY CARDS ===== */
+        .category-card {{
+            background: linear-gradient(145deg, {c['bg_mid']}ee, {c['bg_light']}ee);
+            border: 2px solid {c['primary']}44;
+            border-radius: 16px;
+            padding: 20px 24px;
+            cursor: pointer;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            text-align: center;
+            min-width: 140px;
+            max-width: 180px;
+            touch-action: manipulation;
+            -webkit-tap-highlight-color: transparent;
+        }}
+
+        .category-card:hover {{
+            transform: translateY(-4px) scale(1.03);
+            border-color: {c['primary']}88;
+            box-shadow: 0 8px 30px rgba(0,0,0,0.3), 0 0 20px {c['primary']}33;
+        }}
+
+        .category-card:active {{
+            transform: scale(0.97);
+        }}
+
+        .category-card .card-icon {{
+            font-size: 2.5rem;
+            margin-bottom: 8px;
+            display: block;
+        }}
+
+        .category-card .card-name {{
+            font-family: 'Poppins', sans-serif;
+            font-weight: 700;
+            font-size: 1.1rem;
+            color: {c['text_light']};
+            margin-bottom: 4px;
+        }}
+
+        .category-card .card-desc {{
+            font-family: 'Poppins', sans-serif;
+            font-size: 0.75rem;
+            color: {c['text_light']};
+            opacity: 0.7;
+        }}
+
+        .category-card .card-count {{
+            font-family: 'Poppins', sans-serif;
+            font-size: 0.7rem;
+            color: {c['primary']};
+            font-weight: 600;
+            margin-top: 6px;
+        }}
+
+        .subcategory-card {{
+            background: linear-gradient(145deg, {c['bg_mid']}ee, {c['bg_light']}ee);
+            border: 2px solid {c['primary']}44;
+            border-radius: 14px;
+            padding: 16px 20px;
+            cursor: pointer;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            text-align: center;
+            min-width: 120px;
+            touch-action: manipulation;
+            -webkit-tap-highlight-color: transparent;
+        }}
+
+        .subcategory-card:hover {{
+            transform: translateY(-3px) scale(1.02);
+            border-color: {c['primary']}88;
+            box-shadow: 0 6px 25px rgba(0,0,0,0.3), 0 0 15px {c['primary']}33;
+        }}
+
+        .subcategory-card:active {{
+            transform: scale(0.97);
+        }}
+
+        .subcategory-card .card-icon {{
+            font-size: 2rem;
+            margin-bottom: 6px;
+            display: block;
+        }}
+
+        .subcategory-card .card-name {{
+            font-family: 'Poppins', sans-serif;
+            font-weight: 700;
+            font-size: 1rem;
+            color: {c['text_light']};
+        }}
+
+        .subcategory-card .card-count {{
+            font-family: 'Poppins', sans-serif;
+            font-size: 0.7rem;
+            color: {c['primary']};
+            font-weight: 600;
+            margin-top: 4px;
+        }}
+
+        /* Step dots progress indicator */
+        .step-dots {{
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+            align-items: center;
+            margin: 8px 0;
+        }}
+
+        .step-dot {{
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            background: {c['primary']}33;
+            transition: all 0.3s ease;
+        }}
+
+        .step-dot.active {{
+            background: {c['primary']};
+            box-shadow: 0 0 10px {c['primary']}80;
+            transform: scale(1.2);
+        }}
+
+        .step-dot.completed {{
+            background: {c['secondary']};
+            box-shadow: 0 0 8px {c['secondary']}66;
+        }}
+
+        .step-connector {{
+            width: 24px;
+            height: 2px;
+            background: {c['primary']}33;
+            transition: background 0.3s ease;
+        }}
+
+        .step-connector.completed {{
+            background: {c['secondary']};
+        }}
+
+        /* Selected category badge */
+        .selected-badge {{
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            background: {c['primary']}22;
+            border: 1.5px solid {c['primary']}66;
+            border-radius: 20px;
+            padding: 4px 14px;
+            font-family: 'Poppins', sans-serif;
+            font-size: 0.85rem;
+            font-weight: 600;
+            color: {c['primary']};
+        }}
+
+        /* Section header with decorative lines */
+        .section-header {{
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            width: 100%;
+            max-width: 400px;
+        }}
+
+        .section-header .line {{
+            flex: 1;
+            height: 1px;
+            background: linear-gradient(90deg, transparent, {c['primary']}66, transparent);
+        }}
+
+        .section-header .text {{
+            font-family: 'Poppins', sans-serif;
+            font-weight: 700;
+            font-size: clamp(0.65rem, 2.5vw, 0.8rem);
+            color: {c['primary']};
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            white-space: nowrap;
+        }}
+
+        /* Back link */
+        .back-link {{
+            font-family: 'Poppins', sans-serif;
+            font-size: 0.85rem;
+            color: {c['primary']};
+            opacity: 0.7;
+            cursor: pointer;
+            transition: opacity 0.2s;
+            touch-action: manipulation;
+        }}
+
+        .back-link:hover {{
+            opacity: 1;
+        }}
+
         /* ===== MOBILE RESPONSIVE STYLES ===== */
         @media (max-width: 640px) {{
             .countdown-overlay {{
@@ -690,6 +917,44 @@ def generate_theme_css(theme_colors):
             .theme-toggle-btn {{
                 font-size: 0.75rem;
                 padding: 6px 12px;
+            }}
+
+            .category-card {{
+                min-width: 100px;
+                max-width: 140px;
+                padding: 14px 16px;
+                border-radius: 12px;
+            }}
+
+            .category-card .card-icon {{
+                font-size: 2rem;
+            }}
+
+            .category-card .card-name {{
+                font-size: 0.9rem;
+            }}
+
+            .subcategory-card {{
+                min-width: 100px;
+                padding: 12px 16px;
+                border-radius: 12px;
+            }}
+
+            .subcategory-card .card-icon {{
+                font-size: 1.6rem;
+            }}
+
+            .step-dots {{
+                gap: 6px;
+            }}
+
+            .step-dot {{
+                width: 8px;
+                height: 8px;
+            }}
+
+            .step-connector {{
+                width: 16px;
             }}
         }}
 
@@ -1000,6 +1265,11 @@ class GameState:
         # Feature 3: Image click to clear blur
         self.image_revealed = False  # Image blur cleared by clicking
 
+        # Category/subcategory selection
+        self.selected_category = None      # 'movies', 'history', 'yolo'
+        self.selected_subcategory = None   # 'bollywood', 'hollywood', 'american'
+        self.welcome_step = 1              # 1=category, 2=subcategory, 3=config
+
     def _load_theme_data(self):
         """Load data for current theme."""
         config = self.get_theme_config()
@@ -1007,6 +1277,36 @@ class GameState:
         image_folder = os.path.join(SCRIPT_DIR, config['image_folder'])
         self.df = load_data(csv_path)
         self.valid_movies = get_valid_game_data(self.df, image_folder)
+
+    def select_category(self, category_key):
+        """Select a category and determine next step."""
+        self.selected_category = category_key
+        cat = CATEGORIES[category_key]
+
+        if cat['subcategories'] is None:
+            # YOLO mode: randomly pick a theme
+            all_theme_keys = list(THEMES.keys())
+            chosen = random.choice(all_theme_keys)
+            self.set_theme(chosen)
+            self.selected_subcategory = None
+            self.welcome_step = 3
+        elif len(cat['subcategories']) == 1:
+            # Only one subcategory: auto-select it
+            only_sub = list(cat['subcategories'].values())[0]
+            self.selected_subcategory = list(cat['subcategories'].keys())[0]
+            self.set_theme(only_sub['theme_key'])
+            self.welcome_step = 3
+        else:
+            # Multiple subcategories: show picker
+            self.welcome_step = 2
+
+    def select_subcategory(self, subcategory_key):
+        """Select a subcategory, set theme, advance to config."""
+        self.selected_subcategory = subcategory_key
+        cat = CATEGORIES[self.selected_category]
+        theme_key = cat['subcategories'][subcategory_key]['theme_key']
+        self.set_theme(theme_key)
+        self.welcome_step = 3
 
     def get_theme_config(self):
         """Get configuration for current theme."""
@@ -1642,167 +1942,294 @@ def create_game_ui():
         build_game_screen()
 
     def start_game_from_welcome():
+        game.welcome_step = 1  # Reset for next time
         game.current_screen = 'game'
         game.next_movie()
         build_game_screen()
 
+    def _get_theme_item_count(theme_key):
+        """Get the number of valid items for a theme without changing game state."""
+        config = THEMES[theme_key]
+        csv_path = os.path.join(SCRIPT_DIR, config['csv_file'])
+        image_folder = os.path.join(SCRIPT_DIR, config['image_folder'])
+        df = load_data(csv_path)
+        return len(get_valid_game_data(df, image_folder))
+
+    def _get_category_total_count(cat_key):
+        """Get the total item count across all subcategories in a category."""
+        cat = CATEGORIES[cat_key]
+        if cat['subcategories'] is None:
+            # YOLO: count all themes
+            return sum(_get_theme_item_count(tk) for tk in THEMES)
+        return sum(
+            _get_theme_item_count(sub['theme_key'])
+            for sub in cat['subcategories'].values()
+        )
+
     # ---------- WELCOME SCREEN ----------
     def build_welcome_screen():
-        """Build the dramatic welcome/splash screen with theme toggle."""
+        """Build the 3-step welcome screen: Category → Subcategory → Config."""
         main_container.clear()
 
-        # Container references for dynamic updates
-        team_options_container = None
-        team_names_label = None
-        timer_label = None
-        title_label = None
-        movie_count_label = None
-        bollywood_btn = None
-        hollywood_btn = None
+        # Get colors — use current theme if one is set, else use default
+        colors = game.get_theme_colors()
 
-        def select_theme(theme_name):
-            """Switch to selected theme and refresh welcome screen."""
-            game.set_theme(theme_name)
-            # Refresh styles for new theme
+        def _build_header():
+            """Shared header across all steps."""
+            ui.label("🎞️").style('font-size: clamp(1.5rem, 6vw, 3rem); animation: reelSpin 4s linear infinite;')
+            # Title varies by step
+            if game.welcome_step == 3 and game.selected_category:
+                cat = CATEGORIES[game.selected_category]
+                title_text = cat['name'].upper()
+            else:
+                title_text = "GUESS"
+            ui.label(title_text).classes('main-title').style(
+                'font-size: clamp(1.8rem, 8vw, 3rem); margin-bottom: -8px;'
+            )
+            ui.label("FRAMES").classes('main-title').style('font-size: clamp(1.8rem, 8vw, 3rem);')
+            ui.label("Guess • Learn • Play").style(
+                f'color: {colors["text_dark"]}; font-size: clamp(0.6rem, 2.5vw, 0.95rem); letter-spacing: 2px; '
+                'text-transform: uppercase; opacity: 0.7; margin-top: 4px;'
+            )
+
+        def _build_step_dots(current_step):
+            """Render the 3-dot progress indicator."""
+            with ui.element('div').classes('step-dots'):
+                for i in range(1, 4):
+                    if i < current_step:
+                        cls = 'step-dot completed'
+                    elif i == current_step:
+                        cls = 'step-dot active'
+                    else:
+                        cls = 'step-dot'
+                    ui.element('div').classes(cls)
+                    if i < 3:
+                        conn_cls = 'step-connector completed' if i < current_step else 'step-connector'
+                        ui.element('div').classes(conn_cls)
+
+        def on_category_click(cat_key):
+            """Handle category card click."""
+            game.select_category(cat_key)
+            # Update theme CSS if theme changed
             ui.query('body').style(generate_body_bg(game.get_theme_colors()))
-            # Rebuild welcome screen with new theme
             build_welcome_screen()
 
-        def toggle_team_mode(e):
-            """Toggle between solo and team mode."""
-            game.team_mode = e.value
-            if team_options_container:
-                team_options_container.style(f"display: {'flex' if e.value else 'none'};")
-            update_timer_label()
+        def on_subcategory_click(sub_key):
+            """Handle subcategory card click."""
+            game.select_subcategory(sub_key)
+            ui.query('body').style(generate_body_bg(game.get_theme_colors()))
+            build_welcome_screen()
 
-        def randomize_names():
-            """Randomize team names and update display."""
-            game.randomize_team_names()
-            if team_names_label:
-                team_names_label.set_text(f"🔴 {game.team_names[0]}  vs  🔵 {game.team_names[1]}")
+        def go_back_to_categories():
+            """Navigate back to step 1."""
+            game.welcome_step = 1
+            game.selected_category = None
+            game.selected_subcategory = None
+            build_welcome_screen()
 
-        def update_timer_duration(e):
-            """Update timer duration from input."""
-            try:
-                game.timer_duration = int(e.value)
-            except ValueError:
-                game.timer_duration = 45
-            update_timer_label()
-
-        def update_timer_label():
-            """Update the timer info label."""
-            if timer_label:
-                duration = game.timer_duration if game.team_mode else GAME_DURATION_SEC
-                timer_label.set_text(f"⏱️ {duration} seconds per round")
-
-        # Get current theme config
-        theme_config = game.get_theme_config()
-        colors = game.get_theme_colors()
+        def go_back_to_subcategories():
+            """Navigate back to step 2 (or step 1 if no subcategories)."""
+            cat = CATEGORIES.get(game.selected_category, {})
+            if cat.get('subcategories') and len(cat['subcategories']) > 1:
+                game.welcome_step = 2
+                game.selected_subcategory = None
+            else:
+                go_back_to_categories()
+            build_welcome_screen()
 
         with main_container:
             with ui.column().classes('w-full items-center justify-center gap-1 sm:gap-2 md:gap-4 py-2 sm:py-4 md:py-6'):
-                # Film reel decoration
-                ui.label("🎞️").style('font-size: clamp(1.5rem, 6vw, 3rem); animation: reelSpin 4s linear infinite;')
-
-                # Main title - dynamic based on theme
-                title_label = ui.label(theme_config['title_text']).classes('main-title').style(
-                    'font-size: clamp(1.8rem, 8vw, 3rem); margin-bottom: -8px;'
-                )
-                ui.label("FRAMES").classes('main-title').style('font-size: clamp(1.8rem, 8vw, 3rem);')
-
-                # Subtitle
-                subtitle_text = theme_config.get('subtitle', 'THE ULTIMATE GUESSING GAME')
-                ui.label(subtitle_text).style(
-                    f'color: {colors["text_dark"]}; font-size: clamp(0.6rem, 2.5vw, 0.95rem); letter-spacing: 2px; '
-                    'text-transform: uppercase; opacity: 0.7; margin-top: 4px;'
-                )
+                _build_header()
 
                 # Decorative elements
                 ui.label("✦ ✦ ✦").style(f'color: {colors["primary"]}; font-size: 1rem; letter-spacing: 12px; margin: 2px 0;')
 
-                # ---------- THEME TOGGLE ----------
-                with ui.row().classes('items-center gap-2 mt-1 flex-wrap justify-center'):
-                    bollywood_btn = ui.button("🎬 Bollywood", on_click=lambda: select_theme('bollywood')).classes(
-                        f'theme-toggle-btn {"active" if game.theme == "bollywood" else "inactive"}'
-                    )
-                    hollywood_btn = ui.button("🎥 Hollywood", on_click=lambda: select_theme('hollywood')).classes(
-                        f'theme-toggle-btn {"active" if game.theme == "hollywood" else "inactive"}'
-                    )
-                    history_btn = ui.button("📜 History", on_click=lambda: select_theme('history')).classes(
-                        f'theme-toggle-btn {"active" if game.theme == "history" else "inactive"}'
-                    )
+                _build_step_dots(game.welcome_step)
 
-                # Item count info - uses current theme's data
-                item_count = len(game.valid_movies)
-                item_label = game.get_theme_config().get('category_label_plural', 'movies').capitalize()
-                movie_count_label = ui.label(f"🎬 {item_count} {item_label} to Guess").style(
-                    f'color: {colors["text_dark"]}; font-size: clamp(0.9rem, 3vw, 1.1rem); font-weight: 600; margin-top: 2px;'
-                )
-
-                # ---------- GAME OPTIONS ----------
-                with ui.column().classes('items-center gap-1 sm:gap-2 mt-2 sm:mt-4'):
-                    # Team mode toggle
-                    with ui.row().classes('items-center gap-4'):
-                        ui.label("Game Mode:").style(f'color: {colors["text_dark"]}; font-weight: 600;')
-                        ui.switch("Team Battle", value=game.team_mode, on_change=toggle_team_mode).style(
-                            f'color: {colors["accent_dark"]};'
+                # ==================== STEP 1: Category Selection ====================
+                if game.welcome_step == 1:
+                    # Section header
+                    with ui.element('div').classes('section-header').style('margin-top: 8px;'):
+                        ui.element('div').classes('line')
+                        ui.label("CHOOSE YOUR CATEGORY").style(
+                            f'color: {colors["primary"]}; font-family: "Poppins", sans-serif; '
+                            'font-weight: 700; font-size: clamp(0.65rem, 2.5vw, 0.8rem); '
+                            'text-transform: uppercase; letter-spacing: 2px; white-space: nowrap;'
                         )
+                        ui.element('div').classes('line')
 
-                    # Progressive reveal toggle
-                    with ui.row().classes('items-center gap-4'):
-                        ui.label("Progressive Reveal:").style(f'color: {colors["text_dark"]}; font-weight: 600;')
-                        ui.switch("", value=game.progressive_reveal,
-                                  on_change=lambda e: setattr(game, 'progressive_reveal', e.value)).style(
-                            f'color: {colors["secondary"]};'
-                        ).tooltip('Image starts blurred and clears over time')
+                    # Category cards
+                    with ui.row().classes('items-center justify-center gap-3 sm:gap-4 mt-2 flex-wrap'):
+                        for cat_key, cat in CATEGORIES.items():
+                            total = _get_category_total_count(cat_key)
+                            with ui.element('div').classes('category-card').style(
+                                f'border-color: {cat["color"]}44;'
+                            ).on('click', lambda _, ck=cat_key: on_category_click(ck)):
+                                ui.label(cat['icon']).classes('card-icon')
+                                ui.label(cat['name']).classes('card-name')
+                                ui.label(cat['description']).classes('card-desc')
+                                ui.label(f"{total} items").classes('card-count').style(
+                                    f'color: {cat["color"]};'
+                                )
 
-                # ---------- TEAM OPTIONS (shown when team mode enabled) ----------
-                team_options_container = ui.column().classes('items-center gap-1 sm:gap-3 mt-1 sm:mt-2 w-full')
-                team_options_container.style(f"display: {'flex' if game.team_mode else 'none'};")
+                    # Hint text
+                    ui.label("Tap to select").style(
+                        f'color: {colors["text_dark"]}; opacity: 0.4; font-size: 0.75rem; margin-top: 8px;'
+                    )
 
-                with team_options_container:
-                    # Team names display - centered with dice on right
-                    with ui.element('div').style(
-                        'display: flex; justify-content: center; width: 100%; position: relative;'
-                    ):
-                        # Centered team names (no wrap)
-                        team_names_label = ui.label(f"🔴 {game.team_names[0]}  vs  🔵 {game.team_names[1]}").style(
-                            f'color: {colors["text_dark"]}; font-size: clamp(0.85rem, 3.5vw, 1.3rem); font-weight: 700; '
-                            f'background: {colors["primary"]}33; padding: 8px 16px; border-radius: 8px; '
-                            'text-align: center; white-space: nowrap;'
+                    # How to Play link
+                    ui.label("? How to Play").style(
+                        f'color: {colors["primary_dark"]}; font-size: clamp(0.8rem, 2.5vw, 0.95rem); '
+                        f'cursor: pointer; margin-top: 8px; opacity: 0.7; '
+                        f'font-family: "Poppins", sans-serif; font-weight: 600;'
+                    ).on('click', lambda: show_how_to_play())
+
+                # ==================== STEP 2: Subcategory Selection ====================
+                elif game.welcome_step == 2:
+                    cat = CATEGORIES[game.selected_category]
+
+                    # Show selected category badge
+                    with ui.element('div').classes('selected-badge').style('margin-top: 4px;'):
+                        ui.label(f"{cat['icon']} {cat['name']} ✓")
+
+                    # Section header
+                    with ui.element('div').classes('section-header').style('margin-top: 8px;'):
+                        ui.element('div').classes('line')
+                        ui.label("CHOOSE SUBCATEGORY").style(
+                            f'color: {colors["primary"]}; font-family: "Poppins", sans-serif; '
+                            'font-weight: 700; font-size: clamp(0.65rem, 2.5vw, 0.8rem); '
+                            'text-transform: uppercase; letter-spacing: 2px; white-space: nowrap;'
                         )
-                        # Dice icon positioned to the right of the label
-                        ui.button("🎲", on_click=randomize_names).style(
-                            'background: transparent; border: none; font-size: 1.3rem; cursor: pointer; '
-                            'padding: 2px; min-width: auto; box-shadow: none; margin-left: 4px;'
-                        ).props('flat dense').tooltip('Randomize team names')
+                        ui.element('div').classes('line')
 
-                    # Timer configuration
-                    with ui.row().classes('items-center justify-center gap-2'):
-                        ui.label("⏱️ Timer:").style(f'color: {colors["text_dark"]}; font-size: 0.9rem;')
-                        ui.number(value=game.timer_duration, min=15, max=120, step=5,
-                                  on_change=update_timer_duration).style(
-                            'width: 70px;'
-                        ).props('dense outlined')
-                        ui.label("seconds").style(f'color: {colors["text_dark"]}; font-size: 0.9rem;')
+                    # Subcategory cards
+                    with ui.row().classes('items-center justify-center gap-3 sm:gap-4 mt-2 flex-wrap'):
+                        for sub_key, sub in cat['subcategories'].items():
+                            count = _get_theme_item_count(sub['theme_key'])
+                            item_label = THEMES[sub['theme_key']].get('category_label_plural', 'items')
+                            with ui.element('div').classes('subcategory-card').on(
+                                'click', lambda _, sk=sub_key: on_subcategory_click(sk)
+                            ):
+                                ui.label(sub['icon']).classes('card-icon')
+                                ui.label(sub['name']).classes('card-name')
+                                ui.label(f"{count} {item_label}").classes('card-count')
 
-                # Start button
-                ui.button("🎬 START THE SHOW", on_click=start_game_from_welcome).classes(
-                    'bollywood-btn btn-magenta'
-                ).style('font-size: clamp(0.8rem, 2.5vw, 1rem); padding: 10px 28px; margin-top: 6px;')
+                    # Back link
+                    ui.label("← Change Category").classes('back-link').style(
+                        'margin-top: 12px;'
+                    ).on('click', lambda: go_back_to_categories())
 
-                # How to Play link
-                ui.label("? How to Play").style(
-                    f'color: {colors["primary_dark"]}; font-size: clamp(0.8rem, 2.5vw, 0.95rem); '
-                    f'cursor: pointer; margin-top: 4px; opacity: 0.7; '
-                    f'font-family: "Poppins", sans-serif; font-weight: 600;'
-                ).on('click', lambda: show_how_to_play())
+                # ==================== STEP 3: Game Configuration ====================
+                elif game.welcome_step == 3:
+                    # Container references for dynamic updates
+                    team_options_container = None
+                    team_names_label = None
+                    timer_label = None
 
-                # Timer info
-                duration = game.timer_duration if game.team_mode else GAME_DURATION_SEC
-                timer_label = ui.label(f"⏱️ {duration} seconds per round").style(
-                    f'color: {colors["accent_dark"]}; font-size: clamp(0.75rem, 2.5vw, 0.9rem); margin-top: 8px;'
-                )
+                    def toggle_team_mode(e):
+                        game.team_mode = e.value
+                        if team_options_container:
+                            team_options_container.style(f"display: {'flex' if e.value else 'none'};")
+                        update_timer_label()
+
+                    def randomize_names():
+                        game.randomize_team_names()
+                        if team_names_label:
+                            team_names_label.set_text(f"🔴 {game.team_names[0]}  vs  🔵 {game.team_names[1]}")
+
+                    def update_timer_duration(e):
+                        try:
+                            game.timer_duration = int(e.value)
+                        except ValueError:
+                            game.timer_duration = 45
+                        update_timer_label()
+
+                    def update_timer_label():
+                        if timer_label:
+                            duration = game.timer_duration if game.team_mode else GAME_DURATION_SEC
+                            timer_label.set_text(f"⏱️ {duration} seconds per round")
+
+                    colors = game.get_theme_colors()
+
+                    # Show selection badge
+                    cat = CATEGORIES.get(game.selected_category, {})
+                    if game.selected_category == 'yolo':
+                        badge_text = f"🎲 YOLO Mode — {len(game.valid_movies)} items"
+                    else:
+                        sub_name = ""
+                        if cat.get('subcategories') and game.selected_subcategory:
+                            sub_name = cat['subcategories'][game.selected_subcategory]['name']
+                        badge_text = f"{cat.get('icon', '')} {cat.get('name', '')} / {sub_name}"
+
+                    with ui.element('div').classes('selected-badge').style('margin-top: 4px;'):
+                        ui.label(badge_text)
+
+                    # Item count
+                    item_count = len(game.valid_movies)
+                    item_label = game.get_theme_config().get('category_label_plural', 'items').capitalize()
+                    ui.label(f"🎬 {item_count} {item_label} to Guess").style(
+                        f'color: {colors["text_dark"]}; font-size: clamp(0.9rem, 3vw, 1.1rem); '
+                        'font-weight: 600; margin-top: 6px; opacity: 0.9;'
+                    )
+
+                    # ---------- GAME OPTIONS ----------
+                    with ui.column().classes('items-center gap-1 sm:gap-2 mt-2 sm:mt-4'):
+                        # Team mode toggle
+                        with ui.row().classes('items-center gap-4'):
+                            ui.label("Game Mode:").style(f'color: {colors["text_dark"]}; font-weight: 600;')
+                            ui.switch("Team Battle", value=game.team_mode, on_change=toggle_team_mode).style(
+                                f'color: {colors["accent_dark"]};'
+                            )
+
+                        # Progressive reveal toggle
+                        with ui.row().classes('items-center gap-4'):
+                            ui.label("Progressive Reveal:").style(f'color: {colors["text_dark"]}; font-weight: 600;')
+                            ui.switch("", value=game.progressive_reveal,
+                                      on_change=lambda e: setattr(game, 'progressive_reveal', e.value)).style(
+                                f'color: {colors["secondary"]};'
+                            ).tooltip('Image starts blurred and clears over time')
+
+                    # ---------- TEAM OPTIONS ----------
+                    team_options_container = ui.column().classes('items-center gap-1 sm:gap-3 mt-1 sm:mt-2 w-full')
+                    team_options_container.style(f"display: {'flex' if game.team_mode else 'none'};")
+
+                    with team_options_container:
+                        with ui.element('div').style(
+                            'display: flex; justify-content: center; width: 100%; position: relative;'
+                        ):
+                            team_names_label = ui.label(f"🔴 {game.team_names[0]}  vs  🔵 {game.team_names[1]}").style(
+                                f'color: {colors["text_dark"]}; font-size: clamp(0.85rem, 3.5vw, 1.3rem); font-weight: 700; '
+                                f'background: {colors["primary"]}33; padding: 8px 16px; border-radius: 8px; '
+                                'text-align: center; white-space: nowrap;'
+                            )
+                            ui.button("🎲", on_click=randomize_names).style(
+                                'background: transparent; border: none; font-size: 1.3rem; cursor: pointer; '
+                                'padding: 2px; min-width: auto; box-shadow: none; margin-left: 4px;'
+                            ).props('flat dense').tooltip('Randomize team names')
+
+                        with ui.row().classes('items-center justify-center gap-2'):
+                            ui.label("⏱️ Timer:").style(f'color: {colors["text_dark"]}; font-size: 0.9rem;')
+                            ui.number(value=game.timer_duration, min=15, max=120, step=5,
+                                      on_change=update_timer_duration).style(
+                                'width: 70px;'
+                            ).props('dense outlined')
+                            ui.label("seconds").style(f'color: {colors["text_dark"]}; font-size: 0.9rem;')
+
+                    # Start button
+                    ui.button("🎬 START THE SHOW", on_click=start_game_from_welcome).classes(
+                        'bollywood-btn btn-magenta'
+                    ).style('font-size: clamp(0.8rem, 2.5vw, 1rem); padding: 10px 28px; margin-top: 6px;')
+
+                    # Back link
+                    ui.label("← Back").classes('back-link').style(
+                        'margin-top: 8px;'
+                    ).on('click', lambda: go_back_to_subcategories())
+
+                    # Timer info
+                    duration = game.timer_duration if game.team_mode else GAME_DURATION_SEC
+                    timer_label = ui.label(f"⏱️ {duration} seconds per round").style(
+                        f'color: {colors["accent_dark"]}; font-size: clamp(0.75rem, 2.5vw, 0.9rem); margin-top: 8px;'
+                    )
 
     # ---------- HELP MODALS ----------
     def show_how_to_play():
