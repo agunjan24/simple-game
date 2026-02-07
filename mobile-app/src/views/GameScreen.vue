@@ -286,6 +286,17 @@ const turnBadgeStyle = computed(() => {
   return { background: grad }
 })
 
+// Luminance-based contrast colors for dark-primary themes (e.g. Presidents)
+const primaryIsLight = computed(() => {
+  const p = colors.value.primary
+  const r = parseInt(p.slice(1, 3), 16)
+  const g = parseInt(p.slice(3, 5), 16)
+  const b = parseInt(p.slice(5, 7), 16)
+  return (0.299 * r + 0.587 * g + 0.114 * b) / 255 > 0.5
+})
+const timerTextColor = computed(() => primaryIsLight.value ? colors.value.primary : colors.value.textLight)
+const iconTextColor = computed(() => primaryIsLight.value ? colors.value.textDark : colors.value.textLight)
+
 const btnStyle = computed(() => ({
   background: '#6495ED',
   color: '#fff',
@@ -678,7 +689,7 @@ onUnmounted(() => {
   font-family: 'Poppins', sans-serif;
   font-size: 1.2rem;
   font-weight: 800;
-  color: v-bind('colors.primary');
+  color: v-bind('timerTextColor');
 }
 
 /* Feature 1: Review mode indicator */
@@ -927,7 +938,7 @@ onUnmounted(() => {
   height: 28px;
   border-radius: 50%;
   background: linear-gradient(145deg, v-bind('colors.primaryLight'), v-bind('colors.primary'));
-  color: v-bind('colors.textDark');
+  color: v-bind('iconTextColor');
   font-family: 'Poppins', sans-serif;
   font-weight: 700;
   font-size: 0.85rem;
