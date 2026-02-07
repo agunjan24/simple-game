@@ -12,6 +12,12 @@
             box-sizing: border-box;
         }
 
+        :root {
+            --theme-color: #FFD700;
+            --theme-color-dark: #DAA520;
+            --theme-color-alpha: rgba(255, 215, 0, 0.15);
+        }
+
         body {
             font-family: 'Poppins', sans-serif;
             background: linear-gradient(135deg, #0a0a0f 0%, #1a1a2e 50%, #0f0f1a 100%);
@@ -80,7 +86,7 @@
             top: 50%;
             width: 25%;
             height: 1px;
-            background: linear-gradient(90deg, transparent, #FFD700, transparent);
+            background: linear-gradient(90deg, transparent, var(--theme-color), transparent);
         }
 
         .section-header::before { left: 5%; }
@@ -89,7 +95,7 @@
         .section-header h2 {
             font-size: 0.9rem;
             letter-spacing: 0.2em;
-            color: #FFD700;
+            color: var(--theme-color);
             text-transform: uppercase;
         }
 
@@ -111,8 +117,8 @@
 
         .arrow-btn {
             background: rgba(255, 215, 0, 0.1);
-            border: 2px solid #FFD700;
-            color: #FFD700;
+            border: 2px solid var(--theme-color);
+            color: var(--theme-color);
             width: 50px;
             height: 50px;
             border-radius: 50%;
@@ -123,10 +129,10 @@
         }
 
         .arrow-btn:hover {
-            background: #FFD700;
+            background: var(--theme-color);
             color: #1a1a2e;
             transform: scale(1.1);
-            box-shadow: 0 0 20px rgba(255, 215, 0, 0.5);
+            box-shadow: 0 0 20px var(--theme-color-alpha);
         }
 
         .cards-viewport {
@@ -146,7 +152,7 @@
             align-items: center;
             justify-content: center;
             cursor: pointer;
-            transition: all 0.3s ease;
+            transition: all 0.35s cubic-bezier(0.25, 0.46, 0.45, 0.94);
             flex-shrink: 0;
             position: relative;
             overflow: hidden;
@@ -194,6 +200,55 @@
         @keyframes border-glow {
             0%, 100% { opacity: 0.5; }
             50% { opacity: 1; }
+        }
+
+        /* Drum click animation for selection feedback */
+        @keyframes drum-click {
+            0% { transform: scale(0.95); opacity: 0.8; }
+            40% { transform: scale(1.1); }
+            70% { transform: scale(1.02); }
+            100% { transform: scale(1.05); }
+        }
+
+        .category-card.just-selected {
+            animation: drum-click 0.35s ease-out forwards;
+        }
+
+        /* Disabled category/subcategory cards */
+        .category-card.disabled {
+            opacity: 0.3;
+            cursor: not-allowed;
+            filter: grayscale(0.5);
+        }
+
+        .category-card.disabled:hover::before {
+            opacity: 0;
+        }
+
+        .category-card.disabled:hover {
+            transform: scale(0.9);
+        }
+
+        .category-card.disabled .card-count {
+            color: #555;
+            font-style: italic;
+        }
+
+        .subcategory-card.disabled {
+            opacity: 0.35;
+            cursor: not-allowed;
+            filter: grayscale(0.4);
+        }
+
+        .subcategory-card.disabled:hover {
+            border-color: #444;
+            transform: none;
+            box-shadow: none;
+        }
+
+        .subcategory-card.disabled .sub-count {
+            color: #666;
+            font-style: italic;
         }
 
         .card-icon {
@@ -248,8 +303,8 @@
             display: inline-flex;
             align-items: center;
             gap: 10px;
-            background: rgba(255, 215, 0, 0.1);
-            border: 1px solid #FFD700;
+            background: var(--theme-color-alpha);
+            border: 1px solid var(--theme-color);
             padding: 8px 20px;
             border-radius: 30px;
             font-size: 0.9rem;
@@ -318,7 +373,7 @@
         }
 
         .back-link a:hover {
-            color: #FFD700;
+            color: var(--theme-color);
         }
 
         /* Game Config Panel */
@@ -351,7 +406,7 @@
 
         .config-header h3 {
             font-size: 1.3rem;
-            color: #FFD700;
+            color: var(--theme-color);
         }
 
         .config-header p {
@@ -394,7 +449,7 @@
         }
 
         .toggle-option.active {
-            background: linear-gradient(135deg, #FFD700, #DAA520);
+            background: linear-gradient(135deg, var(--theme-color), var(--theme-color-dark));
             color: #1a1a2e;
             font-weight: 600;
         }
@@ -434,7 +489,7 @@
         .team-config {
             margin-top: 20px;
             padding: 20px;
-            background: rgba(255, 215, 0, 0.05);
+            background: var(--theme-color-alpha);
             border-radius: 12px;
             border: 1px solid #333;
         }
@@ -462,8 +517,8 @@
 
         .randomize-btn {
             background: transparent;
-            border: 1px solid #FFD700;
-            color: #FFD700;
+            border: 1px solid var(--theme-color);
+            color: var(--theme-color);
             padding: 5px 10px;
             border-radius: 5px;
             cursor: pointer;
@@ -472,7 +527,7 @@
         }
 
         .randomize-btn:hover {
-            background: #FFD700;
+            background: var(--theme-color);
             color: #1a1a2e;
         }
 
@@ -506,18 +561,18 @@
             font-weight: 700;
             text-transform: uppercase;
             letter-spacing: 0.1em;
-            background: linear-gradient(135deg, #FFD700, #DAA520);
+            background: linear-gradient(135deg, var(--theme-color), var(--theme-color-dark));
             color: #1a1a2e;
             border: none;
             border-radius: 30px;
             cursor: pointer;
             transition: all 0.3s;
-            box-shadow: 0 5px 20px rgba(255, 215, 0, 0.3);
+            box-shadow: 0 5px 20px var(--theme-color-alpha);
         }
 
         .start-btn:hover {
             transform: translateY(-3px);
-            box-shadow: 0 10px 30px rgba(255, 215, 0, 0.5);
+            box-shadow: 0 10px 30px var(--theme-color-alpha);
         }
 
         .start-btn:active {
@@ -539,7 +594,7 @@
         }
 
         .footer-links a:hover {
-            color: #FFD700;
+            color: var(--theme-color);
         }
 
         /* Step Indicator */
@@ -559,8 +614,8 @@
         }
 
         .step-dot.active {
-            background: #FFD700;
-            box-shadow: 0 0 10px rgba(255, 215, 0, 0.5);
+            background: var(--theme-color);
+            box-shadow: 0 0 10px var(--theme-color-alpha);
         }
 
         .step-dot.completed {
@@ -596,6 +651,9 @@
                 margin: 10px;
                 padding: 20px;
             }
+
+            .desktop-hint { display: none; }
+            .mobile-hint { display: inline !important; }
         }
 
         /* YOLO Special */
@@ -652,22 +710,22 @@
                 <button class="arrow-btn" onclick="rotateDrum(-1)">◀</button>
 
                 <div class="cards-viewport" id="cardsViewport">
-                    <div class="category-card dim" data-category="movies" onclick="selectCategory('movies')">
+                    <div class="category-card dim" data-category="movies" onclick="onCardClick('movies')">
                         <div class="card-icon">🎬</div>
                         <div class="card-name">Movies</div>
                         <div class="card-count">22 films</div>
                     </div>
-                    <div class="category-card selected" data-category="history" onclick="selectCategory('history')">
+                    <div class="category-card selected" data-category="history" onclick="onCardClick('history')">
                         <div class="card-icon">📚</div>
                         <div class="card-name">History</div>
                         <div class="card-count">30 moments</div>
                     </div>
-                    <div class="category-card dim" data-category="stem" onclick="selectCategory('stem')">
+                    <div class="category-card dim" data-category="stem" onclick="onCardClick('stem')">
                         <div class="card-icon">🔬</div>
                         <div class="card-name">STEM</div>
                         <div class="card-count">Coming Soon</div>
                     </div>
-                    <div class="category-card dim" data-category="yolo" onclick="selectCategory('yolo')">
+                    <div class="category-card dim" data-category="yolo" onclick="onCardClick('yolo')">
                         <div class="card-icon">🎲</div>
                         <div class="card-name">YOLO</div>
                         <div class="card-count">Random Mix</div>
@@ -735,7 +793,7 @@
                 </div>
 
                 <div class="team-config" id="teamConfig" style="display: none;">
-                    <div class="team-display">
+                    <div class="team-display" id="teamDisplay">
                         <span class="team-name red">🔴 Patriots</span>
                         <span class="vs-text">vs</span>
                         <span class="team-name blue">Loyalists 🔵</span>
@@ -754,19 +812,21 @@
             </button>
 
             <div class="footer-links">
-                <a href="#" onclick="goBackToSubcategories(); return false;">← Back</a>
+                <a href="#" onclick="goBack(); return false;">← Back</a>
                 <a href="#">? How to Play</a>
             </div>
         </div>
     </div>
 
     <script>
-        // Data
+        // ── Data ──────────────────────────────────────────────────────────
+
         const categories = {
             movies: {
                 icon: '🎬',
                 name: 'Movies',
                 color: '#FFD700',
+                colorDark: '#DAA520',
                 subcategories: {
                     bollywood: { icon: '🇮🇳', name: 'Bollywood', count: 10 },
                     hollywood: { icon: '🎥', name: 'Hollywood', count: 12 }
@@ -776,6 +836,7 @@
                 icon: '📚',
                 name: 'History',
                 color: '#C9A84C',
+                colorDark: '#8B6914',
                 subcategories: {
                     american: { icon: '🦅', name: 'American', count: 10 },
                     kids: { icon: '🎒', name: 'For Kids (K-5)', count: 8 },
@@ -786,6 +847,7 @@
                 icon: '🔬',
                 name: 'STEM',
                 color: '#00CED1',
+                colorDark: '#008B8B',
                 subcategories: {
                     science: { icon: '🧪', name: 'Science', count: 0 },
                     math: { icon: '🔢', name: 'Math', count: 0 },
@@ -796,75 +858,203 @@
                 icon: '🎲',
                 name: 'YOLO',
                 color: '#FF6B6B',
+                colorDark: '#CC4444',
                 subcategories: null
             }
         };
 
         const teamNames = {
-            movies: [['Shahenshah', 'Mogambo'], ['Avengers', 'Justice League']],
-            history: [['Patriots', 'Loyalists'], ['Union', 'Confederacy']],
+            movies: [['Shahenshah', 'Mogambo'], ['Avengers', 'Justice League'], ['Dilwale', 'Dulhania']],
+            history: [['Patriots', 'Loyalists'], ['Union', 'Confederacy'], ['Hamilton', 'Burr']],
             stem: [['Newton', 'Einstein'], ['Curie', 'Darwin']],
-            yolo: [['Team A', 'Team B'], ['Winners', 'Contenders']]
+            yolo: [['Team Alpha', 'Team Omega'], ['Winners', 'Contenders']]
         };
+
+        // ── State ─────────────────────────────────────────────────────────
 
         let currentCategoryIndex = 1; // Start with History selected
         let currentCategory = 'history';
         let currentSubcategory = null;
+        let currentStep = 1;
+        let cameFromYolo = false;
         const categoryKeys = Object.keys(categories);
 
-        // Initialize
+        // ── Initialization ────────────────────────────────────────────────
+
         document.addEventListener('DOMContentLoaded', () => {
+            markDisabledCategories();
             updateDrumDisplay();
         });
 
-        function rotateDrum(direction) {
-            currentCategoryIndex = (currentCategoryIndex + direction + categoryKeys.length) % categoryKeys.length;
-            currentCategory = categoryKeys[currentCategoryIndex];
-            updateDrumDisplay();
+        // ── Step Dot Management (Fix #7) ──────────────────────────────────
 
-            // Play click sound (would be actual audio in production)
-            console.log('click');
+        function setStep(step) {
+            currentStep = step;
+            for (let i = 1; i <= 3; i++) {
+                const dot = document.getElementById('step' + i);
+                dot.classList.remove('active', 'completed');
+                if (i < step) {
+                    dot.classList.add('completed');
+                } else if (i === step) {
+                    dot.classList.add('active');
+                }
+            }
         }
 
-        function updateDrumDisplay() {
+        // ── Theme Color (Fix #5, #6) ─────────────────────────────────────
+
+        function setThemeColor(color, colorDark) {
+            const root = document.documentElement;
+            root.style.setProperty('--theme-color', color);
+            root.style.setProperty('--theme-color-dark', colorDark || darkenColor(color, 40));
+            root.style.setProperty('--theme-color-alpha', hexToRgba(color, 0.15));
+        }
+
+        function hexToRgba(hex, alpha) {
+            const r = parseInt(hex.slice(1, 3), 16);
+            const g = parseInt(hex.slice(3, 5), 16);
+            const b = parseInt(hex.slice(5, 7), 16);
+            return `rgba(${r}, ${g}, ${b}, ${alpha})`;
+        }
+
+        function darkenColor(hex, amount) {
+            let r = Math.max(0, parseInt(hex.slice(1, 3), 16) - amount);
+            let g = Math.max(0, parseInt(hex.slice(3, 5), 16) - amount);
+            let b = Math.max(0, parseInt(hex.slice(5, 7), 16) - amount);
+            return `#${r.toString(16).padStart(2, '0')}${g.toString(16).padStart(2, '0')}${b.toString(16).padStart(2, '0')}`;
+        }
+
+        // ── Disabled Categories (Fix #2) ──────────────────────────────────
+
+        function isCategoryDisabled(categoryKey) {
+            const cat = categories[categoryKey];
+            if (!cat.subcategories) return false; // YOLO is never disabled
+            return Object.values(cat.subcategories).every(sub => sub.count === 0);
+        }
+
+        function markDisabledCategories() {
             const cards = document.querySelectorAll('.category-card');
-            cards.forEach((card, index) => {
-                card.classList.remove('selected', 'dim');
-                if (index === currentCategoryIndex) {
-                    card.classList.add('selected');
-                } else {
-                    card.classList.add('dim');
+            cards.forEach(card => {
+                const key = card.dataset.category;
+                if (isCategoryDisabled(key)) {
+                    card.classList.add('disabled');
                 }
             });
         }
 
+        // ── Drum Navigation ───────────────────────────────────────────────
+
+        function rotateDrum(direction) {
+            currentCategoryIndex = (currentCategoryIndex + direction + categoryKeys.length) % categoryKeys.length;
+            currentCategory = categoryKeys[currentCategoryIndex];
+            updateDrumDisplay(true);
+        }
+
+        function updateDrumDisplay(animate) {
+            const cards = document.querySelectorAll('.category-card');
+            cards.forEach((card, index) => {
+                const key = card.dataset.category;
+                const isDisabled = isCategoryDisabled(key);
+
+                card.classList.remove('selected', 'dim', 'just-selected');
+
+                if (index === currentCategoryIndex) {
+                    card.classList.add('selected');
+                    if (animate) {
+                        card.classList.add('just-selected');
+                        // Remove animation class after it completes so it can retrigger
+                        setTimeout(() => card.classList.remove('just-selected'), 350);
+                    }
+                } else {
+                    card.classList.add('dim');
+                }
+
+                // Re-apply disabled (not overridden by dim/selected visually via CSS specificity)
+                if (isDisabled) {
+                    card.classList.add('disabled');
+                }
+            });
+        }
+
+        // ── Card Click (Fix #8) ───────────────────────────────────────────
+        // Center card = select, Side card = rotate to it
+
+        function onCardClick(category) {
+            const clickedIndex = categoryKeys.indexOf(category);
+
+            if (isCategoryDisabled(category)) {
+                // Briefly flash to indicate disabled
+                const card = document.querySelector(`.category-card[data-category="${category}"]`);
+                card.style.transition = 'opacity 0.1s';
+                card.style.opacity = '0.15';
+                setTimeout(() => { card.style.opacity = ''; card.style.transition = ''; }, 200);
+                return;
+            }
+
+            if (clickedIndex === currentCategoryIndex) {
+                // Center card clicked -> select it
+                selectCategory(category);
+            } else {
+                // Side card clicked -> rotate to it
+                currentCategoryIndex = clickedIndex;
+                currentCategory = category;
+                updateDrumDisplay(true);
+            }
+        }
+
+        // ── Category Selection (Fix #4 - auto-select single sub) ─────────
+
         function selectCategory(category) {
+            if (isCategoryDisabled(category)) return;
+
             currentCategory = category;
             currentCategoryIndex = categoryKeys.indexOf(category);
-            updateDrumDisplay();
-
-            // Update step indicator
-            document.getElementById('step1').classList.add('completed');
-            document.getElementById('step2').classList.add('active');
+            updateDrumDisplay(true);
 
             const cat = categories[category];
+            setThemeColor(cat.color, cat.colorDark);
+
+            // Hide any previous panels
+            document.getElementById('subcategoryPanel').classList.remove('visible');
+            document.getElementById('yoloShuffle').classList.remove('visible');
+            document.getElementById('configPanel').classList.remove('visible');
 
             if (category === 'yolo') {
-                // Show YOLO shuffle
-                document.getElementById('subcategoryPanel').classList.remove('visible');
+                // YOLO: show shuffle animation then jump to config
+                cameFromYolo = true;
                 document.getElementById('yoloShuffle').classList.add('visible');
-                document.getElementById('configPanel').classList.remove('visible');
 
                 setTimeout(() => {
                     document.getElementById('yoloShuffle').classList.remove('visible');
+                    setStep(3);
                     showConfigPanel('🎲 YOLO Mode', '52 random items from all categories');
                 }, 1500);
-            } else if (cat.subcategories) {
-                // Show subcategories
-                document.getElementById('yoloShuffle').classList.remove('visible');
+                return;
+            }
+
+            cameFromYolo = false;
+
+            if (!cat.subcategories) return;
+
+            const subKeys = Object.keys(cat.subcategories);
+            const availableSubs = subKeys.filter(k => cat.subcategories[k].count > 0);
+
+            if (availableSubs.length === 1) {
+                // Auto-select single available subcategory (Fix #4)
+                currentSubcategory = availableSubs[0];
+                const sub = cat.subcategories[availableSubs[0]];
+                setStep(3);
+                showConfigPanel(
+                    `${cat.icon} ${cat.name}: ${sub.name}`,
+                    `${sub.count} items to identify`
+                );
+            } else {
+                setStep(2);
                 showSubcategories(category);
             }
         }
+
+        // ── Subcategory Display (Fix #2 - disabled subs) ─────────────────
 
         function showSubcategories(category) {
             const cat = categories[category];
@@ -876,14 +1066,19 @@
 
             for (const [key, sub] of Object.entries(cat.subcategories)) {
                 const card = document.createElement('div');
-                card.className = 'subcategory-card';
+                const isDisabled = sub.count === 0;
+                card.className = 'subcategory-card' + (isDisabled ? ' disabled' : '');
                 card.style.setProperty('--sub-color', cat.color);
-                card.style.setProperty('--sub-glow', cat.color + '40');
-                card.onclick = () => selectSubcategory(category, key);
+                card.style.setProperty('--sub-glow', hexToRgba(cat.color, 0.25));
+
+                if (!isDisabled) {
+                    card.onclick = () => selectSubcategory(category, key);
+                }
+
                 card.innerHTML = `
                     <div class="sub-icon">${sub.icon}</div>
                     <div class="sub-name">${sub.name}</div>
-                    <div class="sub-count">${sub.count > 0 ? sub.count + ' items' : 'Coming Soon'}</div>
+                    <div class="sub-count">${isDisabled ? 'Coming Soon' : sub.count + ' items'}</div>
                 `;
                 grid.appendChild(card);
             }
@@ -895,17 +1090,14 @@
         function selectSubcategory(category, subcategory) {
             currentSubcategory = subcategory;
 
-            // Update step indicator
-            document.getElementById('step2').classList.add('completed');
-            document.getElementById('step3').classList.add('active');
-
             const cat = categories[category];
             const sub = cat.subcategories[subcategory];
 
-            // Highlight selected
-            document.querySelectorAll('.subcategory-card').forEach((card, i) => {
-                const keys = Object.keys(cat.subcategories);
-                if (keys[i] === subcategory) {
+            // Highlight selected subcategory card
+            const grid = document.getElementById('subcategoryGrid');
+            const subKeys = Object.keys(cat.subcategories);
+            grid.querySelectorAll('.subcategory-card').forEach((card, i) => {
+                if (subKeys[i] === subcategory) {
                     card.classList.add('selected');
                 } else {
                     card.classList.remove('selected');
@@ -913,6 +1105,7 @@
             });
 
             setTimeout(() => {
+                setStep(3);
                 showConfigPanel(
                     `${cat.icon} ${cat.name}: ${sub.name}`,
                     `${sub.count} items to identify`
@@ -920,34 +1113,46 @@
             }, 300);
         }
 
+        // ── Config Panel ──────────────────────────────────────────────────
+
         function showConfigPanel(title, subtitle) {
             document.getElementById('configTitle').textContent = title;
             document.getElementById('configSubtitle').textContent = subtitle;
             document.getElementById('configPanel').classList.add('visible');
-
-            // Set appropriate team names
             randomizeTeams();
         }
 
+        // ── Back Navigation (Fix #9 - YOLO back goes to categories) ──────
+
         function goBackToCategories() {
+            cameFromYolo = false;
             document.getElementById('subcategoryPanel').classList.remove('visible');
             document.getElementById('configPanel').classList.remove('visible');
             document.getElementById('yoloShuffle').classList.remove('visible');
-
-            // Reset step indicators
-            document.getElementById('step1').classList.remove('completed');
-            document.getElementById('step1').classList.add('active');
-            document.getElementById('step2').classList.remove('active', 'completed');
-            document.getElementById('step3').classList.remove('active', 'completed');
+            setStep(1);
         }
 
-        function goBackToSubcategories() {
-            document.getElementById('configPanel').classList.remove('visible');
+        function goBack() {
+            // "Back" from config: go to subcategories, or to categories if YOLO/auto-selected
+            if (cameFromYolo) {
+                goBackToCategories();
+            } else {
+                const cat = categories[currentCategory];
+                const subKeys = cat.subcategories ? Object.keys(cat.subcategories) : [];
+                const availableSubs = subKeys.filter(k => cat.subcategories[k].count > 0);
 
-            // Reset step 3
-            document.getElementById('step2').classList.remove('completed');
-            document.getElementById('step3').classList.remove('active');
+                if (availableSubs.length <= 1) {
+                    // Was auto-selected, go back to categories
+                    goBackToCategories();
+                } else {
+                    // Go back to subcategory selection
+                    document.getElementById('configPanel').classList.remove('visible');
+                    setStep(2);
+                }
+            }
         }
+
+        // ── Game Mode Toggle ──────────────────────────────────────────────
 
         function setMode(mode) {
             if (mode === 'solo') {
@@ -973,7 +1178,7 @@
             const teams = teamNames[currentCategory] || teamNames.yolo;
             const pair = teams[Math.floor(Math.random() * teams.length)];
 
-            const display = document.querySelector('.team-display');
+            const display = document.getElementById('teamDisplay');
             display.innerHTML = `
                 <span class="team-name red">🔴 ${pair[0]}</span>
                 <span class="vs-text">vs</span>
@@ -983,17 +1188,24 @@
         }
 
         function startGame() {
-            alert('Game would start now!\n\nCategory: ' + currentCategory + '\nSubcategory: ' + (currentSubcategory || 'N/A'));
+            alert(
+                'Game would start now!\n\n' +
+                'Category: ' + currentCategory + '\n' +
+                'Subcategory: ' + (currentSubcategory || 'N/A')
+            );
         }
 
-        // Keyboard navigation
+        // ── Keyboard Navigation ───────────────────────────────────────────
+
         document.addEventListener('keydown', (e) => {
+            if (currentStep !== 1) return; // Only navigate drum on step 1
             if (e.key === 'ArrowLeft') rotateDrum(-1);
             if (e.key === 'ArrowRight') rotateDrum(1);
             if (e.key === 'Enter') selectCategory(currentCategory);
         });
 
-        // Touch swipe support
+        // ── Touch Swipe Support ───────────────────────────────────────────
+
         let touchStartX = 0;
         const viewport = document.getElementById('cardsViewport');
 

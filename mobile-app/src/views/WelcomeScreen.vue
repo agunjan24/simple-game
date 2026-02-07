@@ -508,7 +508,7 @@ function startGame() {
 .card-desc {
   font-family: 'Poppins', sans-serif;
   font-size: clamp(0.65rem, 2vw, 0.78rem);
-  color: rgba(255, 255, 255, 0.75);
+  color: rgba(0, 0, 0, 0.7);
   text-align: center;
 }
 
@@ -516,6 +516,15 @@ function startGame() {
   font-family: 'Poppins', sans-serif;
   font-size: clamp(0.6rem, 2vw, 0.72rem);
   color: rgba(255, 255, 255, 0.55);
+}
+
+.category-card .card-name {
+  color: rgba(0, 0, 0, 0.85);
+  text-shadow: none;
+}
+
+.category-card .card-count {
+  color: rgba(0, 0, 0, 0.6);
 }
 
 .tap-hint {
