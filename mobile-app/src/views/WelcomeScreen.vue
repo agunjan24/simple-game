@@ -179,7 +179,7 @@
         <div class="help-section-label" :style="{ color: colors.primaryDark }">The Basics</div>
         <p class="help-prose" :style="{ color: colors.textDark }">
           An image appears blurred and progressively clears as time runs down.
-          Guess the {{ categoryLabel }} before the timer expires! A countdown appears for the last 10 seconds.
+          Guess what's in the frame before the timer expires! A countdown appears for the last 10 seconds.
         </p>
         <p class="help-prose help-note" :style="{ color: colors.textDark }">
           Blurriness can be turned off with the Progressive Reveal toggle on the welcome screen.
@@ -204,7 +204,7 @@
           <span class="help-icon">●</span>
           <span class="help-action" :style="{ color: colors.textDark }">Tap Dot</span>
           <span class="help-arrow" :style="{ color: colors.primaryDark }">→</span>
-          <span class="help-desc" :style="{ color: colors.textDark }">Review past {{ categoryLabel }}</span>
+          <span class="help-desc" :style="{ color: colors.textDark }">Review past frames</span>
         </div>
 
         <hr class="help-divider" :style="{ borderColor: colors.primary + '44' }" />
@@ -228,7 +228,6 @@ import { CATEGORIES } from '../themes/themes.js'
 const store = useGameStore()
 const router = useRouter()
 const colors = computed(() => store.themeColors)
-const categoryLabel = computed(() => store.themeConfig.categoryLabel.toLowerCase())
 const showHowToPlay = ref(false)
 
 function onEscape(e) {
