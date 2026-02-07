@@ -48,6 +48,8 @@ export const useGameStore = defineStore('game', {
     selectedCategory: null,
     selectedSubcategory: null,
     welcomeStep: 1,
+    // Mashup mode
+    isMashup: false,
     // Feature 1: History navigation (review mode)
     reviewingItem: null,
     savedTimeLeft: null,
@@ -101,6 +103,26 @@ export const useGameStore = defineStore('game', {
     currentTimerDuration: (state) => {
       return state.teamMode ? state.timerDuration : state.soloDuration
     },
+
+    currentGameTitle: (state) => {
+      if (state.isMashup) {
+        const item = state.reviewingItem || state.currentItem
+        if (item?._sourceTheme) {
+          return THEMES[item._sourceTheme].mashupGameTitle
+        }
+      }
+      return THEMES[state.theme].gameTitle
+    },
+
+    currentImageFolder: (state) => {
+      if (state.isMashup) {
+        const item = state.reviewingItem || state.currentItem
+        if (item?._sourceTheme) {
+          return THEMES[item._sourceTheme].imageFolder
+        }
+      }
+      return THEMES[state.theme].imageFolder
+    },
   },
 
   actions: {
@@ -108,11 +130,25 @@ export const useGameStore = defineStore('game', {
       this.selectedCategory = catKey
       const cat = CATEGORIES[catKey]
       if (!cat.subcategories) {
-        // YOLO: pick a random theme
-        const allThemeKeys = Object.keys(THEMES)
-        const randomKey = allThemeKeys[Math.floor(Math.random() * allThemeKeys.length)]
+        // Mashup: mix items from all categories
+        this.isMashup = true
         this.selectedSubcategory = null
-        this.setTheme(randomKey)
+        this.theme = 'mashup'
+        updateStatusBar('mashup')
+        // Build combined pool from all data sources, tag each item with source theme
+        let pool = []
+        for (const [themeKey, data] of Object.entries(DATA_MAP)) {
+          const tagged = data.map((item) => ({ ...item, _sourceTheme: themeKey }))
+          pool = pool.concat(tagged)
+        }
+        // Shuffle and pick 10
+        for (let i = pool.length - 1; i > 0; i--) {
+          const j = Math.floor(Math.random() * (i + 1))
+          ;[pool[i], pool[j]] = [pool[j], pool[i]]
+        }
+        this.validItems = pool.slice(0, 10)
+        this.shownItems = []
+        this.randomizeTeamNames()
         this.welcomeStep = 3
       } else {
         const subKeys = Object.keys(cat.subcategories)
@@ -141,7 +177,15 @@ export const useGameStore = defineStore('game', {
       this.selectedSubcategory = null
     },
 
+    resetToWelcome() {
+      this.isMashup = false
+      this.theme = DEFAULT_THEME
+      updateStatusBar(DEFAULT_THEME)
+      this.resetWelcome()
+    },
+
     _loadThemeData() {
+      if (this.isMashup) return
       this.validItems = DATA_MAP[this.theme] || []
     },
 
@@ -153,6 +197,7 @@ export const useGameStore = defineStore('game', {
 
     setTheme(name) {
       if (!(name in THEMES)) return
+      this.isMashup = false
       this.theme = name
       this._loadThemeData()
       this.randomizeTeamNames()

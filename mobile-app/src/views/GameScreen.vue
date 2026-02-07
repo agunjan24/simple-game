@@ -8,7 +8,7 @@
         <!-- Header -->
         <div class="header-row">
           <div class="header-left">
-            <h2 class="game-title">🎬 {{ config.gameTitle }}</h2>
+            <h2 class="game-title">🎬 {{ store.currentGameTitle }}</h2>
             <!-- Progress dots - Feature 1: Clickable completed dots -->
             <div class="progress-dots">
               <span
@@ -193,7 +193,7 @@ const reviewShowAnswer = ref(false)
 
 const colors = computed(() => store.themeColors)
 const config = computed(() => store.themeConfig)
-const categoryLabel = computed(() => config.value.categoryLabel.toLowerCase())
+const categoryLabel = computed(() => store.isMashup ? 'frame' : config.value.categoryLabel.toLowerCase())
 
 // Feature 1: Display item is either the reviewing item or the current item
 const displayItem = computed(() => store.isReviewing ? store.reviewingItem : store.currentItem)
@@ -212,7 +212,7 @@ const filmStripStyle = computed(() => ({
 
 const imageSrc = computed(() => {
   if (!displayItem.value) return ''
-  return `${config.value.imageFolder}/${displayItem.value.filename}`
+  return `${store.currentImageFolder}/${displayItem.value.filename}`
 })
 
 // Feature 1: Hint text for display item
@@ -418,7 +418,7 @@ function onImageClick() {
 function confirmExit() {
   stop()
   store.resetGame()
-  store.resetWelcome()
+  store.resetToWelcome()
   router.push('/')
 }
 

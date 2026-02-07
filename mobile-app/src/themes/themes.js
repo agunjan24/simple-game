@@ -18,6 +18,7 @@ export const THEMES = {
     categoryLabel: 'Movie',
     categoryLabelPlural: 'Movies',
     gameTitle: 'GUESS THE MOVIE',
+    mashupGameTitle: 'GUESS THE BOLLYWOOD MOVIE',
     subtitle: 'THE ULTIMATE MOVIE GUESSING GAME',
     imageFolder: 'images',
     teamNames: [
@@ -60,6 +61,7 @@ export const THEMES = {
     categoryLabel: 'Movie',
     categoryLabelPlural: 'Movies',
     gameTitle: 'GUESS THE MOVIE',
+    mashupGameTitle: 'GUESS THE HOLLYWOOD MOVIE',
     subtitle: 'THE ULTIMATE MOVIE GUESSING GAME',
     imageFolder: 'images_hollywood',
     teamNames: [
@@ -87,6 +89,46 @@ export const THEMES = {
       "Frankly, my dear, I don't give a damn about your score!",
     ],
   },
+  mashup: {
+    name: 'Mashup Frames',
+    titleText: 'MASHUP',
+    colors: {
+      primary: '#FF6B6B',
+      primaryLight: '#FF8E8E',
+      primaryDark: '#CC4444',
+      accent: '#FFD93D',
+      accentDark: '#E6C235',
+      secondary: '#6BCB77',
+      bgDark: '#1A1A2E',
+      bgMid: '#16213E',
+      bgLight: '#0F3460',
+      textLight: '#FFFFFF',
+      textDark: '#1A1A2E',
+    },
+    categoryLabel: 'Frame',
+    categoryLabelPlural: 'Frames',
+    gameTitle: 'GUESS THE FRAME',
+    subtitle: 'THE ULTIMATE GUESSING GAME',
+    imageFolder: 'images',
+    teamNames: [
+      ['Shahenshah', 'Mogambo'],
+      ['Avengers', 'Justice League'],
+      ['Patriots', 'Loyalists'],
+      ['Jedi', 'Sith'],
+      ['Jai', 'Veeru'],
+      ['Gotham', 'Metropolis'],
+    ],
+    winnerPhrases: [
+      'You crushed it across the board!',
+      'Master of all categories — CHAMPION!',
+      'Nothing can stop you — WINNER!',
+    ],
+    loserPhrases: [
+      'The mashup was too much this time!',
+      'Better luck with the mix next time!',
+      'So close, yet so far across every category!',
+    ],
+  },
   history: {
     name: 'History Frames',
     titleText: 'HISTORY',
@@ -106,6 +148,7 @@ export const THEMES = {
     categoryLabel: 'Moment',
     categoryLabelPlural: 'Moments',
     gameTitle: 'GUESS THE MOMENT',
+    mashupGameTitle: 'GUESS THE MOMENT FROM HISTORY',
     subtitle: 'THE ULTIMATE HISTORY GUESSING GAME',
     imageFolder: 'images_history',
     teamNames: [
@@ -153,9 +196,9 @@ export const CATEGORIES = {
       american: { icon: '🦅', name: 'American', themeKey: 'history' },
     },
   },
-  yolo: {
-    icon: '🎲',
-    name: 'YOLO',
+  mashup: {
+    icon: '🔀',
+    name: 'Mashup',
     description: 'Random mix of everything!',
     color: '#FF6B6B',
     colorDark: '#CC4444',

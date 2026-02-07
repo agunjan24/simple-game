@@ -91,8 +91,8 @@
         <!-- ==================== STEP 3: Game Configuration ==================== -->
         <template v-if="store.welcomeStep === 3">
           <div class="selected-badge" :style="badgeStyle">
-            <template v-if="store.selectedCategory === 'yolo'">
-              🎲 YOLO Mode — {{ store.totalCount }} items
+            <template v-if="store.selectedCategory === 'mashup'">
+              🔀 Mashup Mode — {{ store.totalCount }} Frames
             </template>
             <template v-else>
               {{ CATEGORIES[store.selectedCategory].icon }}
@@ -105,7 +105,8 @@
 
           <!-- Item count -->
           <p class="item-count" :style="{ color: colors.textDark }">
-            🎬 {{ store.totalCount }} {{ store.themeConfig.categoryLabelPlural }} to Guess
+            <template v-if="store.isMashup">🔀 {{ store.totalCount }} Frames to Guess</template>
+            <template v-else>🎬 {{ store.totalCount }} {{ store.themeConfig.categoryLabelPlural }} to Guess</template>
           </p>
 
           <!-- Game options -->
@@ -237,7 +238,7 @@ onMounted(() => window.addEventListener('keydown', onEscape))
 onUnmounted(() => window.removeEventListener('keydown', onEscape))
 
 const displayTitle = computed(() => {
-  if (store.selectedCategory === 'yolo') return '🎲 YOLO'
+  if (store.selectedCategory === 'mashup') return '🔀 MASHUP'
   if (store.selectedCategory && CATEGORIES[store.selectedCategory]) {
     return CATEGORIES[store.selectedCategory].name.toUpperCase()
   }
@@ -304,14 +305,14 @@ function onSubcategoryClick(subKey) {
 }
 
 function goBackToCategories() {
-  store.resetWelcome()
+  store.resetToWelcome()
 }
 
 function goBack() {
   const cat = CATEGORIES[store.selectedCategory]
   if (!cat || !cat.subcategories || Object.keys(cat.subcategories).length <= 1) {
-    // Go back to step 1 (YOLO, or single-subcategory categories)
-    store.resetWelcome()
+    // Go back to step 1 (mashup, or single-subcategory categories)
+    store.resetToWelcome()
   } else {
     // Go back to step 2
     store.welcomeStep = 2

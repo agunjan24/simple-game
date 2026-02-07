@@ -40,5 +40,22 @@ CSV columns: `filename`, `movie_name`, `hint`, `category`, `difficulty`. Mobile 
 - **Images:** Prefer 4:3 aspect ratio, 1200x900px, PNG/WebP.
 - **Deployment:** Render free tier, reads `HOST`/`PORT` env vars. Repo: `agunjan24/simple-game`.
 
+## Testing (Mobile App)
+Playwright is installed as a devDependency in `mobile-app/` with Chromium browser. Use it for automated UI testing:
+```bash
+cd mobile-app
+npx vite --host &                    # Start dev server on :5173
+node test-script.mjs                 # Run a Playwright test script
+```
+Example Playwright script pattern:
+```js
+import { chromium } from 'playwright'
+const browser = await chromium.launch({ headless: true })
+const page = await browser.newPage({ viewport: { width: 400, height: 800 } })
+await page.goto('http://localhost:5173')
+// ... interact and assert
+await browser.close()
+```
+
 ## See Also
 `REFERENCE.md` — Full color palettes, team name lists, movie lists, scoring details, CSS specifics, future ideas.
