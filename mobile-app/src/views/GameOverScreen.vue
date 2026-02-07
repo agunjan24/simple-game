@@ -143,10 +143,17 @@ const accuracyBarStyle = computed(() => {
   }
 })
 
-const playAgainStyle = computed(() => ({
-  background: `linear-gradient(135deg, ${colors.value.primary}, ${colors.value.primaryDark})`,
-  color: colors.value.textDark,
-}))
+const playAgainStyle = computed(() => {
+  const p = colors.value.primary
+  const r = parseInt(p.slice(1, 3), 16)
+  const g = parseInt(p.slice(3, 5), 16)
+  const b = parseInt(p.slice(5, 7), 16)
+  const luminance = (0.299 * r + 0.587 * g + 0.114 * b) / 255
+  return {
+    background: `linear-gradient(135deg, ${colors.value.primary}, ${colors.value.primaryDark})`,
+    color: luminance > 0.5 ? colors.value.textDark : colors.value.textLight,
+  }
+})
 
 onMounted(() => {
   playVictory()

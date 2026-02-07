@@ -5,6 +5,7 @@ import { THEMES, CATEGORIES } from '../themes/themes.js'
 import bollywoodData from '../data/bollywood.json'
 import hollywoodData from '../data/hollywood.json'
 import historyData from '../data/history.json'
+import presidentsData from '../data/presidents.json'
 
 function updateStatusBar(themeName) {
   if (!Capacitor.isNativePlatform()) return
@@ -20,6 +21,7 @@ const DATA_MAP = {
   bollywood: bollywoodData,
   hollywood: hollywoodData,
   history: historyData,
+  presidents: presidentsData,
 }
 
 export const useGameStore = defineStore('game', {

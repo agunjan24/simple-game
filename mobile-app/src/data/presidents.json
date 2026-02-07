@@ -1,0 +1,12 @@
+[
+  {"filename": "crossing_the_delaware.webp", "title": "George Washington", "hint": "Revolutionary commander leads surprise Christmas attack (1776)", "category": "Founding Era", "difficulty": "Easy"},
+  {"filename": "berlin_wall_speech.webp", "title": "Ronald Reagan", "hint": "'Tear down this wall!' at the Brandenburg Gate (1987)", "category": "Cold War", "difficulty": "Easy"},
+  {"filename": "moon_speech_rice.webp", "title": "John F. Kennedy", "hint": "'We choose to go to the Moon' — a university address in Texas (1962)", "category": "Space Race", "difficulty": "Easy"},
+  {"filename": "panama_canal_visit.webp", "title": "Theodore Roosevelt", "hint": "Big Stick diplomacy — inspecting America's greatest engineering feat (1906)", "category": "Progressive Era", "difficulty": "Medium"},
+  {"filename": "gettysburg_address.webp", "title": "Abraham Lincoln", "hint": "'Four score and seven years ago...' on a Pennsylvania battlefield (1863)", "category": "Civil War", "difficulty": "Easy"},
+  {"filename": "fireside_chat.webp", "title": "Franklin D. Roosevelt", "hint": "New Deal architect speaks to the nation by radio (1933)", "category": "Depression Era", "difficulty": "Medium"},
+  {"filename": "dewey_defeats_truman.webp", "title": "Harry S. Truman", "hint": "Surprise election winner gleefully holds a premature headline (1948)", "category": "Cold War", "difficulty": "Medium"},
+  {"filename": "resignation_helicopter.webp", "title": "Richard Nixon", "hint": "Only president to resign, final wave from the South Lawn (1974)", "category": "Modern", "difficulty": "Easy"},
+  {"filename": "ground_zero_bullhorn.webp", "title": "George W. Bush", "hint": "'I can hear you! The rest of the world hears you!' amid the rubble (2001)", "category": "Modern", "difficulty": "Easy"},
+  {"filename": "dday_paratroopers.webp", "title": "Dwight D. Eisenhower", "hint": "Supreme Commander briefs the 101st Airborne before Normandy (1944)", "category": "World War II", "difficulty": "Medium"}
+]
