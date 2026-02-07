@@ -35,6 +35,8 @@
             </div>
             <!-- Quick Tips icon -->
             <div class="quick-tips-icon" @click="showQuickTips = true">?</div>
+            <!-- Exit icon -->
+            <div class="exit-icon" @click="showExitConfirm = true">✕</div>
           </div>
         </div>
 
@@ -149,6 +151,21 @@
         </div>
       </div>
     </div>
+
+    <!-- Exit confirmation modal -->
+    <div v-if="showExitConfirm" class="modal-overlay" @click.self="showExitConfirm = false">
+      <div class="modal-card" :style="{ background: colors.textLight, borderColor: '#E53935' }">
+        <div class="modal-header">
+          <span class="modal-title">Leave Game?</span>
+          <button class="modal-close" @click="showExitConfirm = false">✕</button>
+        </div>
+        <p class="exit-message" :style="{ color: colors.textDark }">Your progress will be lost.</p>
+        <div class="exit-modal-actions">
+          <button class="exit-btn stay-btn" @click="showExitConfirm = false">Stay</button>
+          <button class="exit-btn leave-btn" @click="confirmExit">Exit</button>
+        </div>
+      </div>
+    </div>
   </div>
 </template>
 
@@ -168,6 +185,7 @@ const countdownText = ref('')
 let countdownTimeout = null
 
 const showQuickTips = ref(false)
+const showExitConfirm = ref(false)
 
 // Feature 1: Review mode local state
 const reviewShowHint = ref(false)
@@ -397,8 +415,18 @@ function onImageClick() {
   // Answer stays hidden (showAnswer remains false)
 }
 
+function confirmExit() {
+  stop()
+  store.resetGame()
+  store.resetWelcome()
+  router.push('/')
+}
+
 function onEscape(e) {
-  if (e.key === 'Escape') showQuickTips.value = false
+  if (e.key === 'Escape') {
+    showQuickTips.value = false
+    showExitConfirm.value = false
+  }
 }
 onMounted(() => window.addEventListener('keydown', onEscape))
 onUnmounted(() => {
@@ -905,6 +933,86 @@ onUnmounted(() => {
   opacity: 0.75;
 }
 
+.exit-icon {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  background: linear-gradient(145deg, #EF5350, #C62828);
+  color: #fff;
+  font-family: 'Poppins', sans-serif;
+  font-weight: 700;
+  font-size: 0.8rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  border: 1.5px solid #B71C1C;
+  box-shadow: 0 2px 6px rgba(198, 40, 40, 0.4);
+  transition: transform 0.2s, box-shadow 0.2s;
+  touch-action: manipulation;
+  -webkit-tap-highlight-color: transparent;
+  flex-shrink: 0;
+}
+
+.exit-icon:hover {
+  transform: scale(1.1);
+  box-shadow: 0 3px 10px rgba(198, 40, 40, 0.6);
+}
+
+.exit-icon:active {
+  transform: scale(0.95);
+}
+
+.exit-message {
+  font-family: 'Poppins', sans-serif;
+  font-size: 1rem;
+  margin: 4px 0 16px;
+  opacity: 0.8;
+}
+
+.exit-modal-actions {
+  display: flex;
+  gap: 12px;
+  justify-content: flex-end;
+}
+
+.exit-btn {
+  font-family: 'Poppins', sans-serif;
+  font-weight: 600;
+  font-size: 0.9rem;
+  padding: 8px 24px;
+  border-radius: 20px;
+  border: none;
+  cursor: pointer;
+  transition: transform 0.2s, box-shadow 0.2s;
+  touch-action: manipulation;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.stay-btn {
+  background: #E0E0E0;
+  color: #333;
+}
+
+.stay-btn:hover {
+  background: #BDBDBD;
+}
+
+.leave-btn {
+  background: linear-gradient(135deg, #EF5350, #C62828);
+  color: #fff;
+  box-shadow: 0 2px 8px rgba(198, 40, 40, 0.4);
+}
+
+.leave-btn:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(198, 40, 40, 0.5);
+}
+
+.exit-btn:active {
+  transform: scale(0.95);
+}
+
 @media (max-width: 640px) {
   .game-card { border-radius: 12px; }
   .game-content { padding: 6px 8px; }
@@ -927,7 +1035,8 @@ onUnmounted(() => {
   .hint-box { padding: 4px 8px; border-radius: 6px; }
   .answer-box { padding: 8px 8px; }
 
-  .quick-tips-icon {
+  .quick-tips-icon,
+  .exit-icon {
     width: 24px;
     height: 24px;
     font-size: 0.75rem;
