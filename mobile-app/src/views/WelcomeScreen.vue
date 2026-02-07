@@ -76,7 +76,10 @@
               :style="subcategoryCardStyle(sub)"
               @click="onSubcategoryClick(subKey)"
             >
-              <span class="card-icon">{{ sub.icon }}</span>
+              <span class="card-icon">
+                <img v-if="sub.iconImage" :src="sub.iconImage" class="card-icon-img" alt="" />
+                <template v-else>{{ sub.icon }}</template>
+              </span>
               <span class="card-name">{{ sub.name }}</span>
               <span class="card-count">{{ store.getItemCount(sub.themeKey) }} items</span>
             </div>
@@ -495,6 +498,17 @@ function startGame() {
 
 .card-icon {
   font-size: clamp(1.5rem, 5vw, 2.2rem);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: clamp(1.5rem, 5vw, 2.2rem);
+}
+
+.card-icon-img {
+  height: clamp(1.1rem, 3.5vw, 1.5rem);
+  width: auto;
+  border-radius: 2px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
 }
 
 .card-name {

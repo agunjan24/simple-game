@@ -139,7 +139,7 @@ export const CATEGORIES = {
     color: '#FFD700',
     colorDark: '#DAA520',
     subcategories: {
-      bollywood: { icon: '🪷', name: 'Bollywood', themeKey: 'bollywood' },
+      bollywood: { icon: null, iconImage: new URL('../assets/flag-india.svg', import.meta.url).href, name: 'Bollywood', themeKey: 'bollywood' },
       hollywood: { icon: '🎥', name: 'Hollywood', themeKey: 'hollywood' },
     },
   },
