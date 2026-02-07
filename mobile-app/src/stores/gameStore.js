@@ -58,6 +58,10 @@ export const useGameStore = defineStore('game', {
     timerPaused: false,
     // Feature 3: Image click to clear blur
     imageRevealed: false,
+    // Solo mode scoring
+    soloResults: [],
+    soloAwaitingScore: false,
+    voiceGuessResult: null,
   }),
 
   getters: {
@@ -112,6 +116,14 @@ export const useGameStore = defineStore('game', {
         }
       }
       return THEMES[state.theme].gameTitle
+    },
+
+    soloTotalPoints: (state) => state.soloResults.reduce((sum, r) => sum + r.points, 0),
+    soloCorrectCount: (state) => state.soloResults.filter((r) => r.correct).length,
+    soloAccuracy: (state) => {
+      if (!state.soloResults.length) return 0
+      const correct = state.soloResults.filter((r) => r.correct).length
+      return Math.round((correct / state.soloResults.length) * 100)
     },
 
     currentImageFolder: (state) => {
@@ -206,6 +218,20 @@ export const useGameStore = defineStore('game', {
     },
 
     nextItem() {
+      // Solo mode: auto-record skipped if no result for current item
+      if (!this.teamMode && this.currentItem) {
+        const hasResult = this.soloResults.some((r) => r.filename === this.currentItem.filename)
+        if (!hasResult) {
+          this.soloResults.push({
+            filename: this.currentItem.filename,
+            title: this.currentItem.title,
+            correct: false,
+            points: 0,
+            hintUsed: this.hintUsed,
+            guessMethod: 'skipped',
+          })
+        }
+      }
       const available = this.validItems.filter(
         (m) => !this.shownItems.includes(m.filename)
       )
@@ -222,6 +248,9 @@ export const useGameStore = defineStore('game', {
         // Reset Feature 2 & 3 state for new item
         this.timerPaused = false
         this.imageRevealed = false
+        // Reset solo scoring state for new item
+        this.soloAwaitingScore = false
+        this.voiceGuessResult = null
         return true
       } else {
         this.gameOver = true
@@ -237,6 +266,9 @@ export const useGameStore = defineStore('game', {
       this.gameOver = false
       this.score = 0
       this.currentScreen = 'game'
+      this.soloResults = []
+      this.soloAwaitingScore = false
+      this.voiceGuessResult = null
       if (this.teamMode) {
         this.teamScores = [0, 0]
         this.currentTeam = 0
@@ -282,6 +314,31 @@ export const useGameStore = defineStore('game', {
         this.score += points
       }
       return points
+    },
+
+    soloScoreAnswer(correct, guessMethod = 'manual') {
+      if (!this.currentItem) return
+      const hasResult = this.soloResults.some((r) => r.filename === this.currentItem.filename)
+      if (hasResult) return
+      const points = this.calculatePoints(correct)
+      this.score += points
+      this.soloResults.push({
+        filename: this.currentItem.filename,
+        title: this.currentItem.title,
+        correct,
+        points,
+        hintUsed: this.hintUsed,
+        guessMethod,
+      })
+      this.soloAwaitingScore = false
+    },
+
+    recordVoiceGuess(matchResult) {
+      this.voiceGuessResult = matchResult
+      if (matchResult.match) {
+        this.showAnswer = true
+        this.soloScoreAnswer(true, 'voice')
+      }
     },
 
     // Feature 1: Enter review mode to view a previously shown item

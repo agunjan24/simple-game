@@ -41,8 +41,39 @@
 
         <!-- Solo mode results -->
         <template v-else>
-          <h1 class="result-title">PICTURE PERFECT!</h1>
-          <p class="result-sub">You've seen all {{ store.totalCount }} {{ store.themeConfig.categoryLabelPlural.toLowerCase() }}!</p>
+          <h1 class="result-title">{{ soloTitle }}</h1>
+          <p class="result-sub">{{ store.soloCorrectCount }} / {{ store.soloResults.length }} {{ store.themeConfig.categoryLabelPlural.toLowerCase() }} correct</p>
+
+          <!-- Score display -->
+          <div class="solo-score-display">
+            <span class="solo-score-number">{{ store.soloTotalPoints }}</span>
+            <span class="points-label">points</span>
+          </div>
+
+          <!-- Accuracy bar -->
+          <div class="accuracy-bar-container">
+            <div class="accuracy-bar-track">
+              <div class="accuracy-bar-fill" :style="accuracyBarStyle"></div>
+            </div>
+            <span class="accuracy-label">{{ store.soloAccuracy }}% accuracy</span>
+          </div>
+
+          <!-- Per-item breakdown -->
+          <div class="breakdown-list">
+            <div
+              v-for="(item, idx) in store.soloResults"
+              :key="item.filename"
+              class="breakdown-row"
+              :class="item.correct ? 'row-correct' : 'row-wrong'"
+            >
+              <span class="breakdown-index">{{ idx + 1 }}</span>
+              <span class="breakdown-icon">{{ item.correct ? '✓' : '✗' }}</span>
+              <span class="breakdown-title">{{ item.title }}</span>
+              <span class="breakdown-points" :class="item.correct ? 'pts-green' : 'pts-red'">{{ item.correct ? '+' + item.points : '0' }}</span>
+              <span v-if="item.guessMethod === 'voice'" class="breakdown-badge">🎙️</span>
+              <span v-if="item.hintUsed" class="breakdown-badge">💡</span>
+            </div>
+          </div>
         </template>
 
         <div class="star-row">⭐ 🌟 ⭐ 🌟 ⭐</div>
@@ -90,6 +121,26 @@ const winnerPhrase = computed(() => {
 const loserPhrase = computed(() => {
   const phrases = store.themeConfig.loserPhrases
   return phrases[Math.floor(Math.random() * phrases.length)]
+})
+
+const soloTitle = computed(() => {
+  const acc = store.soloAccuracy
+  if (acc >= 80) return 'PICTURE PERFECT!'
+  if (acc >= 50) return 'WELL PLAYED!'
+  return 'KEEP TRYING!'
+})
+
+const accuracyBarStyle = computed(() => {
+  const acc = store.soloAccuracy
+  let color
+  if (acc >= 70) color = '#4CAF50'
+  else if (acc >= 40) color = '#FF9800'
+  else color = '#F44336'
+  return {
+    width: `${acc}%`,
+    background: color,
+    transition: 'width 1s ease-out',
+  }
 })
 
 const playAgainStyle = computed(() => ({
@@ -236,8 +287,127 @@ function playAgain() {
   transform: translateY(0) scale(0.98);
 }
 
+/* Solo score display */
+.solo-score-display {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0;
+}
+
+.solo-score-number {
+  font-family: 'Rozha One', serif;
+  font-size: 3rem;
+  font-weight: 700;
+  color: #1A0A14;
+  line-height: 1;
+}
+
+/* Accuracy bar */
+.accuracy-bar-container {
+  width: 100%;
+  max-width: 280px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+}
+
+.accuracy-bar-track {
+  width: 100%;
+  height: 10px;
+  background: rgba(0, 0, 0, 0.1);
+  border-radius: 5px;
+  overflow: hidden;
+}
+
+.accuracy-bar-fill {
+  height: 100%;
+  border-radius: 5px;
+  min-width: 2px;
+}
+
+.accuracy-label {
+  font-family: 'Poppins', sans-serif;
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: #666;
+}
+
+/* Breakdown list */
+.breakdown-list {
+  width: 100%;
+  max-width: 400px;
+  max-height: 240px;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: 0 4px;
+}
+
+.breakdown-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 10px;
+  border-radius: 8px;
+  font-family: 'Poppins', sans-serif;
+  font-size: 0.8rem;
+}
+
+.row-correct {
+  background: rgba(76, 175, 80, 0.1);
+}
+
+.row-wrong {
+  background: rgba(244, 67, 54, 0.1);
+}
+
+.breakdown-index {
+  font-weight: 700;
+  color: #888;
+  width: 20px;
+  text-align: center;
+  flex-shrink: 0;
+}
+
+.breakdown-icon {
+  font-weight: 900;
+  font-size: 1rem;
+  flex-shrink: 0;
+}
+
+.row-correct .breakdown-icon { color: #2E7D32; }
+.row-wrong .breakdown-icon { color: #C62828; }
+
+.breakdown-title {
+  flex: 1;
+  font-weight: 600;
+  color: #1A0A14;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.breakdown-points {
+  font-weight: 700;
+  flex-shrink: 0;
+}
+
+.pts-green { color: #2E7D32; }
+.pts-red { color: #C62828; }
+
+.breakdown-badge {
+  font-size: 0.9rem;
+  flex-shrink: 0;
+}
+
 @media (max-width: 640px) {
   .game-card { border-radius: 12px; }
   .trophy { font-size: 4rem; }
+  .solo-score-number { font-size: 2.5rem; }
+  .breakdown-list { max-height: 200px; }
+  .breakdown-row { padding: 4px 8px; font-size: 0.75rem; }
 }
 </style>

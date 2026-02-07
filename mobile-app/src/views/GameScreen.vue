@@ -65,6 +65,10 @@
             @error="onImageError"
             @click="onImageClick"
           />
+          <!-- Voice feedback overlay -->
+          <div v-if="voiceFeedback" class="voice-feedback" :class="voiceFeedback.correct ? 'voice-correct' : 'voice-wrong'">
+            {{ voiceFeedback.text }}
+          </div>
           <!-- Countdown overlay (only in normal mode) -->
           <div v-if="countdownText && !store.isReviewing" class="countdown-overlay" :class="{ clock: countdownText === '⏰' }">
             {{ countdownText }}
@@ -78,6 +82,12 @@
         </div>
         <div v-else class="control-buttons">
           <button class="game-btn btn-hint" :style="hintBtnStyle" @click="showHint">💡 HINT</button>
+          <button
+            v-if="micAvailable && !store.teamMode && !store.showAnswer"
+            class="game-btn btn-mic"
+            :class="{ listening: isListening }"
+            @click="toggleMic"
+          >🎙️ {{ isListening ? 'LISTENING...' : 'MIC' }}</button>
           <button class="game-btn btn-reveal" :style="revealBtnStyle" @click="revealAnswer">🎬 REVEAL</button>
           <button class="game-btn btn-next" :style="nextBtnStyle" @click="nextItem">
             {{ store.remainingCount > 0 ? '▶ NEXT' : '🏆 FINISH' }}
@@ -88,6 +98,13 @@
         <div v-if="store.teamMode && store.awaitingScore && !store.isReviewing" class="scoring-buttons">
           <button class="score-btn correct" @click="scoreAnswer(true)">✓</button>
           <button class="score-btn wrong" @click="scoreAnswer(false)">✗</button>
+        </div>
+
+        <!-- Solo self-assessment buttons -->
+        <div v-if="!store.teamMode && store.showAnswer && store.soloAwaitingScore && !store.isReviewing" class="scoring-buttons solo-assess">
+          <span class="solo-assess-label">Did you know it?</span>
+          <button class="score-btn correct" @click="soloScore(true)">✓</button>
+          <button class="score-btn wrong" @click="soloScore(false)">✗</button>
         </div>
 
         <!-- Hint (show review hint or regular hint) -->
@@ -149,6 +166,12 @@
           <span class="help-arrow" :style="{ color: colors.primaryDark }">→</span>
           <span class="help-desc" :style="{ color: colors.textDark }">Review past {{ categoryLabel }}</span>
         </div>
+        <div v-if="micAvailable && !store.teamMode" class="help-row">
+          <span class="help-icon-cell">🎙️</span>
+          <span class="help-action" :style="{ color: colors.textDark }">Tap Mic</span>
+          <span class="help-arrow" :style="{ color: colors.primaryDark }">→</span>
+          <span class="help-desc" :style="{ color: colors.textDark }">Speak your guess</span>
+        </div>
       </div>
     </div>
 
@@ -175,17 +198,24 @@ import { useRouter } from 'vue-router'
 import { useGameStore } from '../stores/gameStore.js'
 import { useTimer } from '../composables/useTimer.js'
 import { useAudio } from '../composables/useAudio.js'
+import { useSpeechRecognition } from '../composables/useSpeechRecognition.js'
+import { fuzzyMatch } from '../utils/fuzzyMatch.js'
 
 const store = useGameStore()
 const router = useRouter()
 const { start, stop } = useTimer(store)
 const { playTick } = useAudio()
+const { isAvailable: micAvailable, isListening, transcript, checkAvailability, startListening, stopListening } = useSpeechRecognition()
 
 const countdownText = ref('')
 let countdownTimeout = null
 
 const showQuickTips = ref(false)
 const showExitConfirm = ref(false)
+
+// Voice feedback overlay
+const voiceFeedback = ref(null) // { text, correct }
+let feedbackTimeout = null
 
 // Feature 1: Review mode local state
 const reviewShowHint = ref(false)
@@ -289,9 +319,15 @@ watch(() => store.timeLeft, (tl) => {
     playTick(tl)
   } else if (tl <= 0) {
     stop()
+    stopListening()
     store.showAnswer = true
     countdownText.value = '⏰'
     countdownTimeout = setTimeout(() => { countdownText.value = '' }, 2000)
+    // Solo mode: show self-assessment on timer expiry
+    if (!store.teamMode) {
+      const hasResult = store.soloResults.some((r) => r.filename === store.currentItem?.filename)
+      if (!hasResult) store.soloAwaitingScore = true
+    }
   } else {
     countdownText.value = ''
   }
@@ -319,9 +355,16 @@ function showHint() {
 function revealAnswer() {
   store.showAnswer = true
   stop()
+  stopListening()
   countdownText.value = ''
   if (store.teamMode) {
     store.awaitingScore = true
+  } else {
+    // Solo mode: show self-assessment if no result recorded yet
+    const hasResult = store.soloResults.some((r) => r.filename === store.currentItem?.filename)
+    if (!hasResult) {
+      store.soloAwaitingScore = true
+    }
   }
 }
 
@@ -363,8 +406,9 @@ function onDotClick(index) {
     }
     return
   }
-  // Stop timer and enter review mode
+  // Stop timer/mic and enter review mode
   stop()
+  stopListening()
   store.enterReview(index)
   reviewShowHint.value = false
   reviewShowAnswer.value = false
@@ -415,6 +459,45 @@ function onImageClick() {
   // Answer stays hidden (showAnswer remains false)
 }
 
+// Speech recognition language based on theme
+const speechLanguage = computed(() => {
+  if (store.isMashup) {
+    const item = store.currentItem
+    if (item?._sourceTheme === 'bollywood') return 'en-IN'
+    return 'en-US'
+  }
+  return store.theme === 'bollywood' ? 'en-IN' : 'en-US'
+})
+
+function toggleMic() {
+  if (isListening.value) {
+    stopListening()
+    return
+  }
+  startListening(speechLanguage.value)
+}
+
+// Watch transcript for voice guess matching
+watch(transcript, (val) => {
+  if (!val || !store.currentItem || store.teamMode) return
+  const result = fuzzyMatch(val, store.currentItem.title)
+  if (result.match) {
+    stop() // stop timer on correct voice match
+    store.recordVoiceGuess(result)
+    voiceFeedback.value = { text: `"${val}" — Correct!`, correct: true }
+    clearTimeout(feedbackTimeout)
+    feedbackTimeout = setTimeout(() => { voiceFeedback.value = null }, 3000)
+  } else {
+    voiceFeedback.value = { text: `"${val}" — Not quite!`, correct: false }
+    clearTimeout(feedbackTimeout)
+    feedbackTimeout = setTimeout(() => { voiceFeedback.value = null }, 3000)
+  }
+})
+
+function soloScore(correct) {
+  store.soloScoreAnswer(correct, 'manual')
+}
+
 function confirmExit() {
   stop()
   store.resetGame()
@@ -428,10 +511,15 @@ function onEscape(e) {
     showExitConfirm.value = false
   }
 }
-onMounted(() => window.addEventListener('keydown', onEscape))
+onMounted(() => {
+  window.addEventListener('keydown', onEscape)
+  checkAvailability()
+})
 onUnmounted(() => {
   stop()
+  stopListening()
   if (countdownTimeout) clearTimeout(countdownTimeout)
+  if (feedbackTimeout) clearTimeout(feedbackTimeout)
   window.removeEventListener('keydown', onEscape)
 })
 </script>
@@ -1011,6 +1099,63 @@ onUnmounted(() => {
 
 .exit-btn:active {
   transform: scale(0.95);
+}
+
+/* Mic button styles */
+.btn-mic {
+  background: #6495ED;
+  color: #fff;
+  border-color: #6495ED;
+}
+
+.btn-mic.listening {
+  background: #E53935;
+  border-color: #C62828;
+  animation: micPulse 1s ease-in-out infinite;
+}
+
+@keyframes micPulse {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(229, 57, 53, 0.5); }
+  50% { box-shadow: 0 0 0 8px rgba(229, 57, 53, 0); }
+}
+
+/* Voice feedback overlay */
+.voice-feedback {
+  position: absolute;
+  bottom: 20px;
+  left: 50%;
+  transform: translateX(-50%);
+  padding: 8px 16px;
+  border-radius: 20px;
+  font-family: 'Poppins', sans-serif;
+  font-size: 0.85rem;
+  font-weight: 600;
+  z-index: 90;
+  white-space: nowrap;
+  animation: floatUp 0.3s ease-out;
+  pointer-events: none;
+}
+
+.voice-correct {
+  background: rgba(46, 125, 50, 0.9);
+  color: #fff;
+}
+
+.voice-wrong {
+  background: rgba(198, 40, 40, 0.9);
+  color: #fff;
+}
+
+/* Solo self-assessment */
+.solo-assess {
+  align-items: center;
+}
+
+.solo-assess-label {
+  font-family: 'Poppins', sans-serif;
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: #555;
 }
 
 @media (max-width: 640px) {
