@@ -9,6 +9,7 @@ export function useSpeechRecognition() {
   const isListening = ref(false)
   const transcript = ref('')
   const error = ref(null)
+  const unavailableReason = ref('')
 
   let timeoutId = null
 
@@ -22,6 +23,7 @@ export function useSpeechRecognition() {
         if (available) {
           const perm = await capacitorPlugin.requestPermissions()
           isAvailable.value = perm.speechRecognition === 'granted'
+          if (!isAvailable.value) unavailableReason.value = 'Microphone permission denied'
           return
         }
       } catch {
@@ -31,9 +33,18 @@ export function useSpeechRecognition() {
 
     // Web fallback: check for Web Speech API
     const SpeechAPI = window.SpeechRecognition || window.webkitSpeechRecognition
-    if (SpeechAPI) {
-      isAvailable.value = true
+    if (!SpeechAPI) {
+      unavailableReason.value = 'Browser does not support speech recognition'
+      return
     }
+
+    // Web Speech API requires secure context (HTTPS or localhost)
+    if (!window.isSecureContext) {
+      unavailableReason.value = 'Mic requires HTTPS or localhost'
+      return
+    }
+
+    isAvailable.value = true
   }
 
   async function startListening(language = 'en-US') {
@@ -117,5 +128,5 @@ export function useSpeechRecognition() {
     }
   }
 
-  return { isAvailable, isListening, transcript, error, checkAvailability, startListening, stopListening }
+  return { isAvailable, isListening, transcript, error, unavailableReason, checkAvailability, startListening, stopListening }
 }

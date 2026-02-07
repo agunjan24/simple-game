@@ -83,9 +83,9 @@
         <div v-else class="control-buttons">
           <button class="game-btn btn-hint" :style="hintBtnStyle" @click="showHint">💡 HINT</button>
           <button
-            v-if="micAvailable && !store.teamMode && !store.showAnswer"
+            v-if="!store.teamMode && !store.showAnswer"
             class="game-btn btn-mic"
-            :class="{ listening: isListening }"
+            :class="{ listening: isListening, disabled: !micAvailable }"
             @click="toggleMic"
           >🎙️ {{ isListening ? 'LISTENING...' : 'MIC' }}</button>
           <button class="game-btn btn-reveal" :style="revealBtnStyle" @click="revealAnswer">🎬 REVEAL</button>
@@ -166,11 +166,11 @@
           <span class="help-arrow" :style="{ color: colors.primaryDark }">→</span>
           <span class="help-desc" :style="{ color: colors.textDark }">Review past {{ categoryLabel }}</span>
         </div>
-        <div v-if="micAvailable && !store.teamMode" class="help-row">
+        <div v-if="!store.teamMode" class="help-row">
           <span class="help-icon-cell">🎙️</span>
           <span class="help-action" :style="{ color: colors.textDark }">Tap Mic</span>
           <span class="help-arrow" :style="{ color: colors.primaryDark }">→</span>
-          <span class="help-desc" :style="{ color: colors.textDark }">Speak your guess</span>
+          <span class="help-desc" :style="{ color: colors.textDark }">{{ micAvailable ? 'Speak your guess' : unavailableReason || 'Not available' }}</span>
         </div>
       </div>
     </div>
@@ -205,7 +205,7 @@ const store = useGameStore()
 const router = useRouter()
 const { start, stop } = useTimer(store)
 const { playTick } = useAudio()
-const { isAvailable: micAvailable, isListening, transcript, checkAvailability, startListening, stopListening } = useSpeechRecognition()
+const { isAvailable: micAvailable, isListening, transcript, unavailableReason, checkAvailability, startListening, stopListening } = useSpeechRecognition()
 
 const countdownText = ref('')
 let countdownTimeout = null
@@ -470,6 +470,12 @@ const speechLanguage = computed(() => {
 })
 
 function toggleMic() {
+  if (!micAvailable.value) {
+    voiceFeedback.value = { text: unavailableReason.value || 'Mic not available', correct: false }
+    clearTimeout(feedbackTimeout)
+    feedbackTimeout = setTimeout(() => { voiceFeedback.value = null }, 3000)
+    return
+  }
   if (isListening.value) {
     stopListening()
     return
@@ -1106,6 +1112,12 @@ onUnmounted(() => {
   background: #6495ED;
   color: #fff;
   border-color: #6495ED;
+}
+
+.btn-mic.disabled {
+  background: #B0BEC5;
+  border-color: #90A4AE;
+  opacity: 0.6;
 }
 
 .btn-mic.listening {
