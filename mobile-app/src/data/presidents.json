@@ -8,5 +8,15 @@
   {"filename": "dewey_defeats_truman.webp", "title": "Harry S. Truman", "hint": "Surprise election winner gleefully holds a premature headline (1948)", "category": "Cold War", "difficulty": "Medium"},
   {"filename": "resignation_helicopter.webp", "title": "Richard Nixon", "hint": "Only president to resign, final wave from the South Lawn (1974)", "category": "Modern", "difficulty": "Easy"},
   {"filename": "ground_zero_bullhorn.webp", "title": "George W. Bush", "hint": "'I can hear you! The rest of the world hears you!' amid the rubble (2001)", "category": "Modern", "difficulty": "Easy"},
-  {"filename": "dday_paratroopers.webp", "title": "Dwight D. Eisenhower", "hint": "Supreme Commander briefs the 101st Airborne before Normandy (1944)", "category": "World War II", "difficulty": "Medium"}
+  {"filename": "dday_paratroopers.webp", "title": "Dwight D. Eisenhower", "hint": "Supreme Commander briefs the 101st Airborne before Normandy (1944)", "category": "World War II", "difficulty": "Medium"},
+  {"filename": "Camp_David_Accord.webp", "title": "Jimmy Carter", "hint": "Historic Middle East peace deal brokered at a presidential retreat (1978)", "category": "Modern", "difficulty": "Medium"},
+  {"filename": "Emancipation_Proclamation.webp", "title": "Abraham Lincoln", "hint": "Executive order that freed enslaved people in rebel states (1863)", "category": "Civil War", "difficulty": "Easy"},
+  {"filename": "Hoover_Dam_Dedication.webp", "title": "Franklin D. Roosevelt", "hint": "Dedicating a massive Depression-era engineering marvel in the desert (1935)", "category": "Depression Era", "difficulty": "Hard"},
+  {"filename": "Louisiana_Purchase.webp", "title": "Thomas Jefferson", "hint": "Doubled the size of America with a deal from Napoleon (1803)", "category": "Founding Era", "difficulty": "Medium"},
+  {"filename": "Man_in_the_arena_speech.webp", "title": "Theodore Roosevelt", "hint": "'It is not the critic who counts' — a famous speech in Paris (1910)", "category": "Progressive Era", "difficulty": "Hard"},
+  {"filename": "national_highway_system.webp", "title": "Dwight D. Eisenhower", "hint": "Signed the act that built 41,000 miles of interstate roads (1956)", "category": "Cold War", "difficulty": "Hard"},
+  {"filename": "Operation_Desert_Storm_Address.webp", "title": "George H. W. Bush", "hint": "Announcing the liberation of Kuwait to the nation (1991)", "category": "Modern", "difficulty": "Medium"},
+  {"filename": "Signing_the_Civil_Rights_Act.webp", "title": "Lyndon B. Johnson", "hint": "Landmark law outlawing discrimination, signed with MLK present (1964)", "category": "Civil Rights", "difficulty": "Medium"},
+  {"filename": "Treaty_of_Versailles_Signing.webp", "title": "Woodrow Wilson", "hint": "Championed the League of Nations at the WWI peace treaty (1919)", "category": "World War I", "difficulty": "Hard"},
+  {"filename": "Truman_Authorizes_Atomic_Bomb.webp", "title": "Harry S. Truman", "hint": "Made the fateful decision to use nuclear weapons on Japan (1945)", "category": "World War II", "difficulty": "Medium"}
 ]
