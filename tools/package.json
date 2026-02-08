@@ -1,0 +1,12 @@
+{
+  "name": "bollywood-game-tools",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "description": "Content generation pipeline for the guessing game",
+  "dependencies": {
+    "@google/genai": "^1.0.0",
+    "dotenv": "^16.0.0",
+    "sharp": "^0.33.0"
+  }
+}

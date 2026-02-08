@@ -1,0 +1,90 @@
+{
+  "version": 1,
+  "category": {
+    "key": "sports_legends",
+    "concept": "Guess the legendary athlete from an iconic sports moment",
+    "visualApproach": "Illustrated scenes of iconic moments — focus on action and environment, no recognizable faces"
+  },
+  "theme": {
+    "name": "Sports Legends Frames",
+    "titleText": "SPORTS LEGENDS",
+    "colors": {
+      "primary": "#2E7D32",
+      "primaryLight": "#4CAF50",
+      "primaryDark": "#1B5E20",
+      "accent": "#FF6F00",
+      "accentDark": "#E65100",
+      "secondary": "#1565C0",
+      "bgDark": "#0A1A0A",
+      "bgMid": "#0F2A0F",
+      "bgLight": "#143A14",
+      "textLight": "#F1F8E9",
+      "textDark": "#0A1A0A"
+    },
+    "categoryLabel": "Legend",
+    "categoryLabelPlural": "Legends",
+    "gameTitle": "GUESS THE LEGEND",
+    "mashupGameTitle": "GUESS THE SPORTS LEGEND",
+    "subtitle": "ICONIC MOMENTS IN SPORTS HISTORY",
+    "imageFolder": "images_sports_legends",
+    "teamNames": [
+      ["Champions", "Challengers"],
+      ["Gold", "Silver"],
+      ["Offense", "Defense"],
+      ["Home", "Away"]
+    ],
+    "winnerPhrases": [
+      "And the crowd goes wild! CHAMPIONS!",
+      "Gold medal performance!",
+      "Nothing but net — you WIN!"
+    ],
+    "loserPhrases": [
+      "Back to the training ground!",
+      "A swing and a miss!",
+      "Better luck next season!"
+    ]
+  },
+  "parentCategory": {
+    "action": "create",
+    "key": "sports",
+    "icon": "🏆",
+    "name": "Sports",
+    "description": "Legendary sports moments",
+    "color": "#4CAF50",
+    "colorDark": "#2E7D32",
+    "subcategoryKey": "legends",
+    "subcategoryIcon": "🏅",
+    "subcategoryName": "Legends"
+  },
+  "items": [
+    {
+      "id": "jordan_last_shot",
+      "title": "Michael Jordan",
+      "hint": "The Last Shot — NBA Finals game-winner in 1998",
+      "category": "Basketball",
+      "difficulty": "Easy",
+      "imagePrompt": "A basketball player in a red jersey taking a mid-range jump shot in a packed arena, final seconds on the clock, dramatic sports illustration style"
+    },
+    {
+      "id": "pele_bicycle_kick",
+      "title": "Pelé",
+      "hint": "The King of Football — famous bicycle kick in a packed stadium",
+      "category": "Soccer",
+      "difficulty": "Medium",
+      "imagePrompt": "A soccer player performing a spectacular bicycle kick in a crowded stadium, green pitch, roaring fans, dynamic sports illustration style"
+    },
+    {
+      "id": "usain_bolt_lightning",
+      "title": "Usain Bolt",
+      "hint": "Lightning Bolt — record-breaking 100m sprint at the Olympics",
+      "category": "Track & Field",
+      "difficulty": "Easy",
+      "imagePrompt": "A sprinter crossing the finish line with arms outstretched in a lightning bolt pose, Olympic track, photo finish, vibrant sports illustration style"
+    }
+  ],
+  "imageDefaults": {
+    "stylePrefix": "Illustrated scene. No recognizable faces or likenesses of real people.",
+    "styleSuffix": "4:3 aspect ratio, high detail, cinematic lighting, vibrant colors.",
+    "model": "imagen-3.0-generate-002"
+  }
+}

@@ -18,3 +18,7 @@ nul
 
 # Claude
 .claude/
+
+# Tools
+tools/.env
+tools/node_modules/
