@@ -47,5 +47,9 @@
 	</array>
 	<key>UIViewControllerBasedStatusBarAppearance</key>
 	<true/>
+	<key>NSSpeechRecognitionUsageDescription</key>
+	<string>This app uses speech recognition to let you guess movies by speaking.</string>
+	<key>NSMicrophoneUsageDescription</key>
+	<string>This app needs microphone access to hear your voice guesses.</string>
 </dict>
 </plist>

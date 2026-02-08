@@ -1,10 +1,11 @@
 import { defineStore } from 'pinia'
 import { Capacitor } from '@capacitor/core'
 import { StatusBar, Style } from '@capacitor/status-bar'
-import { THEMES } from '../themes/themes.js'
+import { THEMES, CATEGORIES } from '../themes/themes.js'
 import bollywoodData from '../data/bollywood.json'
 import hollywoodData from '../data/hollywood.json'
 import historyData from '../data/history.json'
+import presidentsData from '../data/presidents.json'
 
 function updateStatusBar(themeName) {
   if (!Capacitor.isNativePlatform()) return
@@ -20,6 +21,7 @@ const DATA_MAP = {
   bollywood: bollywoodData,
   hollywood: hollywoodData,
   history: historyData,
+  presidents: presidentsData,
 }
 
 export const useGameStore = defineStore('game', {
@@ -44,6 +46,12 @@ export const useGameStore = defineStore('game', {
     teamScores: [0, 0],
     teamNames: ['Team A', 'Team B'],
     progressiveReveal: true,
+    // Welcome flow state
+    selectedCategory: null,
+    selectedSubcategory: null,
+    welcomeStep: 1,
+    // Mashup mode
+    isMashup: false,
     // Feature 1: History navigation (review mode)
     reviewingItem: null,
     savedTimeLeft: null,
@@ -52,6 +60,10 @@ export const useGameStore = defineStore('game', {
     timerPaused: false,
     // Feature 3: Image click to clear blur
     imageRevealed: false,
+    // Solo mode scoring
+    soloResults: [],
+    soloAwaitingScore: false,
+    voiceGuessResult: null,
   }),
 
   getters: {
@@ -60,6 +72,8 @@ export const useGameStore = defineStore('game', {
     remainingCount: (state) => state.validItems.length - state.shownItems.length,
     totalCount: (state) => state.validItems.length,
     shownCount: (state) => state.shownItems.length,
+
+    getItemCount: () => (themeKey) => (DATA_MAP[themeKey] || []).length,
 
     currentBlur: (state) => {
       if (!state.progressiveReveal) return 0
@@ -95,10 +109,97 @@ export const useGameStore = defineStore('game', {
     currentTimerDuration: (state) => {
       return state.teamMode ? state.timerDuration : state.soloDuration
     },
+
+    currentGameTitle: (state) => {
+      if (state.isMashup) {
+        const item = state.reviewingItem || state.currentItem
+        if (item?._sourceTheme) {
+          return THEMES[item._sourceTheme].mashupGameTitle
+        }
+      }
+      return THEMES[state.theme].gameTitle
+    },
+
+    soloTotalPoints: (state) => state.soloResults.reduce((sum, r) => sum + r.points, 0),
+    soloCorrectCount: (state) => state.soloResults.filter((r) => r.correct).length,
+    soloAccuracy: (state) => {
+      if (!state.soloResults.length) return 0
+      const correct = state.soloResults.filter((r) => r.correct).length
+      return Math.round((correct / state.soloResults.length) * 100)
+    },
+
+    currentImageFolder: (state) => {
+      if (state.isMashup) {
+        const item = state.reviewingItem || state.currentItem
+        if (item?._sourceTheme) {
+          return THEMES[item._sourceTheme].imageFolder
+        }
+      }
+      return THEMES[state.theme].imageFolder
+    },
   },
 
   actions: {
+    selectCategory(catKey) {
+      this.selectedCategory = catKey
+      const cat = CATEGORIES[catKey]
+      if (!cat.subcategories) {
+        // Mashup: mix items from all categories
+        this.isMashup = true
+        this.selectedSubcategory = null
+        this.theme = 'mashup'
+        updateStatusBar('mashup')
+        // Build combined pool from all data sources, tag each item with source theme
+        let pool = []
+        for (const [themeKey, data] of Object.entries(DATA_MAP)) {
+          const tagged = data.map((item) => ({ ...item, _sourceTheme: themeKey }))
+          pool = pool.concat(tagged)
+        }
+        // Shuffle and pick 10
+        for (let i = pool.length - 1; i > 0; i--) {
+          const j = Math.floor(Math.random() * (i + 1))
+          ;[pool[i], pool[j]] = [pool[j], pool[i]]
+        }
+        this.validItems = pool.slice(0, 10)
+        this.shownItems = []
+        this.randomizeTeamNames()
+        this.welcomeStep = 3
+      } else {
+        const subKeys = Object.keys(cat.subcategories)
+        if (subKeys.length === 1) {
+          // Single subcategory: auto-select and skip to step 3
+          const subKey = subKeys[0]
+          this.selectedSubcategory = subKey
+          this.setTheme(cat.subcategories[subKey].themeKey)
+          this.welcomeStep = 3
+        } else {
+          this.welcomeStep = 2
+        }
+      }
+    },
+
+    selectSubcategory(subKey) {
+      this.selectedSubcategory = subKey
+      const cat = CATEGORIES[this.selectedCategory]
+      this.setTheme(cat.subcategories[subKey].themeKey)
+      this.welcomeStep = 3
+    },
+
+    resetWelcome() {
+      this.welcomeStep = 1
+      this.selectedCategory = null
+      this.selectedSubcategory = null
+    },
+
+    resetToWelcome() {
+      this.isMashup = false
+      this.theme = DEFAULT_THEME
+      updateStatusBar(DEFAULT_THEME)
+      this.resetWelcome()
+    },
+
     _loadThemeData() {
+      if (this.isMashup) return
       this.validItems = DATA_MAP[this.theme] || []
     },
 
@@ -110,6 +211,7 @@ export const useGameStore = defineStore('game', {
 
     setTheme(name) {
       if (!(name in THEMES)) return
+      this.isMashup = false
       this.theme = name
       this._loadThemeData()
       this.randomizeTeamNames()
@@ -118,6 +220,20 @@ export const useGameStore = defineStore('game', {
     },
 
     nextItem() {
+      // Solo mode: auto-record skipped if no result for current item
+      if (!this.teamMode && this.currentItem) {
+        const hasResult = this.soloResults.some((r) => r.filename === this.currentItem.filename)
+        if (!hasResult) {
+          this.soloResults.push({
+            filename: this.currentItem.filename,
+            title: this.currentItem.title,
+            correct: false,
+            points: 0,
+            hintUsed: this.hintUsed,
+            guessMethod: 'skipped',
+          })
+        }
+      }
       const available = this.validItems.filter(
         (m) => !this.shownItems.includes(m.filename)
       )
@@ -134,6 +250,9 @@ export const useGameStore = defineStore('game', {
         // Reset Feature 2 & 3 state for new item
         this.timerPaused = false
         this.imageRevealed = false
+        // Reset solo scoring state for new item
+        this.soloAwaitingScore = false
+        this.voiceGuessResult = null
         return true
       } else {
         this.gameOver = true
@@ -149,6 +268,9 @@ export const useGameStore = defineStore('game', {
       this.gameOver = false
       this.score = 0
       this.currentScreen = 'game'
+      this.soloResults = []
+      this.soloAwaitingScore = false
+      this.voiceGuessResult = null
       if (this.teamMode) {
         this.teamScores = [0, 0]
         this.currentTeam = 0
@@ -194,6 +316,31 @@ export const useGameStore = defineStore('game', {
         this.score += points
       }
       return points
+    },
+
+    soloScoreAnswer(correct, guessMethod = 'manual') {
+      if (!this.currentItem) return
+      const hasResult = this.soloResults.some((r) => r.filename === this.currentItem.filename)
+      if (hasResult) return
+      const points = this.calculatePoints(correct)
+      this.score += points
+      this.soloResults.push({
+        filename: this.currentItem.filename,
+        title: this.currentItem.title,
+        correct,
+        points,
+        hintUsed: this.hintUsed,
+        guessMethod,
+      })
+      this.soloAwaitingScore = false
+    },
+
+    recordVoiceGuess(matchResult) {
+      this.voiceGuessResult = matchResult
+      if (matchResult.match) {
+        this.showAnswer = true
+        this.soloScoreAnswer(true, 'voice')
+      }
     },
 
     // Feature 1: Enter review mode to view a previously shown item

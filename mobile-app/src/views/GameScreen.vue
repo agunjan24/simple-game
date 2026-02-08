@@ -8,7 +8,7 @@
         <!-- Header -->
         <div class="header-row">
           <div class="header-left">
-            <h2 class="game-title">🎬 {{ config.gameTitle }}</h2>
+            <h2 class="game-title">🎬 {{ store.currentGameTitle }}</h2>
             <!-- Progress dots - Feature 1: Clickable completed dots -->
             <div class="progress-dots">
               <span
@@ -35,6 +35,8 @@
             </div>
             <!-- Quick Tips icon -->
             <div class="quick-tips-icon" @click="showQuickTips = true">?</div>
+            <!-- Exit icon -->
+            <div class="exit-icon" @click="showExitConfirm = true">✕</div>
           </div>
         </div>
 
@@ -63,6 +65,10 @@
             @error="onImageError"
             @click="onImageClick"
           />
+          <!-- Voice feedback overlay -->
+          <div v-if="voiceFeedback" class="voice-feedback" :class="voiceFeedback.correct ? 'voice-correct' : 'voice-wrong'">
+            {{ voiceFeedback.text }}
+          </div>
           <!-- Countdown overlay (only in normal mode) -->
           <div v-if="countdownText && !store.isReviewing" class="countdown-overlay" :class="{ clock: countdownText === '⏰' }">
             {{ countdownText }}
@@ -76,6 +82,12 @@
         </div>
         <div v-else class="control-buttons">
           <button class="game-btn btn-hint" :style="hintBtnStyle" @click="showHint">💡 HINT</button>
+          <button
+            v-if="!store.teamMode && !store.showAnswer"
+            class="game-btn btn-mic"
+            :class="{ listening: isListening, disabled: !micAvailable }"
+            @click="toggleMic"
+          >🎙️ {{ isListening ? 'LISTENING...' : 'MIC' }}</button>
           <button class="game-btn btn-reveal" :style="revealBtnStyle" @click="revealAnswer">🎬 REVEAL</button>
           <button class="game-btn btn-next" :style="nextBtnStyle" @click="nextItem">
             {{ store.remainingCount > 0 ? '▶ NEXT' : '🏆 FINISH' }}
@@ -86,6 +98,13 @@
         <div v-if="store.teamMode && store.awaitingScore && !store.isReviewing" class="scoring-buttons">
           <button class="score-btn correct" @click="scoreAnswer(true)">✓</button>
           <button class="score-btn wrong" @click="scoreAnswer(false)">✗</button>
+        </div>
+
+        <!-- Solo self-assessment buttons -->
+        <div v-if="!store.teamMode && store.showAnswer && store.soloAwaitingScore && !store.isReviewing" class="scoring-buttons solo-assess">
+          <span class="solo-assess-label">Did you know it?</span>
+          <button class="score-btn correct" @click="soloScore(true)">✓</button>
+          <button class="score-btn wrong" @click="soloScore(false)">✗</button>
         </div>
 
         <!-- Hint (show review hint or regular hint) -->
@@ -147,6 +166,27 @@
           <span class="help-arrow" :style="{ color: colors.primaryDark }">→</span>
           <span class="help-desc" :style="{ color: colors.textDark }">Review past {{ categoryLabel }}</span>
         </div>
+        <div v-if="!store.teamMode" class="help-row">
+          <span class="help-icon-cell">🎙️</span>
+          <span class="help-action" :style="{ color: colors.textDark }">Tap Mic</span>
+          <span class="help-arrow" :style="{ color: colors.primaryDark }">→</span>
+          <span class="help-desc" :style="{ color: colors.textDark }">{{ micAvailable ? 'Speak your guess' : unavailableReason || 'Not available' }}</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Exit confirmation modal -->
+    <div v-if="showExitConfirm" class="modal-overlay" @click.self="showExitConfirm = false">
+      <div class="modal-card" :style="{ background: colors.textLight, borderColor: '#E53935' }">
+        <div class="modal-header">
+          <span class="modal-title">Leave Game?</span>
+          <button class="modal-close" @click="showExitConfirm = false">✕</button>
+        </div>
+        <p class="exit-message" :style="{ color: colors.textDark }">Your progress will be lost.</p>
+        <div class="exit-modal-actions">
+          <button class="exit-btn stay-btn" @click="showExitConfirm = false">Stay</button>
+          <button class="exit-btn leave-btn" @click="confirmExit">Exit</button>
+        </div>
       </div>
     </div>
   </div>
@@ -158,16 +198,24 @@ import { useRouter } from 'vue-router'
 import { useGameStore } from '../stores/gameStore.js'
 import { useTimer } from '../composables/useTimer.js'
 import { useAudio } from '../composables/useAudio.js'
+import { useSpeechRecognition } from '../composables/useSpeechRecognition.js'
+import { fuzzyMatch } from '../utils/fuzzyMatch.js'
 
 const store = useGameStore()
 const router = useRouter()
 const { start, stop } = useTimer(store)
 const { playTick } = useAudio()
+const { isAvailable: micAvailable, isListening, transcript, unavailableReason, checkAvailability, startListening, stopListening } = useSpeechRecognition()
 
 const countdownText = ref('')
 let countdownTimeout = null
 
 const showQuickTips = ref(false)
+const showExitConfirm = ref(false)
+
+// Voice feedback overlay
+const voiceFeedback = ref(null) // { text, correct }
+let feedbackTimeout = null
 
 // Feature 1: Review mode local state
 const reviewShowHint = ref(false)
@@ -175,7 +223,7 @@ const reviewShowAnswer = ref(false)
 
 const colors = computed(() => store.themeColors)
 const config = computed(() => store.themeConfig)
-const categoryLabel = computed(() => config.value.categoryLabel.toLowerCase())
+const categoryLabel = computed(() => store.isMashup ? 'frame' : config.value.categoryLabel.toLowerCase())
 
 // Feature 1: Display item is either the reviewing item or the current item
 const displayItem = computed(() => store.isReviewing ? store.reviewingItem : store.currentItem)
@@ -194,7 +242,7 @@ const filmStripStyle = computed(() => ({
 
 const imageSrc = computed(() => {
   if (!displayItem.value) return ''
-  return `${config.value.imageFolder}/${displayItem.value.filename}`
+  return `${store.currentImageFolder}/${displayItem.value.filename}`
 })
 
 // Feature 1: Hint text for display item
@@ -238,6 +286,17 @@ const turnBadgeStyle = computed(() => {
   return { background: grad }
 })
 
+// Luminance-based contrast colors for dark-primary themes (e.g. Presidents)
+const primaryIsLight = computed(() => {
+  const p = colors.value.primary
+  const r = parseInt(p.slice(1, 3), 16)
+  const g = parseInt(p.slice(3, 5), 16)
+  const b = parseInt(p.slice(5, 7), 16)
+  return (0.299 * r + 0.587 * g + 0.114 * b) / 255 > 0.5
+})
+const timerTextColor = computed(() => primaryIsLight.value ? colors.value.primary : colors.value.textLight)
+const iconTextColor = computed(() => primaryIsLight.value ? colors.value.textDark : colors.value.textLight)
+
 const btnStyle = computed(() => ({
   background: '#6495ED',
   color: '#fff',
@@ -271,9 +330,15 @@ watch(() => store.timeLeft, (tl) => {
     playTick(tl)
   } else if (tl <= 0) {
     stop()
+    stopListening()
     store.showAnswer = true
     countdownText.value = '⏰'
     countdownTimeout = setTimeout(() => { countdownText.value = '' }, 2000)
+    // Solo mode: show self-assessment on timer expiry
+    if (!store.teamMode) {
+      const hasResult = store.soloResults.some((r) => r.filename === store.currentItem?.filename)
+      if (!hasResult) store.soloAwaitingScore = true
+    }
   } else {
     countdownText.value = ''
   }
@@ -301,9 +366,16 @@ function showHint() {
 function revealAnswer() {
   store.showAnswer = true
   stop()
+  stopListening()
   countdownText.value = ''
   if (store.teamMode) {
     store.awaitingScore = true
+  } else {
+    // Solo mode: show self-assessment if no result recorded yet
+    const hasResult = store.soloResults.some((r) => r.filename === store.currentItem?.filename)
+    if (!hasResult) {
+      store.soloAwaitingScore = true
+    }
   }
 }
 
@@ -345,8 +417,9 @@ function onDotClick(index) {
     }
     return
   }
-  // Stop timer and enter review mode
+  // Stop timer/mic and enter review mode
   stop()
+  stopListening()
   store.enterReview(index)
   reviewShowHint.value = false
   reviewShowAnswer.value = false
@@ -397,13 +470,73 @@ function onImageClick() {
   // Answer stays hidden (showAnswer remains false)
 }
 
-function onEscape(e) {
-  if (e.key === 'Escape') showQuickTips.value = false
+// Speech recognition language based on theme
+const speechLanguage = computed(() => {
+  if (store.isMashup) {
+    const item = store.currentItem
+    if (item?._sourceTheme === 'bollywood') return 'en-IN'
+    return 'en-US'
+  }
+  return store.theme === 'bollywood' ? 'en-IN' : 'en-US'
+})
+
+function toggleMic() {
+  if (!micAvailable.value) {
+    voiceFeedback.value = { text: unavailableReason.value || 'Mic not available', correct: false }
+    clearTimeout(feedbackTimeout)
+    feedbackTimeout = setTimeout(() => { voiceFeedback.value = null }, 3000)
+    return
+  }
+  if (isListening.value) {
+    stopListening()
+    return
+  }
+  startListening(speechLanguage.value)
 }
-onMounted(() => window.addEventListener('keydown', onEscape))
+
+// Watch transcript for voice guess matching
+watch(transcript, (val) => {
+  if (!val || !store.currentItem || store.teamMode) return
+  const result = fuzzyMatch(val, store.currentItem.title)
+  if (result.match) {
+    stop() // stop timer on correct voice match
+    store.recordVoiceGuess(result)
+    voiceFeedback.value = { text: `"${val}" — Correct!`, correct: true }
+    clearTimeout(feedbackTimeout)
+    feedbackTimeout = setTimeout(() => { voiceFeedback.value = null }, 3000)
+  } else {
+    voiceFeedback.value = { text: `"${val}" — Not quite!`, correct: false }
+    clearTimeout(feedbackTimeout)
+    feedbackTimeout = setTimeout(() => { voiceFeedback.value = null }, 3000)
+  }
+})
+
+function soloScore(correct) {
+  store.soloScoreAnswer(correct, 'manual')
+}
+
+function confirmExit() {
+  stop()
+  store.resetGame()
+  store.resetToWelcome()
+  router.push('/')
+}
+
+function onEscape(e) {
+  if (e.key === 'Escape') {
+    showQuickTips.value = false
+    showExitConfirm.value = false
+  }
+}
+onMounted(() => {
+  window.addEventListener('keydown', onEscape)
+  checkAvailability()
+})
 onUnmounted(() => {
   stop()
+  stopListening()
   if (countdownTimeout) clearTimeout(countdownTimeout)
+  if (feedbackTimeout) clearTimeout(feedbackTimeout)
   window.removeEventListener('keydown', onEscape)
 })
 </script>
@@ -556,7 +689,7 @@ onUnmounted(() => {
   font-family: 'Poppins', sans-serif;
   font-size: 1.2rem;
   font-weight: 800;
-  color: v-bind('colors.primary');
+  color: v-bind('timerTextColor');
 }
 
 /* Feature 1: Review mode indicator */
@@ -805,7 +938,7 @@ onUnmounted(() => {
   height: 28px;
   border-radius: 50%;
   background: linear-gradient(145deg, v-bind('colors.primaryLight'), v-bind('colors.primary'));
-  color: v-bind('colors.textDark');
+  color: v-bind('iconTextColor');
   font-family: 'Poppins', sans-serif;
   font-weight: 700;
   font-size: 0.85rem;
@@ -905,6 +1038,149 @@ onUnmounted(() => {
   opacity: 0.75;
 }
 
+.exit-icon {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  background: linear-gradient(145deg, #EF5350, #C62828);
+  color: #fff;
+  font-family: 'Poppins', sans-serif;
+  font-weight: 700;
+  font-size: 0.8rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  border: 1.5px solid #B71C1C;
+  box-shadow: 0 2px 6px rgba(198, 40, 40, 0.4);
+  transition: transform 0.2s, box-shadow 0.2s;
+  touch-action: manipulation;
+  -webkit-tap-highlight-color: transparent;
+  flex-shrink: 0;
+}
+
+.exit-icon:hover {
+  transform: scale(1.1);
+  box-shadow: 0 3px 10px rgba(198, 40, 40, 0.6);
+}
+
+.exit-icon:active {
+  transform: scale(0.95);
+}
+
+.exit-message {
+  font-family: 'Poppins', sans-serif;
+  font-size: 1rem;
+  margin: 4px 0 16px;
+  opacity: 0.8;
+}
+
+.exit-modal-actions {
+  display: flex;
+  gap: 12px;
+  justify-content: flex-end;
+}
+
+.exit-btn {
+  font-family: 'Poppins', sans-serif;
+  font-weight: 600;
+  font-size: 0.9rem;
+  padding: 8px 24px;
+  border-radius: 20px;
+  border: none;
+  cursor: pointer;
+  transition: transform 0.2s, box-shadow 0.2s;
+  touch-action: manipulation;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.stay-btn {
+  background: #E0E0E0;
+  color: #333;
+}
+
+.stay-btn:hover {
+  background: #BDBDBD;
+}
+
+.leave-btn {
+  background: linear-gradient(135deg, #EF5350, #C62828);
+  color: #fff;
+  box-shadow: 0 2px 8px rgba(198, 40, 40, 0.4);
+}
+
+.leave-btn:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(198, 40, 40, 0.5);
+}
+
+.exit-btn:active {
+  transform: scale(0.95);
+}
+
+/* Mic button styles */
+.btn-mic {
+  background: #6495ED;
+  color: #fff;
+  border-color: #6495ED;
+}
+
+.btn-mic.disabled {
+  background: #B0BEC5;
+  border-color: #90A4AE;
+  opacity: 0.6;
+}
+
+.btn-mic.listening {
+  background: #E53935;
+  border-color: #C62828;
+  animation: micPulse 1s ease-in-out infinite;
+}
+
+@keyframes micPulse {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(229, 57, 53, 0.5); }
+  50% { box-shadow: 0 0 0 8px rgba(229, 57, 53, 0); }
+}
+
+/* Voice feedback overlay */
+.voice-feedback {
+  position: absolute;
+  bottom: 20px;
+  left: 50%;
+  transform: translateX(-50%);
+  padding: 8px 16px;
+  border-radius: 20px;
+  font-family: 'Poppins', sans-serif;
+  font-size: 0.85rem;
+  font-weight: 600;
+  z-index: 90;
+  white-space: nowrap;
+  animation: floatUp 0.3s ease-out;
+  pointer-events: none;
+}
+
+.voice-correct {
+  background: rgba(46, 125, 50, 0.9);
+  color: #fff;
+}
+
+.voice-wrong {
+  background: rgba(198, 40, 40, 0.9);
+  color: #fff;
+}
+
+/* Solo self-assessment */
+.solo-assess {
+  align-items: center;
+}
+
+.solo-assess-label {
+  font-family: 'Poppins', sans-serif;
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: #555;
+}
+
 @media (max-width: 640px) {
   .game-card { border-radius: 12px; }
   .game-content { padding: 6px 8px; }
@@ -927,7 +1203,8 @@ onUnmounted(() => {
   .hint-box { padding: 4px 8px; border-radius: 6px; }
   .answer-box { padding: 8px 8px; }
 
-  .quick-tips-icon {
+  .quick-tips-icon,
+  .exit-icon {
     width: 24px;
     height: 24px;
     font-size: 0.75rem;

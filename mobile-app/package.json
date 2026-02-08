@@ -13,6 +13,7 @@
     "open:ios": "npx cap open ios"
   },
   "dependencies": {
+    "@capacitor-community/speech-recognition": "^7.0.1",
     "@capacitor/android": "^8.0.2",
     "@capacitor/core": "^8.0.2",
     "@capacitor/ios": "^8.0.2",
@@ -24,6 +25,7 @@
   "devDependencies": {
     "@capacitor/cli": "^8.0.2",
     "@vitejs/plugin-vue": "^5.0.0",
+    "playwright": "^1.58.2",
     "vite": "^5.4.0",
     "vite-plugin-static-copy": "^3.2.0"
   }
